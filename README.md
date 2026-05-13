@@ -248,24 +248,6 @@ deploy/
 scripts/
 ```
 
-## Coding Standards
-
-General rules:
-
-- Think through the design before writing code.
-- Think through the solution before generating answers or code.
-- Prefer simple and readable code.
-- Prefer simple, readable code over overly abstract code.
-- Avoid unnecessary abstraction.
-- Follow SOLID principles where they improve clarity.
-- Follow SOLID principles where they make the code clearer.
-- Use modern design patterns only when they reduce complexity.
-- Use dependency injection for external clients such as Bedrock, SQS, SharePoint, CRM, and LangSmith.
-- Keep business workflow logic separate from cloud service adapters.
-- Keep model prompts, tool policy, and guardrail configuration versioned outside application code when practical.
-- Avoid logging secrets, OAuth tokens, full CRM records, or full document contents.
-- Treat CRM fields and SharePoint documents as untrusted input.
-
 ## Python Naming Convention
 
 Python file names must use lowercase snake_case.
@@ -290,64 +272,3 @@ sharepointClient.py
 bedrockGuardrailClient.py
 SQSHandler.py
 ```
-
-## Development Principles
-
-Use simple module boundaries:
-
-```text
-core/
-  agent_workflow.py
-  tool_policy.py
-  message_schema.py
-
-adapters/
-  bedrock_client.py
-  sqs_client.py
-  crm_mcp_client.py
-  sharepoint_mcp_client.py
-  langsmith_tracer.py
-
-workers/
-  sqs_agent_worker.py
-```
-
-Recommended design:
-
-- `core/` contains business logic.
-- `adapters/` contains AWS, MCP, Microsoft, and observability integrations.
-- `workers/` contains runtime entry points.
-
-Tests and evals should verify workflow behavior, not only implementation details.
-
-## Operational Requirements
-
-Every production agent run should capture:
-
-- `correlation_id`
-- `idempotency_key`
-- `agent_name`
-- `agent_version`
-- `prompt_version`
-- `guardrail_id`
-- `guardrail_version`
-- `model_id`
-- `mcp_server_versions`
-- `sqs_message_id`
-- `dataverse_table`
-- `dataverse_row_id`
-- Result status
-- Error category if failed
-
-## Current Status
-
-This repository is currently a PoC workspace. The immediate next steps are:
-
-1. Add the initial repository structure.
-2. Define the SQS event schema.
-3. Build a minimal SQS worker.
-4. Build a read-only SharePoint MCP server.
-5. Build a controlled CRM MCP update server.
-6. Add Bedrock and Guardrail adapters.
-7. Add structured logging and correlation IDs.
-8. Add basic evaluation cases.

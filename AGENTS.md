@@ -58,31 +58,6 @@ bedrockGuardrailClient.py
 SQSHandler.py
 ```
 
-Use descriptive names that show the responsibility of the file.
-
-## Architecture Guidelines
-
-Keep these boundaries:
-
-```text
-core/
-  Business workflow logic and policies.
-
-adapters/
-  AWS, Bedrock, SQS, MCP, CRM, SharePoint, LangSmith, and other external integrations.
-
-workers/
-  Runtime entry points such as SQS consumers.
-
-prompts/
-  Versioned prompt text.
-
-guardrails/
-  Bedrock Guardrail policy source and test cases.
-
-evals/
-  Evaluation datasets and expected behavior.
-```
 
 Do not mix business workflow logic directly into cloud SDK clients.
 
