@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net" modified="2026-07-04T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="enterprise-mcp-platform" name="Enterprise MCP Platform">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="clients" value="MCP clients and agents" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="250" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="claude" value="Claude Code / VS Code&lt;br&gt;gets Entra delegated JWT&lt;br&gt;MCP bearer token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e7f5ff;strokeColor=#1c7ed6" vertex="1" parent="clients">
+          <mxGeometry x="30" y="50" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="lambda" value="People Assist Lambda&lt;br&gt;optional MCP caller&lt;br&gt;email handled locally" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e7f5ff;strokeColor=#1c7ed6" vertex="1" parent="clients">
+          <mxGeometry x="30" y="140" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="identity" value="Identity" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="330" y="80" width="230" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="entra" value="Microsoft Entra ID&lt;br&gt;enterprise-mcp-api&lt;br&gt;scopes / app roles / groups" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e6;strokeColor=#f08c00" vertex="1" parent="identity">
+          <mxGeometry x="25" y="50" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iam" value="AWS IAM&lt;br&gt;server-side roles&lt;br&gt;Gateway/Runtime access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e6;strokeColor=#f08c00" vertex="1" parent="identity">
+          <mxGeometry x="25" y="150" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="edge" value="Private access path" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="220" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="dns" value="Interface VPC endpoint&lt;br&gt;bedrock-agentcore.gateway&lt;br&gt;private DNS enabled" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebfbee;strokeColor=#37b24d" vertex="1" parent="edge">
+          <mxGeometry x="25" y="55" width="170" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="cf" value="AWS-side MCP endpoint&lt;br&gt;AgentCore Gateway URL&lt;br&gt;gateway-id.gateway.../mcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebfbee;strokeColor=#37b24d" vertex="1" parent="edge">
+          <mxGeometry x="25" y="155" width="170" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="agentcore" value="Amazon Bedrock AgentCore" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="860" y="50" width="270" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="gw" value="AgentCore Gateway&lt;br&gt;MCP protocol&lt;br&gt;CUSTOM_JWT + policy engine&lt;br&gt;semantic search" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0ff;strokeColor=#7048e8" vertex="1" parent="agentcore">
+          <mxGeometry x="35" y="45" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="target" value="Gateway MCP targets&lt;br&gt;sharepoint-mcp active&lt;br&gt;crm/internal future" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0ff;strokeColor=#7048e8" vertex="1" parent="agentcore">
+          <mxGeometry x="35" y="150" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="runtime" value="AgentCore Runtimes&lt;br&gt;one per MCP server&lt;br&gt;0.0.0.0:8000/mcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0ff;strokeColor=#7048e8" vertex="1" parent="agentcore">
+          <mxGeometry x="35" y="250" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="downstream" value="Downstream" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1180" y="120" width="190" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="graph" value="Microsoft Graph / SharePoint&lt;br&gt;selected permissions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff0f6;strokeColor=#c2255c" vertex="1" parent="downstream">
+          <mxGeometry x="20" y="65" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="HTTPS MCP&lt;br&gt;Bearer Entra JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#1c7ed6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="claude" target="dns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="app-only JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#1c7ed6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="lambda" target="dns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="issues tokens" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;strokeColor=#f08c00;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="entra" target="claude">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="server-side IAM roles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;strokeColor=#f08c00;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="iam" target="target">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="private DNS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#37b24d;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="dns" target="cf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#37b24d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cf" target="gw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#7048e8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="gw" target="target">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="Gateway role signs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#7048e8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="target" target="runtime">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="Graph app credential" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#c2255c;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="runtime" target="graph">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

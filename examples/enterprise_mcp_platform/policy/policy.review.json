@@ -1,0 +1,228 @@
+{
+  "version": "2026-07-17-review",
+  "metadata": {
+    "name": "enterprise-mcp-people-assist-review-policy",
+    "owner": "enterprise-ai-platform",
+    "default_decision": "deny",
+    "description": "Review candidate for People Assist using the shared MCP.SharePoint.Read application role. It is intentionally limited to the current People Assist SharePoint read path."
+  },
+  "identity": {
+    "provider": "microsoft_entra_id",
+    "tenant_id": "<entra-tenant-id>",
+    "issuer": "https://login.microsoftonline.com/<entra-tenant-id>/v2.0",
+    "audience": "api://<enterprise-mcp-api-client-id>",
+    "required_scopes": [
+      "mcp.invoke"
+    ],
+    "claim_names": {
+      "subject": "sub",
+      "user_object_id": "oid",
+      "client_id_candidates": [
+        "azp",
+        "appid",
+        "client_id"
+      ],
+      "scopes": "scp",
+      "roles": "roles",
+      "groups": "groups"
+    }
+  },
+  "subjects": {
+    "people-assist-service": {
+      "type": "service_app",
+      "description": "The existing People Assist Entra application used by the Chainlit UI and LangGraph Lambda backend.",
+      "entra": {
+        "allowed_clients": [
+          "<people-assist-client-id>"
+        ],
+        "required_roles_any": [
+          "MCP.SharePoint.Read"
+        ]
+      }
+    }
+  },
+  "discovery": {
+    "semantic_search": {
+      "tool_name": "x_amz_bedrock_agentcore_search",
+      "enabled": false,
+      "allowed_subjects": [],
+      "denied_subjects": [
+        "people-assist-service"
+      ],
+      "notes": [
+        "People Assist uses fixed, explicitly approved SharePoint tools.",
+        "Production service flows do not discover tools dynamically."
+      ]
+    }
+  },
+  "approved_resources": {
+    "sharepoint_sites": {
+      "hr_policy_site": {
+        "site_id": "<hr-policy-sharepoint-site-id>",
+        "allowed_paths": [
+          "/Shared Documents/Policies"
+        ]
+      }
+    },
+    "crm_entities": {}
+  },
+  "tools": {
+    "x_amz_bedrock_agentcore_search": {
+      "server": "agentcore-gateway",
+      "description": "Built-in AgentCore Gateway semantic tool search. Disabled for People Assist.",
+      "discovery": {
+        "searchable": false,
+        "listable": false
+      },
+      "authorization": {
+        "allowed_subjects": [],
+        "allowed_sites": []
+      },
+      "write": false
+    },
+    "sharepoint_list_site_content": {
+      "server": "sharepoint-mcp",
+      "description": "List metadata only within the approved SharePoint site and policy path.",
+      "discovery": {
+        "searchable": false,
+        "listable": false
+      },
+      "authorization": {
+        "allowed_subjects": [
+          "people-assist-service"
+        ],
+        "allowed_sites": [
+          "hr_policy_site"
+        ]
+      },
+      "input_constraints": {
+        "required": [
+          "site_id",
+          "path"
+        ],
+        "path_must_be_under_allowed_paths": true
+      },
+      "write": false,
+      "audit": {
+        "log_arguments": [
+          "site_id",
+          "path"
+        ],
+        "redact_arguments": []
+      }
+    },
+    "sharepoint_get_file_text": {
+      "server": "sharepoint-mcp",
+      "description": "Read text from one file in the approved SharePoint site.",
+      "discovery": {
+        "searchable": false,
+        "listable": false
+      },
+      "authorization": {
+        "allowed_subjects": [
+          "people-assist-service"
+        ],
+        "allowed_sites": [
+          "hr_policy_site"
+        ]
+      },
+      "input_constraints": {
+        "required": [
+          "site_id",
+          "drive_id",
+          "item_id"
+        ],
+        "max_file_size_mb": 25
+      },
+      "write": false,
+      "audit": {
+        "log_arguments": [
+          "site_id",
+          "drive_id",
+          "item_id"
+        ],
+        "redact_arguments": [
+          "file_text"
+        ]
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "name": "People Assist cannot use semantic search",
+      "caller": {
+        "subject_ref": "people-assist-service"
+      },
+      "operation": "tool_call",
+      "tool": "x_amz_bedrock_agentcore_search",
+      "input": {
+        "query": "find HR policy tools"
+      },
+      "expect": {
+        "decision": "deny"
+      }
+    },
+    {
+      "name": "People Assist can list an approved policy path",
+      "caller": {
+        "subject_ref": "people-assist-service"
+      },
+      "operation": "tool_call",
+      "tool": "sharepoint_list_site_content",
+      "input": {
+        "site_id": "<hr-policy-sharepoint-site-id>",
+        "path": "/Shared Documents/Policies/Employee Handbook"
+      },
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "name": "People Assist cannot list outside the approved policy path",
+      "caller": {
+        "subject_ref": "people-assist-service"
+      },
+      "operation": "tool_call",
+      "tool": "sharepoint_list_site_content",
+      "input": {
+        "site_id": "<hr-policy-sharepoint-site-id>",
+        "path": "/Shared Documents/Finance"
+      },
+      "expect": {
+        "decision": "deny"
+      }
+    },
+    {
+      "name": "People Assist can read a file from the approved site",
+      "caller": {
+        "subject_ref": "people-assist-service"
+      },
+      "operation": "tool_call",
+      "tool": "sharepoint_get_file_text",
+      "input": {
+        "site_id": "<hr-policy-sharepoint-site-id>",
+        "drive_id": "<approved-drive-id>",
+        "item_id": "<approved-item-id>"
+      },
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "name": "People Assist cannot read a file from an unapproved site",
+      "caller": {
+        "subject_ref": "people-assist-service"
+      },
+      "operation": "tool_call",
+      "tool": "sharepoint_get_file_text",
+      "input": {
+        "site_id": "<engineering-sharepoint-site-id>",
+        "drive_id": "<engineering-drive-id>",
+        "item_id": "<engineering-item-id>"
+      },
+      "expect": {
+        "decision": "deny"
+      }
+    }
+  ]
+}

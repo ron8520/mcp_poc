@@ -1,0 +1,51 @@
+flowchart LR
+    subgraph Clients["MCP clients and agents"]
+        Claude["Claude Code / VS Code\ngets Entra delegated JWT\nMCP bearer token"]
+        Lambda["People Assist Lambda\noptional MCP caller"]
+        Other["Other internal agents"]
+    end
+
+    subgraph Identity["Identity"]
+        Entra["Microsoft Entra ID\nenterprise-mcp-api"]
+        IAM["AWS IAM\nserver-side roles\nGateway-to-Runtime signing\nRuntime AWS access"]
+    end
+
+    subgraph Access["Private access path"]
+        VPCEndpoint["Interface VPC endpoint\nbedrock-agentcore.gateway"]
+        GatewayURL["AWS-side MCP endpoint\nAgentCore Gateway URL\n/gateway-id.../mcp"]
+    end
+
+    subgraph AgentCore["Amazon Bedrock AgentCore"]
+        GW["AgentCore Gateway\nMCP + CUSTOM_JWT\nPolicy engine + semantic search"]
+        SPTarget["Target: sharepoint-mcp"]
+        CRMTarget["Target: crm-mcp\nfuture disabled"]
+        InternalTarget["Target: internal-software-mcp\nfuture disabled"]
+        SPRuntime["Runtime: sharepoint-mcp\nactive"]
+        CRMRuntime["Runtime: crm-mcp\nfuture disabled"]
+        InternalRuntime["Runtime: internal-software-mcp\nfuture disabled"]
+    end
+
+    subgraph Downstream["Downstream systems"]
+        Graph["Microsoft Graph / SharePoint"]
+        CRM["CRM / Dataverse\nfuture"]
+        InternalAPI["Internal software APIs\nfuture"]
+    end
+
+    Claude -->|HTTPS MCP bearer Entra JWT| GatewayURL
+    Lambda -->|Bearer app-only Entra JWT| VPCEndpoint
+    Other -->|Bearer Entra JWT| VPCEndpoint
+    VPCEndpoint --> GatewayURL
+    GatewayURL --> GW
+    Entra -->|issues tokens| Claude
+    Entra -->|issues app token| Lambda
+    IAM -->|Gateway role invokes Runtime| SPTarget
+    IAM -->|Runtime role for AWS services| SPRuntime
+    GW --> SPTarget
+    GW -.future.-> CRMTarget
+    GW -.future.-> InternalTarget
+    SPTarget --> SPRuntime
+    CRMTarget -.future.-> CRMRuntime
+    InternalTarget -.future.-> InternalRuntime
+    SPRuntime --> Graph
+    CRMRuntime -.future.-> CRM
+    InternalRuntime -.future.-> InternalAPI

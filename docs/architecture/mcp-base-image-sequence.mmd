@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant Platform as Optional platform image pipeline
+    participant ECR as Central internal ECR
+    participant Service as MCP service build
+    participant TF as Terraform
+    participant Runtime as AgentCore Runtime
+
+    Platform->>Platform: Build optional mcp-python-base
+    Platform->>Platform: Scan, SBOM, sign, tag immutable version
+    Platform->>ECR: Push mcp-python-base if adopted
+    Service->>ECR: Pull base image only if adopted
+    Service->>Service: Build service MCP image
+    Service->>ECR: Push service image
+    TF->>Runtime: Deploy Runtime with service image_uri
+    Runtime->>ECR: Pull service image at startup

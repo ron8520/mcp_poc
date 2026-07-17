@@ -1,190 +1,206 @@
 # Agent Instructions for This Repository
 
-These instructions apply to the entire repository.
+These instructions apply to the whole repository.
+
+## Project Context
+
+This repository is a planning and proof-of-concept workspace for an enterprise
+MCP platform on AWS.
+
+The current target architecture is:
+
+- one shared Amazon Bedrock AgentCore Gateway MCP endpoint
+- one AgentCore Runtime per enabled MCP server
+- SharePoint as the first enabled MCP server
+- CRM, internal software, and future systems as separate MCP server boundaries
+- Microsoft Entra ID JWTs for MCP caller identity
+- AWS IAM kept separate for Bedrock model access
+- Terraform for infrastructure
+- no CloudFront or CDN-backed custom domain for the MCP path
+- centrally owned MCP base images extended by each service image
+
+Keep this architecture consistent across code, diagrams, ADRs, and README
+content unless a new architecture decision explicitly changes it.
 
 ## Working Style
 
-Before answering, changing code, or proposing a design:
+For any coding-related task, use the `karpathy-guidelines` skill before
+writing, reviewing, debugging, refactoring, or modifying code.
 
-1. Think through the request carefully.
-2. Think through the solution before generating answers or code.
-3. Identify the simplest solution that satisfies the requirement.
-4. Prefer clear and maintainable code over clever abstractions.
-5. Avoid over-engineering.
-6. If a design choice has tradeoffs, explain them briefly.
+Before changing files:
 
-## Code Style
+1. State the assumptions that matter.
+2. Choose the simplest viable change.
+3. Keep edits surgical and tied to the request.
+4. Define how the change can be verified.
+5. Do not rewrite unrelated files or clean up unrelated issues.
 
-Write code that is:
+If the request is ambiguous, make a reasonable local assumption when the risk is
+low. Ask only when the choice would change architecture, security posture, data
+handling, or deployment behavior.
 
-- Simple
-- Easy to read
-- Easy to test
-- Explicit about side effects
-- Safe by default
+## Architecture Decision Records
 
-Use SOLID principles where they improve clarity:
+Architecture changes must create a new ADR file under `docs/adr/`.
 
-- Single responsibility for modules and classes.
-- Open/closed where extension is likely.
-- Liskov substitution for shared interfaces.
-- Interface segregation for external service clients.
-- Dependency inversion for Bedrock, SQS, MCP, CRM, SharePoint, and LangSmith adapters.
+Do not append a new architecture decision to an existing ADR. Existing ADRs may
+be edited only for small corrections, broken links, or clarifying wording that
+does not change the decision.
 
-Do not add design patterns only for the sake of using patterns. Prefer straightforward functions and small classes unless a pattern clearly reduces complexity.
+Use this ADR naming pattern:
 
-## File Naming
+```text
+docs/adr/NNNN-short-kebab-case-title.md
+```
 
-Python files must use lowercase snake_case.
+Examples:
+
+```text
+docs/adr/0001-agentcore-runtime-mcp-platform.md
+docs/adr/0002-runtime-private-networking.md
+```
+
+When creating a new ADR:
+
+1. Find the highest existing ADR number in `docs/adr/`.
+2. Use the next number with four digits.
+3. Write a new file for the decision.
+4. Include at least: title, date, status, context, decision, consequences.
+5. Link or summarize the decision from `README.md` when it changes the system
+   shape, deployment path, security model, or operational ownership.
+
+ADR status values should be plain and specific, such as:
+
+- `Proposed`
+- `Accepted for PoC validation`
+- `Accepted`
+- `Superseded by ADR NNNN`
+
+If a new ADR supersedes an older decision, leave the old ADR in place and add a
+short superseded note to the old ADR. Do not delete the history.
+
+## Documentation Sync Rules
+
+When architecture design changes, update all affected project docs in the same
+change:
+
+- `README.md`: current architecture, diagrams, repo layout, and how the system
+  is meant to work.
+- `END_GOAL.md`: the target outcome and success criteria.
+- `WHAT_WE_HAVE_DONE.md`: completed decisions or implemented work.
+- `IN_PROGRESS.md`: validation work, open decisions, and unfinished
+  implementation tasks.
+- `docs/architecture/*`: diagrams and sequences when flows or boundaries
+  change.
+- `docs/adr/NNNN-*.md`: a new numbered ADR for the architecture decision.
+
+Do not let README describe one architecture while ADRs or progress files
+describe another.
+
+## Diagram Style
+
+Use straight connector segments in all diagrams. Do not use curved connectors.
+
+- Prefer a single horizontal or vertical line for a direct connection.
+- When a connection must branch, use a shared trunk with orthogonal branches
+  and 90-degree turns.
+- Keep every segment horizontal or vertical wherever possible, and minimize
+  bends, crossings, and overlapping lines.
+
+## Progress Tracking
+
+When implementing a change, update progress docs so the repository shows the
+actual state:
+
+- Add completed work to `WHAT_WE_HAVE_DONE.md`.
+- Add remaining validation or unfinished tasks to `IN_PROGRESS.md`.
+- Remove or rewrite stale `IN_PROGRESS.md` items only when the work is truly
+  done or no longer applies.
+- Update `END_GOAL.md` if the implementation changes the target state or
+  success criteria.
+
+Keep progress notes factual. Prefer concrete statements over broad claims.
 
 Good:
 
 ```text
-crm_event_worker.py
-sharepoint_mcp_server.py
-bedrock_guardrail_client.py
-sqs_message_handler.py
-dataverse_update_policy.py
+- Added the SharePoint MCP server boundary with dry-run Graph client behavior.
+- Validate real Microsoft Graph writes with ETag handling.
 ```
 
-Bad:
+Avoid:
 
 ```text
-CrmEventWorker.py
-SharePointClient.py
-sharepoint-client.py
-sharepointClient.py
-bedrockGuardrailClient.py
-SQSHandler.py
+- Finished all SharePoint integration.
+- Make everything production ready.
 ```
 
+## Code Style
+
+Write code that is simple, explicit, and easy to test.
+
+Prefer small functions and clear module boundaries. Add abstractions only when
+they remove real duplication or clarify a real ownership boundary.
+
+Keep downstream system code separated by server boundary:
+
+- SharePoint behavior belongs under the SharePoint MCP server.
+- CRM behavior belongs under the CRM MCP server.
+- internal software behavior belongs under the internal software MCP server.
+- shared cross-cutting helpers can live under `common/` when more than one
+  server uses them.
 
 Do not mix business workflow logic directly into cloud SDK clients.
 
-## AWS and Agent Runtime Guidance
+## Code Comments
 
-The target architecture uses:
+Comments should sound like a human maintainer explaining useful context.
 
-- Amazon EKS for agent runtime.
-- Amazon EKS for MCP servers.
-- Amazon Bedrock for model inference.
-- Amazon Bedrock Guardrails for input and output filtering.
-- Amazon SQS for event-driven execution.
-- Argo CD for Kubernetes deployment.
-- Terraform for production infrastructure.
-- Optional LangSmith for tracing and evaluation.
+Use comments when they explain why a choice exists, point out a sharp edge, or
+make a non-obvious constraint clear. Do not narrate what the next line of code
+already says.
 
-The agent runtime may later move from EKS to Bedrock AgentCore Runtime. Keep runtime-specific code isolated so this migration is easier.
+Good:
 
-## MCP Guidance
+```python
+# Gateway passes only trusted caller claims through this path.
+```
 
-MCP tools should be narrow and policy-aware.
+Avoid:
 
-Prefer:
+```python
+# This function gets the user data and then returns the user data.
+```
 
-- `crm.update_ai_generated_summary`
-- `crm.validate_ai_processing_target`
-- `sharepoint.extract_document_text`
-- `sharepoint.validate_document_link`
+Do not add machine-like boilerplate comments, decorative section banners, or
+obvious comments just to make code look documented.
 
-Avoid broad tools like:
+## Security and Identity
 
-- `crm.update_any_record`
-- `sharepoint.read_any_url`
+Never log secrets, tokens, raw credentials, full sensitive records, or full
+SharePoint document contents.
 
-All MCP tool inputs must be validated.
+Treat CRM text fields, SharePoint documents, and MCP tool input as untrusted.
+Validate all tool inputs before calling downstream systems.
 
-All tool calls that update CRM or SharePoint must be auditable.
+For MCP identity:
 
-## SQS Event Guidance
+- Gateway validates Entra-issued caller tokens.
+- Runtime should not trust caller identity passed as ordinary tool arguments.
+- Downstream SharePoint access uses separate downstream credentials.
+- Do not reuse inbound MCP caller JWTs as Microsoft Graph tokens.
 
-Treat SQS messages as event snapshots, not blindly trusted commands.
+Write tools must be auditable and should require a change ticket,
+idempotency key, approved target, and concurrency control where the downstream
+system supports it.
 
-Every SQS message should include:
+## Testing and Verification
 
-- `schema_version`
-- `event_type`
-- `correlation_id`
-- `idempotency_key`
-- Dataverse table and row ID
-- SharePoint stable identifiers when relevant
-- Workflow name and version
+When code changes, run the narrowest useful verification first, then broader
+checks when the change touches shared behavior.
 
-Workers must:
+For documentation-only changes, verify links, filenames, ADR numbering, and
+that README, ADRs, end goal, and progress files agree with each other.
 
-- Validate schema.
-- Check idempotency.
-- Handle retries safely.
-- Use a dead-letter queue.
-- Avoid duplicate CRM updates.
-- Log sanitized audit metadata.
-
-## Guardrail Guidance
-
-Production code must not use Bedrock Guardrail `DRAFT` versions.
-
-Use pinned guardrail versions and log them on every run.
-
-Guardrail-related files should be versioned and reviewed like code.
-
-## Security Guidance
-
-Never log:
-
-- OAuth tokens
-- AWS credentials
-- API keys
-- Full CRM records
-- Full SharePoint document contents
-- Secrets from environment variables
-- Raw sensitive user or customer data
-
-Treat CRM text fields and SharePoint documents as untrusted input. They may contain prompt injection or sensitive data.
-
-The model should not decide which CRM field to update. Workflow code should decide the target operation, and MCP servers should enforce allowed updates.
-
-## Observability Guidance
-
-Every agent run should include:
-
-- `correlation_id`
-- `idempotency_key`
-- `agent_name`
-- `agent_version`
-- `prompt_version`
-- `guardrail_id`
-- `guardrail_version`
-- `model_id`
-- `mcp_server_versions`
-- Result status
-
-Prefer structured JSON logs.
-
-LangSmith may be used for traces and evaluations, but Argo CD should remain the source of truth for Kubernetes workloads unless a clear ownership boundary is defined.
-
-## Testing and Evaluation
-
-When code is added, include tests or evaluation cases for:
-
-- SQS message schema validation
-- Idempotency
-- SharePoint link validation
-- CRM update policy
-- Guardrail behavior
-- Prompt regression
-- Tool selection behavior
-- Failure and retry handling
-
-If tests cannot be run in the current environment, state the reason clearly.
-
-## Documentation
-
-When adding new components, update README.md with:
-
-- Purpose
-- Runtime location
-- Required environment variables
-- AWS permissions
-- Deployment path
-- Observability expectations
-- Failure handling
+If tests or validation cannot be run, state the reason clearly in the final
+response.

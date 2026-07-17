@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1260" viewBox="0 0 1000 1260">
+<defs>
+<style>text{font-family:Arial,Helvetica,sans-serif}.title{font-size:27px;font-weight:700;fill:#17324D}.subtitle{font-size:16px;fill:#526579}.zone{font-size:17px;font-weight:700;fill:#17324D}.box-title{font-size:18px;font-weight:700;fill:#17324D}.box-detail{font-size:15px;fill:#526579}.edge-label{font-size:13px;fill:#526579}</style>
+<marker id="arrow-line" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#7890A8"/></marker>
+<marker id="arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#B42318"/></marker>
+<marker id="arrow-purple" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#6F42C1"/></marker>
+<marker id="arrow-blue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E74B5"/></marker>
+<marker id="arrow-orange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#C56A00"/></marker>
+<marker id="arrow-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E7D32"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="35" y="48" class="title">Migration Roadmap and Approval Gates</text>
+<text x="35" y="76" class="subtitle">Progression from PoC evidence to production; SharePoint data remains in place</text>
+<path d="M 460.0 225.0 L 540.0 225.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="472.0" y="206.0" width="55.8" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="475.0" y="218.0" class="edge-label">exit gate</text>
+<path d="M 740.0 310.0 L 740.0 350.0 L 260.0 350.0 L 260.0 390.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="501.0" y="331.0" width="55.8" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="504.0" y="343.0" class="edge-label">exit gate</text>
+<path d="M 460.0 475.0 L 540.0 475.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="472.0" y="456.0" width="55.8" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="475.0" y="468.0" class="edge-label">exit gate</text>
+<path d="M 740.0 560.0 L 740.0 640.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="744.0" y="583.0" width="62.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="747.0" y="595.0" class="edge-label">pilot exit</text>
+<path d="M 640.0 560.0 L 640.0 600.0 L 500.0 600.0 L 500.0 725.0 L 460.0 725.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<rect x="508.5" y="581.0" width="93.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="511.5" y="593.0" class="edge-label">optional branch</text>
+<path d="M 740.0 810.0 L 740.0 825.0 L 500.0 825.0 L 500.0 840.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="621.0" y="816.0" width="117.8" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="624.0" y="828.0" class="edge-label">production evidence</text>
+<path d="M 500.0 895.0 L 500.0 920.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="504.0" y="890.5" width="45.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="507.0" y="902.5" class="edge-label">approve</text>
+<path d="M 335.0 867.5 L 280.0 867.5 L 280.0 1120.0 L 337.5 1120.0 L 337.5 1140.0" fill="none" stroke="#B42318" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-red)" stroke-dasharray="7 5"/>
+<path d="M 620.0 1080.0 L 620.0 1110.0 L 797.5 1110.0 L 797.5 1140.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<rect x="709.8" y="1091.0" width="155.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="712.8" y="1103.0" class="edge-label">new server approval cycle</text>
+<rect x="60" y="140" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="260.0" y="195.0" text-anchor="middle" class="box-title">Phase 0</text>
+<text x="260.0" y="217.0" text-anchor="middle" class="box-title">Approve architecture</text>
+<text x="260.0" y="239.0" text-anchor="middle" class="box-detail">Gate A: owners, classification</text>
+<text x="260.0" y="261.0" text-anchor="middle" class="box-detail">and risk conditions</text>
+<rect x="540" y="140" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="740.0" y="195.0" text-anchor="middle" class="box-title">Phase 1</text>
+<text x="740.0" y="217.0" text-anchor="middle" class="box-title">Complete implementation</text>
+<text x="740.0" y="239.0" text-anchor="middle" class="box-detail">Graph, claims, Cedar,</text>
+<text x="740.0" y="261.0" text-anchor="middle" class="box-detail">idempotency, supply chain</text>
+<rect x="60" y="390" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="260.0" y="445.0" text-anchor="middle" class="box-title">Phase 2</text>
+<text x="260.0" y="467.0" text-anchor="middle" class="box-title">Deploy nonprod</text>
+<text x="260.0" y="489.0" text-anchor="middle" class="box-detail">Gate B: real identity, network</text>
+<text x="260.0" y="511.0" text-anchor="middle" class="box-detail">and Runtime path pass</text>
+<rect x="540" y="390" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="740.0" y="445.0" text-anchor="middle" class="box-title">Phase 3</text>
+<text x="740.0" y="467.0" text-anchor="middle" class="box-title">Read-only pilot</text>
+<text x="740.0" y="489.0" text-anchor="middle" class="box-detail">Gate C: named cohort, token flow</text>
+<text x="740.0" y="511.0" text-anchor="middle" class="box-detail">and policy ENFORCE</text>
+<rect x="60" y="640" width="400" height="170" rx="10" fill="#F5F7FA" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="260.0" y="695.0" text-anchor="middle" class="box-title">Phase 4</text>
+<text x="260.0" y="717.0" text-anchor="middle" class="box-title">AWS AI caller read</text>
+<text x="260.0" y="739.0" text-anchor="middle" class="box-detail">Optional app-only</text>
+<text x="260.0" y="761.0" text-anchor="middle" class="box-detail">agent or application</text>
+<rect x="540" y="640" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="740.0" y="695.0" text-anchor="middle" class="box-title">Phase 5</text>
+<text x="740.0" y="717.0" text-anchor="middle" class="box-title">Controlled write pilot</text>
+<text x="740.0" y="739.0" text-anchor="middle" class="box-detail">Gate D: one site/path, ticket,</text>
+<text x="740.0" y="761.0" text-anchor="middle" class="box-detail">idempotency and ETag</text>
+<rect x="300" y="920" width="400" height="160" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="500.0" y="970.0" text-anchor="middle" class="box-title">Phase 6</text>
+<text x="500.0" y="992.0" text-anchor="middle" class="box-title">Production rollout</text>
+<text x="500.0" y="1014.0" text-anchor="middle" class="box-detail">Separate production state;</text>
+<text x="500.0" y="1036.0" text-anchor="middle" class="box-detail">gradual enablement + rollback</text>
+<rect x="335" y="840" width="330" height="55" rx="10" fill="#FDEDEC" stroke="#B42318" stroke-width="2"/>
+<text x="500.0" y="859.5" text-anchor="middle" class="box-title">Production approval gate</text>
+<text x="500.0" y="881.5" text-anchor="middle" class="box-detail">Evidence accepted by accountable owners</text>
+<rect x="60" y="1140" width="555" height="90" rx="10" fill="#FDEDEC" stroke="#B42318" stroke-width="2"/>
+<text x="337.5" y="1177.0" text-anchor="middle" class="box-title">Production approval remains deferred</text>
+<text x="337.5" y="1199.0" text-anchor="middle" class="box-detail">Nonprod approval does not enable writes, broad cohorts or future targets</text>
+<rect x="655" y="1140" width="285" height="90" rx="10" fill="#F5F7FA" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="797.5" y="1166.0" text-anchor="middle" class="box-title">Phase 7 - New server cycle</text>
+<text x="797.5" y="1188.0" text-anchor="middle" class="box-detail">Separate contracts, owners,</text>
+<text x="797.5" y="1210.0" text-anchor="middle" class="box-detail">threat delta and approval</text>
+</svg>

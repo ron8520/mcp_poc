@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant UI as Chainlit UI
+    participant PA as People Assist Lambda
+    participant Mail as Email service
+    participant Entra as Microsoft Entra ID
+    participant GW as AgentCore Gateway
+    participant RT as SharePoint MCP Runtime
+    participant SP as SharePoint / Graph
+
+    UI->>PA: User request
+    PA->>Mail: Send email directly when needed
+    PA->>Entra: Client credentials token for api://enterprise-mcp-<env>
+    Entra-->>PA: App-only JWT
+    PA->>GW: MCP request with Authorization: Bearer JWT
+    GW->>GW: Validate app token and app role
+    GW->>RT: Forward MCP request signed by Gateway IAM role
+    RT->>SP: SharePoint read or approved write
+    SP-->>RT: Response
+    RT-->>GW: Tool result
+    GW-->>PA: MCP response
+    PA-->>UI: Final answer/action result

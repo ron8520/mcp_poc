@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Dev as Developer / Claude Code
+    participant Helper as Entra token helper
+    participant Bedrock as Amazon Bedrock
+    participant Entra as Microsoft Entra ID
+    participant IAM as AWS IAM roles
+    participant GW as AgentCore Gateway
+    participant RT as SharePoint MCP Runtime
+    participant SP as SharePoint / Graph
+
+    Dev->>Bedrock: Optional model call using approved Bedrock path
+    Dev->>Helper: Need MCP access token
+    Helper->>Entra: Request delegated token for api://enterprise-mcp-<env>
+    Entra-->>Helper: JWT with user/client/group/scope claims
+    Helper-->>Dev: Entra JWT for MCP
+    Dev->>GW: HTTPS MCP request with Authorization: Bearer Entra JWT
+    GW->>GW: Validate issuer, audience, client, scope, group
+    GW->>GW: Evaluate tool allowlist/policy
+    GW->>IAM: Use Gateway role for AWS-side Runtime invoke
+    GW->>RT: Forward MCP request signed by Gateway IAM role
+    RT->>RT: Validate tool input, site ID, ETag, idempotency
+    RT->>SP: Call Graph with downstream app credential
+    SP-->>RT: Response
+    RT-->>GW: Tool result
+    GW-->>Dev: MCP response

@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1320" viewBox="0 0 1000 1320">
+<defs>
+<style>text{font-family:Arial,Helvetica,sans-serif}.title{font-size:27px;font-weight:700;fill:#17324D}.subtitle{font-size:16px;fill:#526579}.zone{font-size:17px;font-weight:700;fill:#17324D}.box-title{font-size:18px;font-weight:700;fill:#17324D}.box-detail{font-size:15px;fill:#526579}.edge-label{font-size:13px;fill:#526579}</style>
+<marker id="arrow-line" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#7890A8"/></marker>
+<marker id="arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#B42318"/></marker>
+<marker id="arrow-purple" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#6F42C1"/></marker>
+<marker id="arrow-blue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E74B5"/></marker>
+<marker id="arrow-orange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#C56A00"/></marker>
+<marker id="arrow-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E7D32"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="35" y="48" class="title">Enterprise MCP Platform - Target Architecture</text>
+<text x="35" y="76" class="subtitle">One governed Gateway, separate Runtime per MCP server, and explicit identity/trust boundaries</text>
+<rect x="30" y="105" width="940" height="200" rx="12" fill="#F5F7FA" stroke="#C7D0D9" stroke-width="1.5"/>
+<text x="44" y="128" class="zone">CALLERS</text>
+<rect x="30" y="325" width="940" height="160" rx="12" fill="#F1ECFA" stroke="#C7B6EA" stroke-width="1.5"/>
+<text x="44" y="348" class="zone">IDENTITY</text>
+<rect x="30" y="505" width="940" height="540" rx="12" fill="#EAF2F8" stroke="#A9C9E7" stroke-width="1.5"/>
+<text x="44" y="528" class="zone">AWS / AGENTCORE</text>
+<rect x="30" y="1070" width="940" height="220" rx="12" fill="#FFF3E0" stroke="#E4C08F" stroke-width="1.5"/>
+<text x="44" y="1093" class="zone">DOWNSTREAM</text>
+<path d="M 185.0 225.0 L 185.0 270.0 L 390.0 270.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<path d="M 500.0 225.0 L 500.0 245.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<path d="M 815.0 225.0 L 815.0 270.0 L 610.0 270.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<path d="M 157.5 355.0 L 157.5 315.0 L 445.0 315.0 L 445.0 295.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="292.2" y="296.0" width="74.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="295.2" y="308.0" class="edge-label">issues token</text>
+<path d="M 500.0 295.0 L 500.0 550.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<path d="M 500.0 625.0 L 500.0 655.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<path d="M 500.0 765.0 L 500.0 795.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="505.0" y="764.0" width="99.2" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="508.0" y="776.0" class="edge-label">authorized route</text>
+<path d="M 500.0 880.0 L 500.0 910.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
+<rect x="505.0" y="879.0" width="45.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="508.0" y="891.0" class="edge-label">SigV4</text>
+<path d="M 500.0 1005.0 L 500.0 1140.0" fill="none" stroke="#C56A00" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-orange)"/>
+<rect x="505.0" y="1056.5" width="111.6" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="508.0" y="1068.5" class="edge-label">Bearer Graph token</text>
+<path d="M 387.5 455.0 L 315.0 455.0 L 315.0 640.0 L 401.0 640.0 L 401.0 655.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)" stroke-dasharray="7 5"/>
+<rect x="172.0" y="544.8" width="130.2" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="175.0" y="556.8" class="edge-label">CUSTOM_JWT capability</text>
+<path d="M 290.0 710.0 L 335.0 710.0" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-green)"/>
+<path d="M 175.0 750.0 L 175.0 915.0" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-green)"/>
+<rect x="179.0" y="815.5" width="80.6" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="182.0" y="827.5" class="edge-label">publish image</text>
+<path d="M 290.0 955.0 L 312.5 955.0 L 312.5 957.5 L 335.0 957.5" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-green)"/>
+<path d="M 665.0 710.0 L 692.5 710.0 L 692.5 710.5 L 720.0 710.5" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<path d="M 830.0 753.0 L 830.0 805.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<path d="M 797.0 890.0 L 797.0 1045.0 L 820.0 1045.0 L 820.0 1095.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<path d="M 940.0 847.5 L 960.0 847.5 L 960.0 1232.5 L 940.0 1232.5" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<rect x="60" y="145" width="250" height="80" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
+<text x="185.0" y="177.0" text-anchor="middle" class="box-title">Claude Code</text>
+<text x="185.0" y="199.0" text-anchor="middle" class="box-detail">Delegated Entra token</text>
+<rect x="375" y="145" width="250" height="80" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
+<text x="500.0" y="177.0" text-anchor="middle" class="box-title">AI agent / application</text>
+<text x="500.0" y="199.0" text-anchor="middle" class="box-detail">Runs in AWS; app-only caller</text>
+<rect x="690" y="145" width="250" height="80" rx="10" fill="#FFFFFF" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="815.0" y="177.0" text-anchor="middle" class="box-title">Future callers</text>
+<text x="815.0" y="199.0" text-anchor="middle" class="box-detail">Other approved clients</text>
+<rect x="390" y="245" width="220" height="50" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
+<text x="500.0" y="262.0" text-anchor="middle" class="box-title">MCP request</text>
+<text x="500.0" y="284.0" text-anchor="middle" class="box-detail">HTTPS + Entra bearer JWT</text>
+<rect x="55" y="355" width="205" height="100" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
+<text x="157.5" y="386.0" text-anchor="middle" class="box-title">Microsoft Entra ID</text>
+<text x="157.5" y="408.0" text-anchor="middle" class="box-detail">Enterprise MCP API</text>
+<text x="157.5" y="430.0" text-anchor="middle" class="box-detail">clients and roles</text>
+<rect x="285" y="355" width="205" height="100" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="387.5" y="386.0" text-anchor="middle" class="box-title">AgentCore Identity</text>
+<text x="387.5" y="408.0" text-anchor="middle" class="box-detail">Inbound JWT capability</text>
+<text x="387.5" y="430.0" text-anchor="middle" class="box-detail">Outbound broker off</text>
+<rect x="515" y="355" width="205" height="100" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="617.5" y="386.0" text-anchor="middle" class="box-title">AWS IAM</text>
+<text x="617.5" y="408.0" text-anchor="middle" class="box-detail">Gateway + Runtime</text>
+<text x="617.5" y="430.0" text-anchor="middle" class="box-detail">service roles</text>
+<rect x="745" y="355" width="205" height="100" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
+<text x="847.5" y="386.0" text-anchor="middle" class="box-title">Graph app identity</text>
+<text x="847.5" y="408.0" text-anchor="middle" class="box-detail">Runtime obtains Token B</text>
+<text x="847.5" y="430.0" text-anchor="middle" class="box-detail">separate credential</text>
+<rect x="365" y="550" width="270" height="75" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
+<text x="500.0" y="568.5" text-anchor="middle" class="box-title">Gateway ingress</text>
+<text x="500.0" y="590.5" text-anchor="middle" class="box-detail">AWS-managed URL</text>
+<text x="500.0" y="612.5" text-anchor="middle" class="box-detail">PrivateLink where supported</text>
+<rect x="335" y="655" width="330" height="110" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="500.0" y="691.0" text-anchor="middle" class="box-title">AgentCore Gateway</text>
+<text x="500.0" y="713.0" text-anchor="middle" class="box-detail">MCP + CUSTOM_JWT</text>
+<text x="500.0" y="735.0" text-anchor="middle" class="box-detail">Policy engine + semantic search</text>
+<rect x="335" y="795" width="330" height="85" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="500.0" y="829.5" text-anchor="middle" class="box-title">sharepoint-mcp target</text>
+<text x="500.0" y="851.5" text-anchor="middle" class="box-detail">Authorized Gateway target</text>
+<rect x="335" y="910" width="330" height="95" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="500.0" y="949.5" text-anchor="middle" class="box-title">SharePoint Runtime</text>
+<text x="500.0" y="971.5" text-anchor="middle" class="box-detail">FastMCP /mcp + VPC mode</text>
+<rect x="60" y="670" width="230" height="80" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
+<text x="175.0" y="702.0" text-anchor="middle" class="box-title">Azure DevOps + TFE</text>
+<text x="175.0" y="724.0" text-anchor="middle" class="box-detail">Controlled deploy + policy</text>
+<rect x="60" y="915" width="230" height="80" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
+<text x="175.0" y="947.0" text-anchor="middle" class="box-title">Central ECR</text>
+<text x="175.0" y="969.0" text-anchor="middle" class="box-detail">Immutable service images</text>
+<rect x="720" y="668" width="220" height="85" rx="10" fill="#FFFFFF" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="830.0" y="702.5" text-anchor="middle" class="box-title">Future targets</text>
+<text x="830.0" y="724.5" text-anchor="middle" class="box-detail">Disabled until approved</text>
+<rect x="720" y="805" width="220" height="85" rx="10" fill="#FFFFFF" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="830.0" y="839.5" text-anchor="middle" class="box-title">Future Runtimes</text>
+<text x="830.0" y="861.5" text-anchor="middle" class="box-detail">Separate images and owners</text>
+<rect x="330" y="1140" width="340" height="100" rx="10" fill="#FFFFFF" stroke="#C56A00" stroke-width="2"/>
+<text x="500.0" y="1171.0" text-anchor="middle" class="box-title">Microsoft Graph / SharePoint</text>
+<text x="500.0" y="1193.0" text-anchor="middle" class="box-detail">Selected sites and paths</text>
+<text x="500.0" y="1215.0" text-anchor="middle" class="box-detail">System of record</text>
+<rect x="700" y="1095" width="240" height="75" rx="10" fill="#FFFFFF" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="820.0" y="1124.5" text-anchor="middle" class="box-title">CRM / Dataverse</text>
+<text x="820.0" y="1146.5" text-anchor="middle" class="box-detail">Future / disabled</text>
+<rect x="700" y="1195" width="240" height="75" rx="10" fill="#FFFFFF" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="820.0" y="1224.5" text-anchor="middle" class="box-title">Internal APIs</text>
+<text x="820.0" y="1246.5" text-anchor="middle" class="box-detail">Future / disabled</text>
+</svg>

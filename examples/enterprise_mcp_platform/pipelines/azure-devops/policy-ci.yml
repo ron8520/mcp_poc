@@ -1,0 +1,56 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - examples/enterprise_mcp_platform/policy/*
+      - examples/enterprise_mcp_platform/policy/generated/*
+      - examples/enterprise_mcp_platform/requirements.txt
+      - examples/enterprise_mcp_platform/pipelines/azure-devops/policy-ci.yml
+
+# Azure Repos PR validation is enforced by a required branch policy, not this
+# YAML block. Configure the same path filters in Azure DevOps branch policies.
+pr: none
+
+parameters:
+  - name: publishPolicyBundle
+    displayName: Publish policy bundle artifact
+    type: boolean
+    default: false
+
+variables:
+  PYTHON_EXECUTABLE: python3
+
+pool:
+  name: $(AZDO_AGENT_POOL)
+
+steps:
+  - checkout: self
+    clean: true
+
+  - bash: |
+      set -euo pipefail
+      cd examples/enterprise_mcp_platform
+      "$(PYTHON_EXECUTABLE)" -m venv .venv
+      . .venv/bin/activate
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: Install Python dependencies
+
+  - bash: |
+      set -euo pipefail
+      cd examples/enterprise_mcp_platform
+      . .venv/bin/activate
+      python policy/validate_policy.py --check
+      python -m json.tool policy/generated/tool_allowlist.json >/dev/null
+      python -m json.tool policy/tool_allowlist.schema.json >/dev/null
+    displayName: Validate policy YAML, schema, generated JSON, and tests
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish policy bundle
+    condition: and(succeeded(), eq('${{ parameters.publishPolicyBundle }}', 'true'))
+    inputs:
+      PathtoPublish: examples/enterprise_mcp_platform/policy
+      ArtifactName: enterprise-mcp-policy
+      publishLocation: Container

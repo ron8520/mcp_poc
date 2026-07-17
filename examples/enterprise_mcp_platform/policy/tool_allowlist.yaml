@@ -1,0 +1,388 @@
+version: "2026-07-05"
+
+metadata:
+  name: enterprise-mcp-tool-policy
+  owner: enterprise-ai-platform
+  default_decision: deny
+  description: >
+    Human-maintained source of truth for Gateway JWT checks, semantic search
+    discovery, MCP tool authorization, and runtime validation hints.
+
+identity:
+  provider: microsoft_entra_id
+  tenant_id: "<tenant-id>"
+  issuer: "https://login.microsoftonline.com/<tenant-id>/v2.0"
+  audience: "api://enterprise-mcp-nonprod"
+  required_scopes:
+    - mcp.invoke
+  claim_names:
+    subject: sub
+    user_object_id: oid
+    client_id_candidates:
+      - azp
+      - appid
+      - client_id
+    scopes: scp
+    roles: roles
+    groups: groups
+
+subjects:
+  claude-code-sharepoint-readers:
+    type: human_delegated
+    description: Claude Code developers allowed to discover and read SharePoint tools.
+    entra:
+      allowed_clients:
+        - claude-code-mcp-client-id
+      required_scopes:
+        - mcp.invoke
+      required_roles_any:
+        - MCP.SharePoint.Read
+      required_groups_any:
+        - mcp-sharepoint-readers
+
+  claude-code-sharepoint-publishers:
+    type: human_delegated
+    description: Claude Code developers allowed to write selected SharePoint content.
+    entra:
+      allowed_clients:
+        - claude-code-mcp-client-id
+      required_scopes:
+        - mcp.invoke
+      required_roles_any:
+        - MCP.SharePoint.Publish
+      required_groups_any:
+        - mcp-sharepoint-publishers
+
+  claude-code-crm-admins:
+    type: human_delegated
+    description: Claude Code developers allowed to call selected CRM tools.
+    entra:
+      allowed_clients:
+        - claude-code-mcp-client-id
+      required_scopes:
+        - mcp.invoke
+      required_roles_any:
+        - MCP.CRM.Admin
+      required_groups_any:
+        - mcp-crm-admins
+
+  people-assist-service:
+    type: service_app
+    description: People Assist Lambda service identity. Semantic search is denied.
+    entra:
+      allowed_clients:
+        - people-assist-client-id
+      required_scopes:
+        - mcp.invoke
+      required_roles_any:
+        - MCP.PeopleAssist.SharePoint.Read
+
+discovery:
+  semantic_search:
+    tool_name: x_amz_bedrock_agentcore_search
+    enabled: true
+    allowed_subjects:
+      - claude-code-sharepoint-readers
+      - claude-code-sharepoint-publishers
+      - claude-code-crm-admins
+    denied_subjects:
+      - people-assist-service
+    notes:
+      - Semantic search is for interactive Claude Code and developer use.
+      - Production service flows should use predefined tools.
+      - Search results must be filtered by authorization before model use.
+
+approved_resources:
+  sharepoint_sites:
+    engineering_site:
+      site_id: engineering-site
+      allowed_paths:
+        - /Shared Documents/Engineering
+        - /SitePages
+
+    hr_policy_site:
+      site_id: hr-policy-site
+      allowed_paths:
+        - /Shared Documents/Policies
+        - /SitePages
+
+  crm_entities:
+    account:
+      allowed_operations:
+        - read
+        - update_summary
+    case:
+      allowed_operations:
+        - read
+
+tools:
+  x_amz_bedrock_agentcore_search:
+    server: agentcore-gateway
+    description: Built-in AgentCore Gateway semantic tool search.
+    discovery:
+      searchable: false
+      listable: false
+    authorization:
+      allowed_subjects:
+        - claude-code-sharepoint-readers
+        - claude-code-sharepoint-publishers
+        - claude-code-crm-admins
+      allowed_sites: []
+    write: false
+
+  sharepoint_list_site_content:
+    server: sharepoint-mcp
+    description: List metadata under an approved SharePoint site/path.
+    discovery:
+      searchable: true
+      listable: true
+    authorization:
+      allowed_subjects:
+        - claude-code-sharepoint-readers
+        - claude-code-sharepoint-publishers
+        - people-assist-service
+      allowed_sites:
+        - engineering_site
+        - hr_policy_site
+    input_constraints:
+      required:
+        - site_id
+        - path
+      path_must_be_under_allowed_paths: true
+    write: false
+    audit:
+      log_arguments:
+        - site_id
+        - path
+      redact_arguments: []
+
+  sharepoint_get_file_text:
+    server: sharepoint-mcp
+    description: Read text from one file in an approved SharePoint site.
+    discovery:
+      searchable: true
+      listable: true
+    authorization:
+      allowed_subjects:
+        - claude-code-sharepoint-readers
+        - claude-code-sharepoint-publishers
+        - people-assist-service
+      allowed_sites:
+        - engineering_site
+        - hr_policy_site
+    input_constraints:
+      required:
+        - site_id
+        - drive_id
+        - item_id
+      max_file_size_mb: 25
+    write: false
+    audit:
+      log_arguments:
+        - site_id
+        - drive_id
+        - item_id
+      redact_arguments:
+        - file_text
+
+  sharepoint_insert_site_page_content:
+    server: sharepoint-mcp
+    description: Insert approved content into a SharePoint site page.
+    discovery:
+      searchable: true
+      listable: true
+    authorization:
+      allowed_subjects:
+        - claude-code-sharepoint-publishers
+      allowed_sites:
+        - engineering_site
+    input_constraints:
+      required:
+        - site_id
+        - page_title
+        - markdown_content
+        - change_ticket_id
+        - idempotency_key
+        - audit_reason
+      max_content_chars: 20000
+    write: true
+    write_controls:
+      require_change_ticket: true
+      require_idempotency_key: true
+      require_expected_etag: false
+      require_audit_reason: true
+
+  sharepoint_update_file_content:
+    server: sharepoint-mcp
+    description: Modify one approved SharePoint file with optimistic concurrency.
+    discovery:
+      searchable: true
+      listable: true
+    authorization:
+      allowed_subjects:
+        - claude-code-sharepoint-publishers
+      allowed_sites:
+        - engineering_site
+    input_constraints:
+      required:
+        - site_id
+        - drive_id
+        - item_id
+        - expected_etag
+        - content
+        - change_ticket_id
+        - idempotency_key
+        - audit_reason
+    write: true
+    write_controls:
+      require_change_ticket: true
+      require_idempotency_key: true
+      require_expected_etag: true
+      require_audit_reason: true
+
+  crm_get_account:
+    server: crm-mcp
+    description: Read selected CRM account metadata.
+    discovery:
+      searchable: true
+      listable: true
+    authorization:
+      allowed_subjects:
+        - claude-code-crm-admins
+      allowed_sites: []
+    input_constraints:
+      required:
+        - account_id
+    write: false
+
+  crm_update_account_summary:
+    server: crm-mcp
+    description: Update approved AI-generated summary field on a CRM account.
+    discovery:
+      searchable: true
+      listable: true
+    authorization:
+      allowed_subjects:
+        - claude-code-crm-admins
+      allowed_sites: []
+    input_constraints:
+      required:
+        - account_id
+        - summary
+        - expected_row_version
+        - change_ticket_id
+        - idempotency_key
+        - audit_reason
+    write: true
+    write_controls:
+      require_change_ticket: true
+      require_idempotency_key: true
+      require_expected_row_version: true
+      require_audit_reason: true
+
+test_cases:
+  - name: SharePoint reader can discover only SharePoint read tools
+    caller:
+      subject_ref: claude-code-sharepoint-readers
+    operation: semantic_search
+    query: read HR policy from SharePoint
+    expect:
+      decision: allow
+      includes:
+        - sharepoint_list_site_content
+        - sharepoint_get_file_text
+      excludes:
+        - sharepoint_update_file_content
+        - crm_update_account_summary
+
+  - name: SharePoint reader cannot call CRM update
+    caller:
+      subject_ref: claude-code-sharepoint-readers
+    operation: tool_call
+    tool: crm_update_account_summary
+    input:
+      account_id: account-123
+      summary: new text
+      expected_row_version: "123"
+      change_ticket_id: CHG-000001
+      idempotency_key: crm-test-1
+      audit_reason: test denied CRM update
+    expect:
+      decision: deny
+
+  - name: People Assist cannot use semantic search
+    caller:
+      subject_ref: people-assist-service
+    operation: tool_call
+    tool: x_amz_bedrock_agentcore_search
+    input:
+      query: find HR policy tools
+    expect:
+      decision: deny
+
+  - name: People Assist can read approved SharePoint file
+    caller:
+      subject_ref: people-assist-service
+    operation: tool_call
+    tool: sharepoint_get_file_text
+    input:
+      site_id: hr-policy-site
+      drive_id: drive-123
+      item_id: item-456
+    expect:
+      decision: allow
+
+  - name: SharePoint reader can list approved path
+    caller:
+      subject_ref: claude-code-sharepoint-readers
+    operation: tool_call
+    tool: sharepoint_list_site_content
+    input:
+      site_id: hr-policy-site
+      path: /Shared Documents/Policies
+    expect:
+      decision: allow
+
+  - name: SharePoint reader cannot list unapproved path
+    caller:
+      subject_ref: claude-code-sharepoint-readers
+    operation: tool_call
+    tool: sharepoint_list_site_content
+    input:
+      site_id: hr-policy-site
+      path: /
+    expect:
+      decision: deny
+
+  - name: Publisher cannot write outside approved site
+    caller:
+      subject_ref: claude-code-sharepoint-publishers
+    operation: tool_call
+    tool: sharepoint_update_file_content
+    input:
+      site_id: unapproved-site
+      drive_id: drive-123
+      item_id: item-456
+      content: updated
+      expected_etag: etag-123
+      change_ticket_id: CHG-000002
+      idempotency_key: sp-test-2
+      audit_reason: test denied SharePoint update
+    expect:
+      decision: deny
+
+  - name: Publisher write requires audit reason
+    caller:
+      subject_ref: claude-code-sharepoint-publishers
+    operation: tool_call
+    tool: sharepoint_update_file_content
+    input:
+      site_id: engineering-site
+      drive_id: drive-123
+      item_id: item-456
+      content: updated
+      expected_etag: etag-123
+      change_ticket_id: CHG-000003
+      idempotency_key: sp-test-3
+    expect:
+      decision: deny
