@@ -67,6 +67,7 @@ caller can use. IAM answers which AWS service-to-service actions are allowed.
 ## Related Documents
 
 - [README](/Users/ronruan/Desktop/mcp_poc/README.md)
-- [Claude Code sequence](/Users/ronruan/Desktop/mcp_poc/docs/architecture/claude-code-sequence.mmd)
+- [Claude Code sequence (Mermaid source)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/claude-code-sequence.mmd)
+- [Claude Code sequence (editable draw.io)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/claude-code-sequence.drawio)
 - [Enterprise MCP platform diagram](/Users/ronruan/Desktop/mcp_poc/docs/architecture/enterprise-mcp-platform.mmd)
 - [ADR 0001](/Users/ronruan/Desktop/mcp_poc/docs/adr/0001-agentcore-runtime-mcp-platform.md)

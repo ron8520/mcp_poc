@@ -4,8 +4,8 @@ This document tracks work that is still being refined or not yet implemented.
 
 ## Architecture Validation
 
-- Obtain accountable-owner review of the internal architecture review pack and
-  close or explicitly accept every listed approval condition before production.
+- Complete architecture, security, identity and data-owner production-readiness
+  review, then resolve or explicitly accept every open risk before production.
 - Validate Gateway `protocol_type = "MCP"` with multiple `mcp_server` targets,
   each pointing at one AgentCore Runtime invocation endpoint.
 - Validate Gateway semantic search with `x_amz_bedrock_agentcore_search`.

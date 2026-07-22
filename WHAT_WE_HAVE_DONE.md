@@ -73,6 +73,8 @@ Added `examples/enterprise_mcp_platform` with:
 
 - Updated README with the shared Gateway and separate MCP server architecture.
 - Added architecture and sequence diagrams to README.
+- Added an editable draw.io version of the Claude Code identity sequence and embedded its rendered PNG in the developer architecture guide.
+- Reworked the generated Word report from a security approval pack into a developer-oriented wiki with repository navigation, local workflows, implementation status, verification guidance and known gaps.
 - Updated ADR 0001 with the AgentCore Gateway for MCP decision.
 - Added Claude Code and People Assist sequence diagrams to ADR.
 - Documented the AWS-managed Gateway URL and no-CloudFront decision.

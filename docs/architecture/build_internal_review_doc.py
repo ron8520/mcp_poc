@@ -21,10 +21,8 @@ INK = "17324D"
 BLUE = "2E74B5"
 DARK_BLUE = "1F4D78"
 MUTED = "526579"
-LIGHT_GRAY = "F2F4F7"
+LIGHT_GRAY = "E8EEF5"
 PALE_BLUE = "EAF2F8"
-PALE_GREEN = "EAF6EC"
-PALE_RED = "FDEDEC"
 GRID = "C7D0D9"
 USABLE_DXA = 9360
 TABLE_INDENT_DXA = 120
@@ -59,12 +57,12 @@ def configure_styles(doc: Document) -> None:
     normal.font.color.rgb = rgb(INK)
     normal.paragraph_format.space_before = Pt(0)
     normal.paragraph_format.space_after = Pt(6)
-    normal.paragraph_format.line_spacing = 1.10
+    normal.paragraph_format.line_spacing = 1.25
 
     heading_tokens = {
-        "Heading 1": (16, BLUE, 16, 8),
-        "Heading 2": (13, BLUE, 12, 6),
-        "Heading 3": (12, DARK_BLUE, 8, 4),
+        "Heading 1": (16, BLUE, 18, 10),
+        "Heading 2": (13, BLUE, 14, 7),
+        "Heading 3": (12, DARK_BLUE, 10, 5),
     }
     for name, (size, color, before, after) in heading_tokens.items():
         style = styles[name]
@@ -84,10 +82,10 @@ def configure_styles(doc: Document) -> None:
         style._element.rPr.rFonts.set(qn("w:ascii"), FONT)
         style._element.rPr.rFonts.set(qn("w:hAnsi"), FONT)
         style.font.size = Pt(11)
-        style.paragraph_format.left_indent = Inches(0.5)
-        style.paragraph_format.first_line_indent = Inches(-0.25)
-        style.paragraph_format.space_after = Pt(8)
-        style.paragraph_format.line_spacing = 1.167
+        style.paragraph_format.left_indent = Inches(0.375)
+        style.paragraph_format.first_line_indent = Inches(-0.188)
+        style.paragraph_format.space_after = Pt(4)
+        style.paragraph_format.line_spacing = 1.25
 
     caption = styles["Caption"]
     caption.font.name = FONT
@@ -135,7 +133,7 @@ def set_header_footer(section) -> None:
     p.paragraph_format.space_after = Pt(0)
     left = p.add_run("ENTERPRISE MCP PLATFORM")
     set_run_font(left, size=8.5, color=MUTED, bold=True)
-    right = p.add_run("\tINTERNAL - DRAFT FOR REVIEW")
+    right = p.add_run("\tDEVELOPER GUIDE")
     set_run_font(right, size=8.5, color=MUTED, bold=True)
     tabs = p.paragraph_format.tab_stops
     tabs.add_tab_stop(Inches(6.5))
@@ -144,7 +142,7 @@ def set_header_footer(section) -> None:
     footer = section.footer
     fp = footer.paragraphs[0]
     fp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    label = fp.add_run("Architecture, Security and Migration Review  |  ")
+    label = fp.add_run("Developer Architecture Guide  |  ")
     set_run_font(label, size=8.5, color=MUTED)
     add_field(fp, "PAGE")
     tail = fp.add_run(" of ")
@@ -318,7 +316,7 @@ def add_callout(doc: Document, label: str, text: str, *, fill: str = PALE_BLUE, 
     shade_cell(cell, fill)
     p = cell.paragraphs[0]
     p.paragraph_format.space_after = Pt(2)
-    p.paragraph_format.line_spacing = 1.10
+    p.paragraph_format.line_spacing = 1.25
     r = p.add_run(f"{label}: ")
     set_run_font(r, size=10.5, color=accent, bold=True)
     add_inline(p, text, base_size=10.5)
@@ -328,59 +326,48 @@ def add_callout(doc: Document, label: str, text: str, *, fill: str = PALE_BLUE, 
 
 def add_cover(doc: Document) -> None:
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(24)
-    p.paragraph_format.space_after = Pt(6)
-    run = p.add_run("ARCHITECTURE REVIEW PACK")
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(96)
+    p.paragraph_format.space_after = Pt(18)
+    run = p.add_run("DEVELOPER ARCHITECTURE GUIDE")
     set_run_font(run, size=10.5, color=BLUE, bold=True)
 
     title = doc.add_paragraph()
-    title.paragraph_format.space_after = Pt(4)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title.paragraph_format.space_after = Pt(8)
     title_run = title.add_run("Enterprise MCP Platform on AWS")
-    set_run_font(title_run, size=25, color=INK, bold=True)
+    set_run_font(title_run, size=30, color=DARK_BLUE, bold=True)
 
     subtitle = doc.add_paragraph()
-    subtitle.paragraph_format.space_after = Pt(18)
-    subtitle_run = subtitle.add_run("Architecture, Security and Migration Review")
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle.paragraph_format.space_after = Pt(28)
+    subtitle_run = subtitle.add_run("Implementation, identity, policy and operations")
     set_run_font(subtitle_run, size=14, color=MUTED)
 
     for label, value in [
-        ("Classification", "Internal - Draft for review"),
-        ("Status", "Draft for conditional approval"),
-        ("Version", "0.1"),
-        ("Date", "10 July 2026"),
-        ("Owner", "Cloud Platform Team"),
-        ("Audience", "Architecture, Cyber Security, Identity, Microsoft 365, DevOps, Operations and product owners"),
+        ("Status", "Living technical guide"),
+        ("Updated", "22 July 2026"),
+        ("Maintainer", "Cloud Platform Team"),
+        ("Implementation root", "examples/enterprise_mcp_platform"),
     ]:
         p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(3)
         lr = p.add_run(f"{label}: ")
         set_run_font(lr, size=10.5, color=INK, bold=True)
         vr = p.add_run(value)
-        set_run_font(vr, size=10.5, color=INK)
-
-    rule = doc.add_paragraph()
-    rule.paragraph_format.space_before = Pt(12)
-    rule.paragraph_format.space_after = Pt(14)
-    paragraph_border_bottom(rule, BLUE, "12")
+        set_run_font(vr, name="Courier New" if label == "Implementation root" else FONT, size=10.5, color=INK)
 
     add_callout(
         doc,
-        "Decision requested",
-        "Approve the target architecture and authorize controlled non-production validation, subject to the approval conditions. Production rollout is not authorized by this document alone.",
-        fill=PALE_GREEN,
-        accent="2E7D32",
-    )
-    add_callout(
-        doc,
-        "Current maturity",
-        "The repository contains representative code, policy and Terraform. Critical integration, identity, Graph, write-safety, network and operational controls still require real-environment evidence.",
-        fill=PALE_RED,
-        accent="B42318",
+        "Start here",
+        "Use section 2 to find code, section 3 for local workflows, section 6 for the architecture, and section 17 for known gaps.",
     )
     note = doc.add_paragraph()
-    note.paragraph_format.space_before = Pt(18)
+    note.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    note.paragraph_format.space_before = Pt(12)
     note.paragraph_format.space_after = Pt(0)
-    nr = note.add_run("Editable diagrams are supplied in the accompanying multi-page draw.io file.")
+    nr = note.add_run("Editable diagrams are supplied in the accompanying draw.io files.")
     set_run_font(nr, size=9.5, color=MUTED, italic=True)
     doc.add_page_break()
 
@@ -389,10 +376,10 @@ def add_toc(doc: Document, source: str) -> None:
     doc.add_paragraph("Contents", style="Heading 1")
     intro = doc.add_paragraph()
     intro.paragraph_format.space_after = Pt(10)
-    ir = intro.add_run("Top-level review sections")
+    ir = intro.add_run("Developer reference sections")
     set_run_font(ir, size=9.5, color=MUTED, italic=True)
     for line in source.splitlines():
-        if not line.startswith("## ") or line.startswith("## Architecture, Security"):
+        if not line.startswith("## ") or line.startswith("## Developer Architecture Guide"):
             continue
         p = doc.add_paragraph()
         p.paragraph_format.left_indent = Inches(0.15)
@@ -426,11 +413,11 @@ def new_numbering_id(doc: Document, kind: str = "decimal") -> int:
     tabs = OxmlElement("w:tabs")
     tab = OxmlElement("w:tab")
     tab.set(qn("w:val"), "num")
-    tab.set(qn("w:pos"), "720")
+    tab.set(qn("w:pos"), "540")
     tabs.append(tab)
     ind = OxmlElement("w:ind")
-    ind.set(qn("w:left"), "720")
-    ind.set(qn("w:hanging"), "360")
+    ind.set(qn("w:left"), "540")
+    ind.set(qn("w:hanging"), "270")
     p_pr.extend([tabs, ind])
     lvl.append(p_pr)
     r_pr = OxmlElement("w:rPr")
@@ -473,6 +460,8 @@ def table_widths(headers: list[str]) -> list[int]:
     if count == 2:
         return [2800, 6560]
     if count == 3:
+        if headers == ["Area", "State", "Evidence or gap"]:
+            return [1900, 2300, 5160]
         if headers[0] in {"Tool", "Capability", "Decision"}:
             return [2500, 2900, 3960]
         return [2200, 3300, 3860]
@@ -484,9 +473,14 @@ def table_widths(headers: list[str]) -> list[int]:
 
 
 def add_table(doc: Document, headers: list[str], rows: list[list[str]]) -> None:
-    compact_controls = headers == ["Control", "Requirement", "Production evidence"]
-    vertical_margin = 40 if compact_controls else 80
-    body_size = 8.35 if compact_controls else 9.2
+    compact_controls = headers == ["Control", "Requirement", "Verification"]
+    compact_reference = headers in [
+        ["Area", "State", "Evidence or gap"],
+        ["Component", "Responsibility", "Security boundary"],
+    ]
+    vertical_margin = 40 if compact_controls or compact_reference else 80
+    body_size = 8.35 if compact_controls else 8.6 if compact_reference else 9.2
+    header_size = 9.2 if compact_reference else 9.5
     table = doc.add_table(rows=1, cols=len(headers))
     table.style = "Table Grid"
     set_table_geometry(table, table_widths(headers), vertical_margin)
@@ -497,7 +491,7 @@ def add_table(doc: Document, headers: list[str], rows: list[list[str]]) -> None:
         p = cell.paragraphs[0]
         p.paragraph_format.space_after = Pt(0)
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER if len(header) < 12 else WD_ALIGN_PARAGRAPH.LEFT
-        add_inline(p, header, base_size=9.5)
+        add_inline(p, header, base_size=header_size)
         for run in p.runs:
             run.bold = True
     for row_data in rows:
@@ -505,7 +499,7 @@ def add_table(doc: Document, headers: list[str], rows: list[list[str]]) -> None:
         for idx, value in enumerate(row_data):
             p = cells[idx].paragraphs[0]
             p.paragraph_format.space_after = Pt(0)
-            p.paragraph_format.line_spacing = 1.05
+            p.paragraph_format.line_spacing = 1.0 if compact_controls or compact_reference else 1.05
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER if len(value) < 18 and idx != len(row_data) - 1 else WD_ALIGN_PARAGRAPH.LEFT
             add_inline(p, value, base_size=body_size)
     set_table_geometry(table, table_widths(headers), vertical_margin)
@@ -531,8 +525,8 @@ def add_threat_register(doc: Document, rows: list[list[str]]) -> None:
             ("Validation / owner", validation),
         ]:
             bp = doc.add_paragraph()
-            bp.paragraph_format.space_after = Pt(8)
-            bp.paragraph_format.line_spacing = 1.167
+            bp.paragraph_format.space_after = Pt(4)
+            bp.paragraph_format.line_spacing = 1.25
             apply_numbering(bp, bullet_id)
             lr = bp.add_run(f"{label}: ")
             set_run_font(lr, size=10.2, color=INK, bold=True)
@@ -674,8 +668,8 @@ def parse_markdown(doc: Document, source: str) -> None:
             if active_bullet_id is None:
                 active_bullet_id = new_numbering_id(doc, "bullet")
             p = doc.add_paragraph()
-            p.paragraph_format.space_after = Pt(8)
-            p.paragraph_format.line_spacing = 1.167
+            p.paragraph_format.space_after = Pt(4)
+            p.paragraph_format.line_spacing = 1.25
             apply_numbering(p, active_bullet_id)
             add_inline(p, stripped[2:])
             idx += 1
@@ -688,8 +682,8 @@ def parse_markdown(doc: Document, source: str) -> None:
             if active_num_id is None:
                 active_num_id = new_numbering_id(doc)
             p = doc.add_paragraph()
-            p.paragraph_format.space_after = Pt(8)
-            p.paragraph_format.line_spacing = 1.167
+            p.paragraph_format.space_after = Pt(4)
+            p.paragraph_format.line_spacing = 1.25
             apply_numbering(p, active_num_id)
             add_inline(p, numbered.group(1))
             idx += 1
@@ -716,11 +710,11 @@ def set_document_settings(doc: Document) -> None:
         update = OxmlElement("w:updateFields")
         settings.append(update)
     update.set(qn("w:val"), "true")
-    doc.core_properties.title = "Enterprise MCP Platform on AWS - Architecture, Security and Migration Review"
-    doc.core_properties.subject = "Internal architecture review and conditional approval pack"
+    doc.core_properties.title = "Enterprise MCP Platform on AWS - Developer Architecture Guide"
+    doc.core_properties.subject = "Developer reference for architecture, identity, policy, deployment and operations"
     doc.core_properties.author = "Cloud Platform Team"
-    doc.core_properties.keywords = "MCP, AgentCore, Gateway, Runtime, Entra, SharePoint, threat model, migration"
-    doc.core_properties.comments = "Generated from the repository review source."
+    doc.core_properties.keywords = "MCP, AgentCore, Gateway, Runtime, Entra, SharePoint, developer guide, architecture"
+    doc.core_properties.comments = "Generated from the repository developer-guide source."
 
 
 def build() -> None:
@@ -732,7 +726,7 @@ def build() -> None:
     add_cover(doc)
     source = SOURCE.read_text(encoding="utf-8")
     add_toc(doc, source)
-    body_start = source.index("## 1. Executive summary")
+    body_start = source.index("## 1. Platform overview")
     parse_markdown(doc, source[body_start:])
 
     for section in doc.sections:

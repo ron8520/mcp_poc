@@ -1,70 +1,90 @@
 # Enterprise MCP Platform on AWS
 
-## Architecture, Security and Migration Review
+## Developer Architecture Guide
 
-**Classification:** Internal - Draft for review  
-**Document status:** Draft for conditional approval  
-**Version:** 0.1  
-**Date:** 10 July 2026  
-**Document owner:** Cloud Platform Team  
-**Reviewers:** Architecture, Cyber Security, Microsoft Identity, Microsoft 365/SharePoint, DevOps, Operations and application owners  
-**Decision requested:** Approve the target architecture and authorize controlled non-production validation, subject to the approval conditions in section 18. Production rollout is not authorized by this document alone.
+**Status:** Living technical guide
+
+**Last updated:** 22 July 2026
+
+**Maintainer:** Cloud Platform Team
+
+**Implementation root:** `examples/enterprise_mcp_platform`
 
 ---
 
-## 1. Executive summary
+## 1. Platform overview
 
-The proposed platform provides one governed internal Model Context Protocol (MCP) entry point on AWS. Amazon Bedrock AgentCore Gateway is the shared MCP front door. Each downstream system is isolated behind the Gateway as its own MCP server, container image, AgentCore Runtime, policy boundary, deployment unit and operational owner. SharePoint is the first enabled system. CRM and internal-software servers remain disabled until their tool contracts and owners are separately approved.
+The platform provides one governed internal Model Context Protocol (MCP) entry point on AWS. Amazon Bedrock AgentCore Gateway is the shared MCP front door. Each downstream system is isolated behind the Gateway as its own MCP server, container image, AgentCore Runtime, policy boundary, deployment unit and operational owner. SharePoint is the first enabled system. CRM and internal-software servers remain disabled until their tool contracts and owners are implemented and validated.
 
 Microsoft Entra ID remains the authoritative identity provider for human and service callers. Callers obtain an environment-specific Enterprise MCP API token and send it to Gateway. Gateway uses its `CUSTOM_JWT` authorizer, which AWS documents as an AgentCore Identity inbound-authorizer capability, to validate the token. Gateway policy then determines whether the caller may discover or invoke a tool. Gateway invokes the selected Runtime with its AWS IAM role and Signature Version 4. Runtime uses a separate downstream Microsoft Entra application credential to access Microsoft Graph; the inbound MCP token is not reused as a Graph token.
 
-The recommended approval is **conditional approval for non-production validation**. The architecture is coherent and applies appropriate separation of duties, least privilege and defence in depth. It is not yet production-ready. The current repository contains representative Terraform, policy and MCP server code, but several critical paths remain unvalidated or incomplete, including real Gateway-to-Runtime invocation, caller-claim propagation, Claude Code token refresh, real Microsoft Graph operations, idempotency persistence, Cedar enforcement, PrivateLink behaviour and production CI/CD controls.
+The repository contains representative Terraform, policy and MCP server code. Treat it as a PoC reference implementation: real Gateway-to-Runtime invocation, caller-claim propagation, Claude Code token refresh, Microsoft Graph operations, idempotency persistence, Cedar enforcement, PrivateLink behaviour and production CI/CD controls still require implementation or target-environment validation.
 
-### 1.1 Decision summary
+## 2. Repository map
 
-- Approve one shared AgentCore Gateway configured for MCP.
-- Approve one AgentCore Runtime per enabled MCP server.
-- Approve Microsoft Entra ID tokens for inbound human and service identity.
-- Recognize the Gateway `CUSTOM_JWT` validator as the managed AgentCore Identity inbound capability; do not introduce AgentCore Identity outbound credential providers in the first production slice.
-- Approve AWS IAM only for AWS-side service authorization, including Gateway-to-Runtime invocation and Runtime access to approved AWS resources.
-- Approve a separate application identity with selected SharePoint permissions for Microsoft Graph.
-- Approve narrow, domain-specific tools and policy as code; reject generic HTTP, shell, SQL or tenant-wide content tools.
-- Approve private access through the AWS-managed Gateway URL and AgentCore Gateway interface VPC endpoint where the caller network supports it.
-- Reject CloudFront or another CDN-backed custom domain for this MCP path.
-- Require all production approval conditions and migration exit gates to be satisfied before enabling production callers or write tools.
+| Path | Developer use |
+| --- | --- |
+| `examples/enterprise_mcp_platform/clients` | Local, Claude Code and Gateway validation clients, including the Windows Entra token helper. |
+| `examples/enterprise_mcp_platform/servers/sharepoint_mcp` | SharePoint MCP server, tool contracts and Graph client boundary. |
+| `examples/enterprise_mcp_platform/common/mcp_runtime` | Shared authorization, validation and audit helpers used by Runtime-hosted servers. |
+| `examples/enterprise_mcp_platform/policy` | Human-maintained allowlist, schema, generated runtime policy and validation script. |
+| `examples/enterprise_mcp_platform/identity/entra` | Environment-specific Entra API, client, role and assignment configuration. |
+| `examples/enterprise_mcp_platform/infra` | Shared Terraform root for Gateway, Runtime targets, IAM and private access. |
+| `examples/enterprise_mcp_platform/pipelines/azure-devops` | MCP server and policy validation pipeline examples. |
+| `docs/architecture` | Architecture diagrams, sequences and this generated developer guide. |
+| `docs/adr` | Durable architecture decisions and their history. |
 
-## 2. Purpose and audience
+Start with `examples/enterprise_mcp_platform/README.md` for local commands. Use the ADRs for decision history and `IN_PROGRESS.md` for work that is not yet complete.
 
-This document consolidates the current repository decisions into one reviewable architecture package. It is intended to let architecture, security, identity, data-owner and operations teams assess the target design, understand the current implementation maturity, review the threat model, agree ownership and approve a staged migration.
+## 3. Developer workflow
 
-This document is normative for the proposed first production slice. The README remains the working technical overview; Architecture Decision Records (ADRs) remain the decision history; this document packages those decisions and the remaining conditions for governance review.
+### 3.1 Run the SharePoint server locally
 
-## 3. Scope
+Use dry-run mode while developing tool contracts and authorization behaviour. From the repository root:
 
-### 3.1 In scope
+```bash
+cd examples/enterprise_mcp_platform
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+export GRAPH_DRY_RUN=true
+export MCP_SUBJECT=local-dev-user
+export MCP_CLIENT_ID=claude-code-mcp-client-id
+export MCP_GROUPS=mcp-sharepoint-readers
+export MCP_APP_ROLES=MCP.SharePoint.Read
+export MCP_SCOPES=mcp.invoke
+python -m servers.sharepoint_mcp.src.server
+```
 
-- The shared Enterprise MCP Gateway and its MCP endpoint.
-- SharePoint as the first enabled MCP server.
-- Claude Code/developer access using delegated Entra tokens.
-- Optional access for an approved AI agent or AI application running in AWS using an app-only Entra token.
-- AgentCore Gateway, Policy, Identity inbound JWT validation and Runtime.
-- AWS IAM, VPC connectivity, PrivateLink, logging and observability.
-- Microsoft Graph access to explicitly approved SharePoint sites and paths.
-- Read and controlled write tool contracts.
-- Policy-as-code, Azure DevOps validation and Terraform Enterprise deployment ownership.
-- Threats, controls, residual risks, migration, rollback and approval gates.
+In another terminal, activate the same environment and run `python clients/local_client.py`.
 
-### 3.2 Out of scope
+### 3.2 Validate policy changes
 
-- Enabling CRM or internal-software tools.
-- Tenant-wide SharePoint search or unrestricted file access.
-- A custom MCP router, AWS API Gateway, CloudFront or a CDN-backed vanity domain.
-- AgentCore Memory, Browser, Code Interpreter or other AgentCore capabilities not required by the first slice.
-- User-delegated Microsoft Graph access and on-behalf-of token exchange. These require a separate design and privacy review.
-- A centrally owned MCP base image. It remains an optional later hardening measure.
-- The central ECR platform and central Terraform Enterprise administration implementation.
+The YAML allowlist is the human-maintained source. Regenerate the runtime JSON and confirm it is current before committing:
 
-## 4. Architecture principles and constraints
+```powershell
+Set-Location examples/enterprise_mcp_platform
+python policy/validate_policy.py
+python policy/validate_policy.py --check
+```
+
+Policy changes should include positive and negative cases for the affected caller, tool and resource combinations.
+
+### 3.3 Acquire a Claude Code caller token on Windows
+
+Use the delegated Entra helper for developer validation. Do not store the returned token in source control or static configuration.
+
+```powershell
+Set-Location examples/enterprise_mcp_platform
+$env:ENTRA_TENANT_ID = "<tenant-id>"
+$env:ENTRA_CLIENT_ID = "<interactive-mcp-public-client-id>"
+$env:ENTRA_MCP_AUDIENCE = "api://enterprise-mcp-nonprod"
+$env:ENTRA_ACCESS_TOKEN = & .\clients\entra_token_helper.ps1 delegated
+```
+
+Claude Code sends this token to the Gateway as `Authorization: Bearer <Entra JWT>`. Do not SigV4-sign the caller request; AWS IAM is used for Gateway-to-Runtime and other AWS-side service actions.
+
+## 4. Design principles
 
 1. **One governed entry point.** Clients connect to one AgentCore Gateway URL rather than directly to individual MCP servers.
 2. **Separate server boundaries.** Each downstream system has a separate Runtime, image, target, policy and owner.
@@ -75,18 +95,18 @@ This document is normative for the proposed first production slice. The README r
 7. **No direct Runtime bypass.** Runtime resource policy permits invocation only by the Gateway role.
 8. **Private where supported.** VPC callers use the AgentCore Gateway interface endpoint and private DNS; network location supplements but does not replace identity.
 9. **No secrets or sensitive content in logs.** Audit metadata is recorded without bearer tokens, credentials or full documents.
-10. **Promotion by evidence.** Non-production validation evidence is required before production approval.
+10. **Validate before promotion.** A change moves forward only after its code, policy, infrastructure and operational checks pass.
 
-## 5. Current state and maturity
+## 5. Implementation status
 
 The repository is a planning and proof-of-concept workspace. The following maturity terms are used throughout this document:
 
 - **Decided:** captured in an accepted or PoC-validation ADR.
 - **Example implemented:** representative code or Terraform exists but has not necessarily run in the target environment.
 - **Validation required:** behaviour must be demonstrated with evidence before production.
-- **Future:** not approved or enabled in the first slice.
+- **Planned:** not implemented or enabled in the first slice.
 
-### 5.1 Current maturity assessment
+### 5.1 Status matrix
 
 | Area | State | Evidence or gap |
 | --- | --- | --- |
@@ -99,10 +119,10 @@ The repository is a planning and proof-of-concept workspace. The following matur
 | Write safety | Contract only | Change ticket, idempotency key and ETag inputs exist. Persistent idempotency and real conditional writes are not implemented. |
 | Private access | Example implemented | Interface endpoint Terraform exists. DNS, endpoint policy and developer/AWS workload routing require target-account testing. |
 | Observability | Partial example | Runtime permissions and structured audit events exist. Gateway log destinations, retention, SIEM integration, alarms and sensitive-data verification remain open. |
-| CI/CD | Example implemented | Azure DevOps pipeline examples and policy branch-gate design exist. Real agents, variable groups, signing, SBOM, environments and approvals are not configured. |
+| CI/CD | Example implemented | Azure DevOps pipeline examples and policy branch-gate design exist. Real agents, variable groups, signing, SBOM, environments and promotion controls are not configured. |
 | Production configuration | Placeholder | Non-production and production tfvars contain placeholder IDs, subnets, security groups and image URIs. Provider versions are not yet pinned. |
 
-## 6. Target architecture
+## 6. Architecture
 
 ![Target architecture and trust boundaries](enterprise-mcp-platform-target-architecture.svg)
 
@@ -137,11 +157,15 @@ The repository is a planning and proof-of-concept workspace. The following matur
 - Final service image URI passed to Runtime; no Runtime deploys a base-image URI.
 - Gateway policy remains `LOG_ONLY` only during controlled validation and must be `ENFORCE` before production use.
 
-## 7. Identity and authorization model
+## 7. Identity and request flows
 
 ![Identity and data flow](enterprise-mcp-platform-identity-flow.svg)
 
 **Figure 2 - Identity, authorization and data flow.** Editable source: `enterprise-mcp-platform-review.drawio`, page “Identity and Data Flow”.
+
+![Claude Code caller identity sequence](claude-code-sequence.png)
+
+**Figure 3 - Claude Code caller identity and governed SharePoint MCP sequence.** Editable source: `claude-code-sequence.drawio`.
 
 ### 7.1 Human caller flow
 
@@ -160,7 +184,7 @@ The repository is a planning and proof-of-concept workspace. The following matur
 
 An approved AI agent or AI application running in AWS uses the same Gateway authorization model but obtains an app-only token through the client-credentials grant and is assigned a read-only application role. Its AWS workload role remains separate and is used for workload execution, logs and approved credential retrieval. The service caller does not obtain write access in the first slice unless separately approved.
 
-### 7.3 AgentCore Identity decision
+### 7.3 AgentCore Identity usage
 
 AgentCore Identity is involved in the current architecture in two limited ways:
 
@@ -217,13 +241,13 @@ Gateway signs Runtime requests using the Gateway IAM role. The Runtime resource 
 
 Runtime operates in VPC mode with private subnets and restricted security groups. Egress should be limited to required AWS endpoints, Microsoft identity endpoints and Microsoft Graph. The final design must document whether Graph egress uses controlled NAT/proxy, firewall and DNS controls, and how certificate inspection or proxy behaviour affects OAuth and Graph traffic.
 
-### 8.4 Domain decision
+### 8.4 Endpoint and domain choice
 
 CloudFront and other CDN-backed custom domains are excluded. Clients use the AWS-managed Gateway hostname. A vanity domain requires a new architecture decision demonstrating supported TLS termination, OAuth discovery behaviour, regional routing and absence of an unapproved global edge layer.
 
-## 9. Tool and data design
+## 9. Tool and data contracts
 
-### 9.1 Approved first-slice tools
+### 9.1 First-slice tools
 
 | Tool | Purpose | Default authorization |
 | --- | --- | --- |
@@ -266,7 +290,7 @@ Write tools remain disabled until all of the following are implemented and teste
 - policy engine in `ENFORCE` mode;
 - negative tests for replay, stale ETag, wrong site/path, missing ticket and unauthorized caller.
 
-## 10. Policy, software supply chain and deployment
+## 10. Policy, build and deployment
 
 ### 10.1 Policy as code
 
@@ -302,9 +326,9 @@ Required telemetry includes:
 - deployment, identity, policy and selected-site permission changes;
 - unusual denied-tool, cross-site, replay and data-volume patterns.
 
-CloudWatch Transaction Search and relevant AgentCore log destinations must be configured. Retention, encryption, SIEM forwarding, alert thresholds, operational dashboards and on-call ownership must be approved before production. Observability testing must include a deliberate check that tokens, secrets and document bodies do not appear in logs or traces.
+CloudWatch Transaction Search and relevant AgentCore log destinations must be configured. Retention, encryption, SIEM forwarding, alert thresholds, operational dashboards and on-call ownership must be defined and tested before production. Observability testing must include a deliberate check that tokens, secrets and document bodies do not appear in logs or traces.
 
-## 12. Availability, resilience and performance
+## 12. Reliability and performance
 
 The platform depends on AgentCore Gateway, Runtime, Entra ID, Microsoft Graph/SharePoint, network connectivity, ECR and observability services. The first slice should fail closed on identity, policy or downstream permission uncertainty.
 
@@ -318,13 +342,13 @@ Required resilience behaviours:
 - immutable previous image and policy versions for rollback;
 - a kill switch that removes a client, denies a tool or disables a target without a direct-Runtime bypass.
 
-Service-level objectives, expected concurrency, payload limits, peak usage, recovery time objective and recovery point objective remain approval conditions. SharePoint remains the system of record; this platform does not maintain a separate authoritative content copy.
+Service-level objectives, expected concurrency, payload limits, peak usage, recovery time objective and recovery point objective are not yet defined. SharePoint remains the system of record; this platform does not maintain a separate authoritative content copy.
 
-## 13. Threat model
+## 13. Security reference
 
 ### 13.1 Method and assumptions
 
-The threat model uses STRIDE categories across the data-flow trust boundaries. Ratings are qualitative because the enterprise risk-scoring standard and workload classification have not yet been supplied. **Inherent risk** assumes the proposed capability without the listed controls. **Residual risk** assumes all proposed controls are implemented and validated. Ratings are provisional and require Cyber Security approval.
+The threat model uses STRIDE categories across the data-flow trust boundaries. Ratings are qualitative because the enterprise risk-scoring standard and workload classification have not yet been supplied. **Inherent risk** assumes the proposed capability without the listed controls. **Residual risk** assumes all proposed controls are implemented and validated. Reconcile these provisional ratings with the organisation's risk method before production use.
 
 Threat actors considered include an external attacker with a stolen token, a compromised managed device, a malicious or over-privileged insider, a compromised client/service principal, malicious content in SharePoint, a compromised build dependency or image, and accidental administrator or policy error.
 
@@ -367,9 +391,9 @@ Primary assets are caller identity, authorization policy, downstream credentials
 
 The most material expected residual risks are stolen caller tokens, prompt-injection-driven misuse within otherwise valid permissions, downstream credential compromise, software supply-chain compromise, data over-disclosure and dependency availability. These risks cannot be eliminated by the Gateway alone. They require enterprise identity/device controls, narrow permissions, controlled write enablement, supply-chain assurance, monitoring and incident response.
 
-## 14. Security control requirements
+## 14. Security implementation checklist
 
-| Control | Requirement | Production evidence |
+| Control | Requirement | Verification |
 | --- | --- | --- |
 | IAM-01 | Separate Entra API audiences, app registrations, assignments and allowed clients for nonprod and prod. | Entra export and negative cross-environment test |
 | IAM-02 | Validate issuer/discovery, audience, client, scope and required role/group claims at the appropriate layer. | Gateway configuration and token test matrix |
@@ -388,147 +412,33 @@ The most material expected residual risks are stolen caller tokens, prompt-injec
 | SUP-01 | Deploy scanned, SBOM-attested and signed immutable images with pinned dependencies. | Build provenance and ECR digest |
 | OPS-01 | Apply timeouts, bounded retries, throttling handling, kill switches and rollback runbooks. | Failure and rollback tests |
 
-## 15. Migration strategy
-
-This is primarily a **service adoption and control migration**, not a bulk SharePoint data migration. SharePoint remains the system of record. Cutover consists of creating identity and infrastructure, granting selected access, enabling clients/tools and moving policy from observation to enforcement.
-
-![Phased migration and approval gates](enterprise-mcp-platform-migration.svg)
-
-**Figure 3 - Phased migration and approval gates.** Editable source: `enterprise-mcp-platform-review.drawio`, page “Migration Roadmap”.
-
-### Phase 0 - Architecture and ownership approval
-
-**Actions**
-
-- Review this document and the five current ADRs.
-- Confirm workload classification, approved AWS region and applicable regulatory controls.
-- Nominate accountable owners for platform, policy, Entra, SharePoint data, operations and incident response.
-- Agree risk-rating method, SLO/RTO, log retention and support model.
-- Accept, reject or amend the conditions in section 18.
-
-**Exit gate:** Architecture and Cyber Security authorize non-production validation; Microsoft Identity and SharePoint owners agree the proposed identity/permission model.
-
-**Rollback:** No deployed service; resolve design findings before proceeding.
-
-### Phase 1 - Complete and harden the implementation
-
-**Actions**
-
-- Implement the real Graph client with selected permissions, timeouts, throttling and safe error mapping.
-- Decide and implement downstream credential custody and rotation.
-- Wire trusted Gateway claims into per-request Runtime context or keep all caller policy at Gateway.
-- Implement durable idempotency and real ETag conditional writes, while keeping write tools disabled.
-- Generate/reconcile Cedar from the policy source and expand negative tests.
-- Pin dependencies/providers and add image scanning, SBOM and signing.
-- Add log redaction tests, Gateway log destinations, dashboards and alarms.
-
-**Exit gate:** Code, policy and infrastructure tests pass; no critical/high unresolved implementation defect; build provenance is available.
-
-**Rollback:** Revert source/policy changes; no external users enabled.
-
-### Phase 2 - Non-production identity, network and Runtime deployment
-
-**Actions**
-
-- Deploy separate non-production Entra API/client registrations and assignments.
-- Deploy non-production Gateway, policy engine, SharePoint Runtime, target, IAM policies and VPC endpoint through TFE.
-- Use an immutable non-production image.
-- Grant the Graph application read-only selected access to a dedicated test site.
-- Keep Gateway policy in `LOG_ONLY` only long enough to compare expected decisions; Runtime and Graph remain restrictive.
-- Validate private DNS/routing from approved AWS workloads and developer networks.
-
-**Exit gate:** Correct and incorrect tokens behave as expected; direct Runtime invocation is denied; Gateway-to-Runtime MCP operations succeed; private routing and audit correlation are proven.
-
-**Rollback:** Remove allowed clients, disable/delete the target, revoke selected-site grant and downstream credential, and revert infrastructure through TFE.
-
-### Phase 3 - Limited read-only developer pilot
-
-**Actions**
-
-- Enable a small named developer cohort on a non-sensitive test/approved site.
-- Validate the approved Claude Code OAuth/token-refresh experience.
-- Enable `sharepoint_list_site_content` and `sharepoint_get_file_text` only.
-- Test semantic discovery, direct tool calls, denial behaviour, prompt injection, output limits and throttling.
-- Compare policy decisions with the source matrix, then switch read policy to `ENFORCE`.
-- Run operational monitoring and incident-response exercises.
-
-**Exit gate:** Pilot success criteria are met for an agreed observation period; no unauthorized access; support, dashboards and revocation are proven; user/data-owner feedback is accepted.
-
-**Rollback:** Remove pilot group/client assignment, deny read tools or disable the target; retain logs for investigation.
-
-### Phase 4 - Optional AWS AI service-caller read integration
-
-**Actions**
-
-- Confirm that an approved AI agent or AI application running in AWS has a governed SharePoint-read use case.
-- Create/approve its app-only role and credential custody, rotation and revocation controls.
-- Allow only read tools and approved sites/paths.
-- Validate token caching, private AWS workload routing, retries and audit separation from human callers.
-
-**Exit gate:** Application owner, Identity, Security and data owner approve service access; app-only negative tests pass.
-
-**Rollback:** Remove the app role/allowed client, revoke the credential and disable MCP calls from the AWS workload.
-
-### Phase 5 - Controlled non-production write pilot
-
-**Actions**
-
-- Select one low-risk site/path with versioning and a named data owner.
-- Enable one write tool for a small publisher cohort.
-- Require policy `ENFORCE`, approved tickets, durable idempotency and ETags.
-- Test replay, stale ETag, partial failure, throttling, rollback and SharePoint version restore.
-- Review audit evidence with Security and the data owner.
-
-**Exit gate:** All write controls and recovery procedures pass; residual risk is accepted by the data owner and Cyber Security.
-
-**Rollback:** Deny the write tool, remove publisher assignments and selected write grant, restore affected content through SharePoint versioning if required.
-
-### Phase 6 - Production readiness and controlled rollout
-
-**Actions**
-
-- Deploy production with separate state, audiences, clients, roles, permissions, images and secrets.
-- Verify all conditions in section 18 with production-specific evidence.
-- Set Gateway policy to `ENFORCE` before enabling callers.
-- Start with read-only named cohorts and approved sites; expand gradually.
-- Enable additional AI service callers or write tools only through their separate gates.
-- Conduct a production rollback rehearsal and operational handover.
-
-**Exit gate:** Architecture, Cyber Security, Identity, M365/data owner, Operations and Change Management sign the production approval record.
-
-**Rollback:** Apply the relevant kill switch in section 16. Do not bypass Gateway by directing clients to Runtime.
-
-### Phase 7 - Future MCP servers
-
-CRM and internal-software servers follow the same pattern but require separately approved tool contracts, identity mappings, downstream permissions, threat-model deltas, owners, test evidence and migration gates. They are not enabled merely because the shared Gateway exists.
-
-## 16. Cutover, rollback and kill switches
+## 15. Operations and rollback
 
 | Trigger | Immediate containment | Recovery / rollback |
 | --- | --- | --- |
-| Caller token or client compromise | Remove client/assignment; revoke sessions/credential; deny subject/client in policy | Investigate audit trail, rotate credentials and re-enable only after approval |
+| Caller token or client compromise | Remove client/assignment; revoke sessions/credential; deny subject/client in policy | Investigate audit trail, rotate credentials and re-enable only after incident review |
 | Incorrect policy decision | Set explicit deny or disable affected tool/target | Revert policy artifact, rerun negative tests, redeploy through approved path |
 | Runtime/image defect | Disable target if unsafe; stop new cohort rollout | Redeploy last known-good immutable image and verify smoke tests |
 | Graph credential compromise | Revoke credential and selected grants | Rotate credential, review Graph audit, regrant only approved sites |
 | Unauthorized or incorrect write | Disable write tool and publisher role | Use SharePoint version history/restore, reconcile idempotency record and incident evidence |
 | Gateway/AgentCore outage | Fail closed and communicate service unavailability | Restore service/dependency; no direct Runtime bypass |
-| Excessive throttling/load | Reduce cohort/rate, disable expensive tools, honour backoff | Tune quotas/concurrency after measurement and approval |
+| Excessive throttling/load | Reduce cohort/rate, disable expensive tools, honour backoff | Tune quotas/concurrency after measurement and change review |
 | Sensitive data in logs | Restrict log access and stop affected telemetry path if required | Purge according to policy, fix redaction, rotate exposed credentials and notify Security/Privacy |
 
 Every kill switch must have a named operator, tested command/change path, audit trail and maximum execution time.
 
-## 17. Verification and acceptance evidence
+## 16. Developer verification guide
 
-### 17.1 Functional tests
+### 16.1 Functional tests
 
 - MCP initialize, list, semantic search and approved read calls.
 - Correct routing to the SharePoint Runtime.
 - Bounded content extraction by supported file type.
 - Graph throttling, timeout and permission error mapping.
 - Optional AWS AI service-caller read flow.
-- Write create/update, idempotency, stale ETag and recovery tests before write approval.
+- Write create/update, idempotency, stale ETag and recovery tests before enabling writes.
 
-### 17.2 Security tests
+### 16.2 Security tests
 
 - Invalid signature, issuer, audience, client, expired token, missing scope/role and cross-environment token.
 - Client-supplied trusted-header spoofing and missing trusted claims.
@@ -538,7 +448,7 @@ Every kill switch must have a named operator, tested command/change path, audit 
 - Secret/token/content leakage in logs.
 - Downstream permission inventory and cross-site denial.
 
-### 17.3 Operational tests
+### 16.3 Operational tests
 
 - End-to-end correlation across client, Gateway policy, Runtime and Graph.
 - Dashboards, alarms, SIEM events and on-call runbooks.
@@ -546,7 +456,7 @@ Every kill switch must have a named operator, tested command/change path, audit 
 - Client revocation, tool/target kill switch, policy rollback and image rollback.
 - Production-like load and agreed latency/error objectives.
 
-### 17.4 Deployment evidence
+### 16.4 Deployment checks
 
 - Required Azure DevOps branch policies and reviewers.
 - Passing policy schema, generation and negative tests.
@@ -555,9 +465,9 @@ Every kill switch must have a named operator, tested command/change path, audit 
 - Entra app/assignment export and Graph selected-permission evidence.
 - Provider/dependency versions and configuration without placeholders.
 
-## 18. Approval conditions and open decisions
+## 17. Known gaps and open implementation work
 
-The following conditions block production approval unless explicitly risk-accepted by the accountable authority:
+The following items are not complete. Treat them as implementation or validation work, not as behaviour already provided by the PoC:
 
 1. Validate the Gateway MCP target invoking the AgentCore Runtime endpoint with IAM signing in the target AWS account and region.
 2. Validate Runtime resource-policy denial of direct invocation.
@@ -565,17 +475,17 @@ The following conditions block production approval unless explicitly risk-accept
 4. Complete per-request caller-claim propagation or move all identity-specific authorization to Gateway; remove reliance on static Runtime environment variables for caller identity.
 5. Generate or reconcile Gateway Cedar with the policy source, test it and set production policy to `ENFORCE`.
 6. Implement real Microsoft Graph read behaviour with selected permissions, output bounds, supported file types, throttling and safe error handling.
-7. Approve downstream credential type, custody, rotation, revocation and Runtime access. Do not store plaintext secrets in source or normal Terraform variables/state.
+7. Implement the selected downstream credential type, custody, rotation, revocation and Runtime access pattern. Do not store plaintext secrets in source or normal Terraform variables/state.
 8. Implement and validate durable idempotency, ETag conditional writes and recovery before enabling any write tool.
 9. Validate PrivateLink, private DNS, endpoint policy and corporate/AWS workload routing, including the compensating controls required for OAuth callers.
 10. Configure Gateway/Runtime/Identity observability, retention, SIEM forwarding, alarms and sensitive-data leakage tests.
 11. Configure real Azure DevOps agents, variable groups, required reviewers, image scanning, SBOM, signing and publish approvals.
 12. Replace all environment placeholders, pin provider/dependency versions and validate non-production/prod TFE workspaces.
-13. Agree data classification, approved sites/paths, data owners and periodic Graph permission review.
-14. Agree SLO, RTO/RPO, capacity assumptions, support hours, incident ownership and tested kill-switch execution times.
-15. Complete Cyber Security review of the threat register and record accepted residual risks.
+13. Define data classification, allowed sites/paths, data owners and periodic Graph permission review.
+14. Define SLO, RTO/RPO, capacity assumptions, support hours, incident ownership and tested kill-switch execution times.
+15. Validate the threat register against the organisation's risk method and record the resulting residual risks.
 
-## 19. Ownership model
+## 18. Component ownership
 
 | Capability | Accountable owner | Key responsibilities |
 | --- | --- | --- |
@@ -589,9 +499,9 @@ The following conditions block production approval unless explicitly risk-accept
 | Monitoring and incidents | Operations with Platform/Security | Dashboards, alarms, SIEM, on-call, containment and evidence preservation |
 | Client integrations | Developer Experience / application owners | Supported token flow, client configuration, user support and client-side logging controls |
 
-## 20. References
+## 19. References
 
-### 20.1 Repository decisions and implementation
+### 19.1 Repository decisions and implementation
 
 - `README.md` - current platform overview and implementation links.
 - `END_GOAL.md` - target outcome and success criteria.
@@ -602,7 +512,7 @@ The following conditions block production approval unless explicitly risk-accept
 - `docs/adr/0005-path-scoped-policy-pr-validation.md` - required policy PR validation.
 - `examples/enterprise_mcp_platform` - current example code, policy and Terraform.
 
-### 20.2 Authoritative external sources
+### 19.2 Authoritative external sources
 
 - AWS, “Deploy MCP servers in AgentCore Runtime”: https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-mcp.html
 - AWS, “MCP server targets”: https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-MCPservers.html

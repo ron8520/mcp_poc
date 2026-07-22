@@ -783,9 +783,10 @@ CNAME that breaks TLS host validation.
 
 ## References
 
-- [Internal architecture review (Word)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/enterprise-mcp-platform-internal-review.docx)
-- [Internal architecture review (Markdown source)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/enterprise-mcp-platform-internal-review.md)
+- [Developer architecture guide (Word)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/enterprise-mcp-platform-internal-review.docx)
+- [Developer architecture guide (Markdown source)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/enterprise-mcp-platform-internal-review.md)
 - [Editable review diagrams (draw.io)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/enterprise-mcp-platform-review.drawio)
+- [Editable Claude Code identity sequence (draw.io)](/Users/ronruan/Desktop/mcp_poc/docs/architecture/claude-code-sequence.drawio)
 - [ADR 0001](/Users/ronruan/Desktop/mcp_poc/docs/adr/0001-agentcore-runtime-mcp-platform.md)
 - [ADR 0002](/Users/ronruan/Desktop/mcp_poc/docs/adr/0002-policy-as-code-and-devops-workflows.md)
 - [ADR 0003](/Users/ronruan/Desktop/mcp_poc/docs/adr/0003-azure-devops-cloud-owned-platform-repo.md)
