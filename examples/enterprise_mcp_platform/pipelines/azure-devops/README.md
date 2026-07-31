@@ -22,8 +22,8 @@ Terraform execution pipeline automatically.
 
 | Pipeline | Purpose |
 | --- | --- |
-| `policy-ci.yml` | Validate `policy/tool_allowlist.yaml`, JSON Schema, generated runtime JSON, and embedded policy tests. |
-| `mcp-server-ci.yml` | Compile MCP server Python, validate policy compatibility, build Docker images, and optionally push to central ECR. |
+| `policy-ci.yml` | Check the direct Cedar source layout and optionally publish the reviewed source bundle. |
+| `mcp-server-ci.yml` | Compile MCP server Python, build Docker images, and optionally push to central ECR. |
 
 ## Recommended Azure DevOps Setup
 
@@ -47,8 +47,7 @@ Trigger: Automatic
 Policy requirement: Required
 Path filter:
   /examples/enterprise_mcp_platform/policy/*;
-  /examples/enterprise_mcp_platform/policy/generated/*;
-  /examples/enterprise_mcp_platform/requirements.txt;
+  /examples/enterprise_mcp_platform/policy/cedar/*;
   /examples/enterprise_mcp_platform/pipelines/azure-devops/policy-ci.yml
 ```
 
@@ -61,7 +60,7 @@ be mergeable unless the required `policy-ci.yml` branch policy passes.
 
 Use the same branch-policy pattern for `mcp-server-ci.yml` if server/image
 changes should also be required before merge. Keep it as a separate build
-validation policy with server, common helper, generated policy JSON, and server
+validation policy with server, common helper, requirements, and server
 pipeline YAML path filters so policy-only PRs and server-code PRs can be gated
 independently.
 
@@ -80,8 +79,8 @@ Common variables:
 ```text
 AZDO_AGENT_POOL              self-hosted cloud agent pool name
 PYTHON_EXECUTABLE            python3
-AWS_REGION                   us-west-2
-INTERNAL_ECR_REGISTRY        111122223333.dkr.ecr.us-west-2.amazonaws.com/internal
+AWS_REGION                   ap-southeast-2
+INTERNAL_ECR_REGISTRY        111122223333.dkr.ecr.ap-southeast-2.amazonaws.com/internal
 ```
 
 AWS publish variables should come from a restricted variable group or the

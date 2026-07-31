@@ -5,8 +5,7 @@ trigger:
   paths:
     include:
       - examples/enterprise_mcp_platform/policy/*
-      - examples/enterprise_mcp_platform/policy/generated/*
-      - examples/enterprise_mcp_platform/requirements.txt
+      - examples/enterprise_mcp_platform/policy/cedar/*
       - examples/enterprise_mcp_platform/pipelines/azure-devops/policy-ci.yml
 
 # Azure Repos PR validation is enforced by a required branch policy, not this
@@ -14,13 +13,10 @@ trigger:
 pr: none
 
 parameters:
-  - name: publishPolicyBundle
-    displayName: Publish policy bundle artifact
+  - name: publishCedarSource
+    displayName: Publish Cedar source artifact
     type: boolean
     default: false
-
-variables:
-  PYTHON_EXECUTABLE: python3
 
 pool:
   name: $(AZDO_AGENT_POOL)
@@ -32,24 +28,23 @@ steps:
   - bash: |
       set -euo pipefail
       cd examples/enterprise_mcp_platform
-      "$(PYTHON_EXECUTABLE)" -m venv .venv
-      . .venv/bin/activate
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: Install Python dependencies
-
-  - bash: |
-      set -euo pipefail
-      cd examples/enterprise_mcp_platform
-      . .venv/bin/activate
-      python policy/validate_policy.py --check
-      python -m json.tool policy/generated/tool_allowlist.json >/dev/null
-      python -m json.tool policy/tool_allowlist.schema.json >/dev/null
-    displayName: Validate policy YAML, schema, generated JSON, and tests
+      cedar_files="$(find policy/cedar -type f -name '*.cedar' -print)"
+      test -n "$cedar_files"
+      while IFS= read -r cedar_file; do
+        test -s "$cedar_file"
+        grep -q 'resource == AgentCore::Gateway::"__GATEWAY_ARN__"' "$cedar_file"
+      done <<EOF
+      $cedar_files
+      EOF
+      if find policy \( -path '*/generated/*' -o -type f \( -name '*.yaml' -o -name '*.schema.json' -o -name 'policy.review.json' \) \) | grep -q .; then
+        echo "Legacy or generated policy artifact found; direct Cedar must remain the only policy source."
+        exit 1
+      fi
+    displayName: Check direct Cedar policy source
 
   - task: PublishBuildArtifacts@1
-    displayName: Publish policy bundle
-    condition: and(succeeded(), eq('${{ parameters.publishPolicyBundle }}', 'true'))
+    displayName: Publish Cedar source
+    condition: and(succeeded(), eq('${{ parameters.publishCedarSource }}', 'true'))
     inputs:
       PathtoPublish: examples/enterprise_mcp_platform/policy
       ArtifactName: enterprise-mcp-policy

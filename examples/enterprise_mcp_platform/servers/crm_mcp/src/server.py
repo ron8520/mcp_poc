@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from mcp.server.fastmcp import FastMCP
+import os
+
+from mcp.server.mcpserver import MCPServer
 
 
-mcp = FastMCP(host="0.0.0.0", stateless_http=True)
+mcp = MCPServer("crm-mcp")
 
 
 @mcp.tool()
@@ -17,4 +19,9 @@ def crm_server_status() -> dict[str, str]:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    mcp.run(
+        transport="streamable-http",
+        host=os.getenv("MCP_HOST", "0.0.0.0"),
+        port=int(os.getenv("MCP_PORT", "8000")),
+        stateless_http=True,
+    )

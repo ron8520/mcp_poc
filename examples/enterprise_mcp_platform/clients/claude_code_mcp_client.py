@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
-from datetime import timedelta
 
-from mcp import ClientSession
-from mcp.client.streamable_http import streamablehttp_client
+import httpx2
+from mcp.client import Client
+from mcp.client.streamable_http import streamable_http_client
 
 
 def _required_env(name: str) -> str:
@@ -25,18 +25,25 @@ async def main() -> None:
         "x-correlation-id": os.getenv("CORRELATION_ID", "claude-code-example-001"),
     }
 
-    async with streamablehttp_client(
-        mcp_url,
-        headers,
-        timeout=timedelta(seconds=120),
-        terminate_on_close=False,
-    ) as (read_stream, write_stream, _):
-        async with ClientSession(read_stream, write_stream) as session:
-            await session.initialize()
-            tools = await session.list_tools()
+    async with httpx2.AsyncClient(
+        headers=headers,
+        timeout=httpx2.Timeout(120.0),
+        follow_redirects=True,
+    ) as http_client:
+        transport = streamable_http_client(
+            mcp_url,
+            http_client=http_client,
+            terminate_on_close=False,
+        )
+        async with Client(
+            transport,
+            mode="legacy",
+            read_timeout_seconds=120,
+        ) as client:
+            tools = await client.list_tools()
             print({"tools": [tool.name for tool in getattr(tools, "tools", [])]})
 
-            result = await session.call_tool(
+            result = await client.call_tool(
                 "sharepoint_get_file_text",
                 {
                     "site_id": "engineering-site",

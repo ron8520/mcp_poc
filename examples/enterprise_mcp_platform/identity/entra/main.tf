@@ -3,6 +3,7 @@ resource "random_uuid" "role_sharepoint_read" {}
 resource "random_uuid" "role_sharepoint_publish" {}
 resource "random_uuid" "role_crm_admin" {}
 resource "random_uuid" "role_people_assist_read" {}
+resource "random_uuid" "role_sharepoint_automation_write" {}
 
 resource "azuread_application" "enterprise_mcp_api" {
   display_name     = "enterprise-mcp-api-${var.environment}"
@@ -24,18 +25,18 @@ resource "azuread_application" "enterprise_mcp_api" {
 
   app_role {
     id                   = random_uuid.role_sharepoint_read.result
-    value                = "MCP.SharePoint.Read"
-    display_name         = "MCP SharePoint Read"
-    description          = "Can read approved SharePoint content through MCP."
+    value                = "MCP.SharePoint.Delegated.Read"
+    display_name         = "MCP SharePoint Delegated Read"
+    description          = "Can use SharePoint read tools; native SharePoint permissions still apply."
     allowed_member_types = ["User"]
     enabled              = true
   }
 
   app_role {
     id                   = random_uuid.role_sharepoint_publish.result
-    value                = "MCP.SharePoint.Publish"
-    display_name         = "MCP SharePoint Publish"
-    description          = "Can write approved SharePoint content through MCP."
+    value                = "MCP.SharePoint.Delegated.Upload"
+    display_name         = "MCP SharePoint Delegated Upload"
+    description          = "Can upload a file to SharePoint; native SharePoint permissions still apply."
     allowed_member_types = ["User"]
     enabled              = true
   }
@@ -51,9 +52,18 @@ resource "azuread_application" "enterprise_mcp_api" {
 
   app_role {
     id                   = random_uuid.role_people_assist_read.result
-    value                = "MCP.PeopleAssist.SharePoint.Read"
-    display_name         = "MCP People Assist SharePoint Read"
-    description          = "Allows People Assist to read approved SharePoint content through MCP."
+    value                = "MCP.SharePoint.Application.Read"
+    display_name         = "MCP SharePoint Application Read"
+    description          = "Allows an approved application identity to use SharePoint read tools; Sites.Selected still applies."
+    allowed_member_types = ["Application"]
+    enabled              = true
+  }
+
+  app_role {
+    id                   = random_uuid.role_sharepoint_automation_write.result
+    value                = "MCP.SharePoint.Application.Upload"
+    display_name         = "MCP SharePoint Application Upload"
+    description          = "Allows an approved application identity to upload a file to SharePoint; Sites.Selected still applies."
     allowed_member_types = ["Application"]
     enabled              = true
   }
@@ -65,8 +75,8 @@ resource "azuread_service_principal" "enterprise_mcp_api" {
 }
 
 resource "azuread_application" "claude_code_client" {
-  display_name                    = "claude-code-mcp-client-${var.environment}"
-  sign_in_audience                = "AzureADMyOrg"
+  display_name                   = "claude-code-mcp-client-${var.environment}"
+  sign_in_audience               = "AzureADMyOrg"
   fallback_public_client_enabled = var.enable_device_code_flow
 
   public_client {

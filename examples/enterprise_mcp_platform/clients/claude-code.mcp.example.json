@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "enterprise-mcp-gateway": {
-      "url": "https://gateway-id.gateway.bedrock-agentcore.us-west-2.amazonaws.com/mcp",
+      "url": "https://gateway-id.gateway.bedrock-agentcore.ap-southeast-2.amazonaws.com/mcp",
       "headers": {
         "Authorization": "Bearer ${ENTRA_ACCESS_TOKEN}",
         "x-correlation-id": "${CORRELATION_ID}"

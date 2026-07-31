@@ -7,8 +7,6 @@ trigger:
       - examples/enterprise_mcp_platform/common/*
       - examples/enterprise_mcp_platform/common/**/*
       - examples/enterprise_mcp_platform/images/mcp_python_base/container_healthcheck.py
-      - examples/enterprise_mcp_platform/policy/generated/tool_allowlist.json
-      - examples/enterprise_mcp_platform/policy/tool_allowlist.yaml
       - examples/enterprise_mcp_platform/requirements.txt
       - examples/enterprise_mcp_platform/servers/*
       - examples/enterprise_mcp_platform/servers/**/*
@@ -41,7 +39,7 @@ parameters:
 
 variables:
   PYTHON_EXECUTABLE: python3
-  AWS_REGION: us-west-2
+  AWS_REGION: ap-southeast-2
 
 pool:
   name: $(AZDO_AGENT_POOL)
@@ -96,10 +94,27 @@ stages:
               set -euo pipefail
               cd examples/enterprise_mcp_platform
               . .venv/bin/activate
-              python policy/validate_policy.py --check
               PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
                 $(find common "servers/$(SERVER_NAME)" -name '*.py' | sort)
-            displayName: Validate policy and compile server Python
+            displayName: Compile server Python
+            condition: ne(variables.SKIP_SERVER, 'true')
+
+          - bash: |
+              set -euo pipefail
+              cd examples/enterprise_mcp_platform
+              . .venv/bin/activate
+              SERVER_NAME="$(SERVER_NAME)" python - <<'PY'
+              import importlib
+              import os
+
+              from mcp.server.mcpserver import MCPServer
+
+              module = importlib.import_module(
+                  f"servers.{os.environ['SERVER_NAME']}.src.server"
+              )
+              assert isinstance(module.mcp, MCPServer)
+              PY
+            displayName: Validate MCPServer SDK v2
             condition: ne(variables.SKIP_SERVER, 'true')
 
           - bash: |

@@ -44,8 +44,8 @@
 <rect x="540" y="140" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
 <text x="740.0" y="195.0" text-anchor="middle" class="box-title">Phase 1</text>
 <text x="740.0" y="217.0" text-anchor="middle" class="box-title">Complete implementation</text>
-<text x="740.0" y="239.0" text-anchor="middle" class="box-detail">Graph, claims, Cedar,</text>
-<text x="740.0" y="261.0" text-anchor="middle" class="box-detail">idempotency, supply chain</text>
+<text x="740.0" y="239.0" text-anchor="middle" class="box-detail">Graph upload, claims, Cedar,</text>
+<text x="740.0" y="261.0" text-anchor="middle" class="box-detail">and supply chain</text>
 <rect x="60" y="390" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
 <text x="260.0" y="445.0" text-anchor="middle" class="box-title">Phase 2</text>
 <text x="260.0" y="467.0" text-anchor="middle" class="box-title">Deploy nonprod</text>
@@ -63,9 +63,9 @@
 <text x="260.0" y="761.0" text-anchor="middle" class="box-detail">agent or application</text>
 <rect x="540" y="640" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
 <text x="740.0" y="695.0" text-anchor="middle" class="box-title">Phase 5</text>
-<text x="740.0" y="717.0" text-anchor="middle" class="box-title">Controlled write pilot</text>
-<text x="740.0" y="739.0" text-anchor="middle" class="box-detail">Gate D: one site/path, ticket,</text>
-<text x="740.0" y="761.0" text-anchor="middle" class="box-detail">idempotency and ETag</text>
+<text x="740.0" y="717.0" text-anchor="middle" class="box-title">Controlled upload pilot</text>
+<text x="740.0" y="739.0" text-anchor="middle" class="box-detail">Gate D: one site/path and</text>
+<text x="740.0" y="761.0" text-anchor="middle" class="box-detail">invalid-input rejection</text>
 <rect x="300" y="920" width="400" height="160" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
 <text x="500.0" y="970.0" text-anchor="middle" class="box-title">Phase 6</text>
 <text x="500.0" y="992.0" text-anchor="middle" class="box-title">Production rollout</text>

@@ -32,12 +32,12 @@ variable "enable_device_code_flow" {
 
 variable "sharepoint_readers_group_object_id" {
   type        = string
-  description = "Group assigned MCP.SharePoint.Read on the Enterprise MCP API."
+  description = "Group assigned MCP.SharePoint.Delegated.Read on the Enterprise MCP API."
 }
 
 variable "sharepoint_publishers_group_object_id" {
   type        = string
-  description = "Group assigned MCP.SharePoint.Publish on the Enterprise MCP API."
+  description = "Group assigned MCP.SharePoint.Delegated.Upload on the Enterprise MCP API."
 }
 
 variable "crm_admins_group_object_id" {

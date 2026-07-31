@@ -4,6 +4,10 @@ Date: 2026-07-06
 
 Status: Accepted for PoC validation
 
+ADR 0006 supersedes the Runtime policy reference below. Direct Cedar at Gateway
+is the sole caller/tool authorization policy; Runtime resource policies remain
+IAM-based and Runtime still performs input and execution-safety validation.
+
 ## Context
 
 Claude Code runs from an internal developer laptop on the corporate network. The

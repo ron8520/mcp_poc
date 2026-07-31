@@ -5,8 +5,12 @@ Date: 2026-07-05
 Status: Superseded by ADR 0003
 
 Superseded note: ADR 0003 replaces the GitHub Actions/future-repo split
-assumption with an on-prem Azure DevOps Server pipeline model and a single
+assumption with a self-managed Azure DevOps Server pipeline model hosted on AWS
+and a single
 cloud-owned platform repo.
+
+Policy-source note: ADR 0006 replaces the YAML, generated JSON, and
+Runtime-policy decisions with direct AgentCore Cedar.
 
 ## Context
 

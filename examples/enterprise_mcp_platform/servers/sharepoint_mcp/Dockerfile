@@ -1,4 +1,4 @@
-ARG PYTHON_BASE_IMAGE=python:3.11-slim
+ARG PYTHON_BASE_IMAGE=python:3.13-slim
 FROM ${PYTHON_BASE_IMAGE}
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -32,7 +32,6 @@ COPY images/mcp_python_base/container_healthcheck.py /usr/local/bin/mcp-containe
 RUN chmod 0755 /usr/local/bin/mcp-container-healthcheck.py
 
 COPY --chown=mcp:mcp common ./common
-COPY --chown=mcp:mcp policy ./policy
 COPY --chown=mcp:mcp servers/__init__.py ./servers/__init__.py
 COPY --chown=mcp:mcp servers/sharepoint_mcp ./servers/sharepoint_mcp
 

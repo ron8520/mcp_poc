@@ -8,16 +8,22 @@ The Gateway is deployed by Terraform:
 infra/agentcore_gateway.tf
 ```
 
-This folder contains optional Gateway-adjacent code only:
+This folder contains the request interceptor used by the SharePoint OBO lane:
 
 ```text
-optional_claims_interceptor_lambda.py
+obo_assertion_interceptor.py
 ```
 
-That file is a Lambda interceptor example. Use it only if the runtime needs
-sanitized caller context headers after Gateway has already validated the Entra
-JWT. It is not the Gateway and it does not replace Gateway policy.
+After Gateway validates the Entra JWT, the interceptor copies the raw bearer
+token to `x-mcp-user-assertion` only when the selected action starts with
+`sharepoint-delegated___`. The header is allowlisted only on the delegated
+target and Runtime. It is an OBO credential assertion, not an authoritative
+identity claim or an MCP tool argument. Cedar remains the caller/tool
+authorization boundary.
 
 Inbound MCP callers, including Claude Code, authenticate with an Entra bearer
 token. AWS IAM roles are used by Gateway and Runtime after the JWT is accepted;
 they are not the caller credential sent by Claude Code.
+
+The interceptor intentionally does not log the event or token and returns a
+401 without invoking Runtime if a delegated-lane call has no bearer assertion.

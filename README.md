@@ -1,10 +1,11 @@
 # MCP Agent Platform on AWS
 
 This repository defines an enterprise MCP platform built around one shared
-Amazon Bedrock AgentCore Gateway and a separate AWS-hosted MCP server for each
-enabled downstream system. The current PoC runs each server on AgentCore
-Runtime. SharePoint is enabled first; CRM, internal software, and future systems
-remain separate server boundaries.
+Amazon Bedrock AgentCore Gateway. Platform-owned and enterprise-hosted MCP
+servers run on AgentCore Runtime, while approved vendor-operated remote MCP
+endpoints can connect directly as Gateway targets. SharePoint remains the first
+enabled business-system integration; AWS Knowledge, Microsoft Learn, and a
+Registry-only Terraform MCP server are the first documentation-target PoC.
 
 The examples in this README are intentionally inline. A developer can read the
 architecture, copy the protocol examples, and understand the security controls
@@ -15,46 +16,35 @@ without access to the original source tree or machine-local file paths.
 ```mermaid
 %%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart LR
-    subgraph Callers["MCP callers"]
-        Claude["Claude Code or VS Code<br>delegated Entra token"]
-        AIApp["General AI application on AWS<br>LangGraph, LangChain, or LlamaIndex<br>delegated or app-only Entra token"]
-        Future["Future approved applications"]
-    end
+    Entra["Microsoft Entra ID<br>Enterprise MCP API"]
+    Claude["Employee using Claude Code<br>delegated Entra JWT"]
+    Automation["Approved AI application<br>app-only Entra JWT"]
+    Gateway["One AgentCore Gateway<br>MCP + CUSTOM_JWT"]
+    Cedar["Direct Cedar<br>exact caller + target/tool + input"]
+    Direct["Direct vendor remote target pattern<br>no Runtime proxy"]
+    Hosted["Enterprise-hosted Runtime pattern<br>IAM/SigV4"]
+    AWSKnowledge["AWS Knowledge MCP<br>public documentation"]
+    MicrosoftLearn["Microsoft Learn MCP<br>public documentation"]
+    Terraform["Terraform MCP Runtime<br>registry only; no TFE credential"]
+    SharePoint["SharePoint delegated/application Runtimes<br>OBO or app identity"]
+    Registry["Public Terraform Registry"]
+    Graph["Microsoft Graph / SharePoint"]
+    Future["CRM / internal / Databricks<br>future reviewed decisions"]
 
-    subgraph Identity["Caller identity"]
-        Entra["Microsoft Entra ID<br>caller JWT issuer"]
-    end
-
-    subgraph Ingress["AWS MCP ingress"]
-        PrivateLink["AgentCore Gateway interface VPC endpoint<br>private DNS where available"]
-        Gateway["Amazon Bedrock AgentCore Gateway<br>MCP protocol and CUSTOM_JWT"]
-    end
-
-    subgraph Services["Separate AWS-hosted MCP servers"]
-        SPServer["SharePoint MCP server<br>AgentCore Runtime"]
-        CRMServer["CRM MCP server<br>future"]
-        InternalServer["Internal software MCP server<br>future"]
-    end
-
-    subgraph Downstream["Downstream systems"]
-        Graph["Microsoft Graph and SharePoint"]
-        CRM["CRM or Dataverse"]
-        Internal["Internal APIs"]
-    end
-
-    Entra -->|"issues caller JWT"| Claude
-    Entra -->|"issues caller JWT"| AIApp
-    Entra -->|"issues caller JWT"| Future
-    Claude -->|"HTTPS MCP"| Gateway
-    AIApp -->|"private HTTPS MCP"| PrivateLink
-    Future -->|"private HTTPS MCP"| PrivateLink
-    PrivateLink --> Gateway
-    Gateway --> SPServer
-    Gateway -.-> CRMServer
-    Gateway -.-> InternalServer
-    SPServer -->|"separate Graph credential"| Graph
-    CRMServer -.-> CRM
-    InternalServer -.-> Internal
+    Entra --> Claude
+    Entra --> Automation
+    Claude --> Gateway
+    Automation --> Gateway
+    Gateway --> Cedar
+    Cedar --> Direct
+    Cedar --> Hosted
+    Direct --> AWSKnowledge
+    Direct --> MicrosoftLearn
+    Hosted --> Terraform
+    Hosted --> SharePoint
+    Terraform --> Registry
+    SharePoint --> Graph
+    Cedar -.-> Future
 ```
 
 The fixed boundaries are:
@@ -62,55 +52,110 @@ The fixed boundaries are:
 - AgentCore Gateway is the only MCP front door. There is no custom gateway,
   CloudFront distribution, or CDN-backed MCP domain.
 - Microsoft Entra ID identifies MCP callers.
-- Gateway routes an authorized MCP request to the selected AWS-hosted server.
-- Each server uses a separate downstream credential. An inbound caller JWT is
-  never reused as a Microsoft Graph token.
-- Every downstream system has its own MCP server, image, runtime, and policy
-  entries.
-- Tool authorization is default-deny and is evaluated again in the server,
-  even after Gateway accepts the JWT.
+- Direct Cedar at Gateway is the only caller/tool authorization policy.
+- Approved vendor-operated remote MCP endpoints can be direct Gateway targets;
+  an AgentCore Runtime proxy is not mandatory.
+- AWS Knowledge and Microsoft Learn are public documentation-only targets.
+  Queries must not contain secrets, private source code, customer records, or
+  other sensitive content.
+- The Terraform MCP server is enterprise-hosted on Runtime with only
+  `--toolsets=registry`, `ENABLE_TF_OPERATIONS=false`, and no TFE credential.
+  It retrieves documentation but cannot create a run or apply infrastructure.
+- Delegated requests use the `sharepoint-delegated` Runtime lane and a Graph
+  OBO token. SharePoint's native ACL decides which sites and items the employee
+  may use.
+- A Gateway request interceptor propagates the already validated caller token
+  only to the delegated lane. Gateway still invokes both Runtimes with
+  IAM/SigV4.
+- App-only requests use the `sharepoint-application` Runtime lane and a
+  separate Graph app token. `Sites.Selected` decides which sites the
+  application may use.
+- Platform-owned downstream integrations keep separate MCP server source/image
+  and policy boundaries; materially different identity lanes may use separate
+  targets and Runtimes.
+- Runtime rejects invalid upload input without trimming, normalizing, or
+  repairing it. It does not load or re-evaluate a second authorization policy.
+- The workload Terraform root deploys AgentCore Gateway/Runtime in Sydney
+  (`ap-southeast-2`). Melbourne (`ap-southeast-4`) remains a future candidate
+  until AWS publishes the required AgentCore endpoints and VPC support. The
+  target account ID, Runtime subnets, and security groups come from central
+  platform/TFE configuration.
+- Gateway PrivateLink, private DNS, endpoint policy, and corporate routing are
+  pre-existing network-platform dependencies; this workload root does not
+  create or own them.
 
-AgentCore Runtime is the current PoC hosting service. The same high-level
-Gateway-to-server model can also describe an MCP service hosted through an
-approved Lambda adapter, ECS service, or EKS workload. The service-specific
-integration mechanics are deployment details and are not part of the
-developer-facing architecture diagram.
+AgentCore Runtime is the current PoC hosting service for platform-owned code and
+the restricted Terraform MCP process. Gateway can instead connect directly to
+an approved vendor-operated remote MCP endpoint. ADR 0009 defines the target
+selection and documentation-only controls; Databricks data access and Azure
+DevOps work-management operations remain separate future decisions. ADR 0010
+defines the single SharePoint upload tool, fail-fast input behavior, and
+delegated/application lane names.
 
 ## Request Sequence
 
 The same Gateway URL supports a human developer client and an approved general
-AI application running on AWS. The token grant and policy checks differ.
+AI application running on AWS. The token grant and policy checks differ. This
+sequence uses the upload tool to show both credential lanes; list/read tools
+use the same lane selection.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Caller as Claude Code or AWS AI application
+    participant Employee as Employee
+    participant Helper as entra_token_helper.ps1
+    participant Claude as Claude Code
+    participant App as Background application
     participant Entra as Microsoft Entra ID
     participant Gateway as AgentCore Gateway
-    participant Policy as Gateway and tool policy
-    participant Server as SharePoint MCP server
+    participant Cedar as AgentCore Cedar policy
+    participant Interceptor as OBO assertion interceptor
+    participant DelegatedRT as SharePoint delegated Runtime
+    participant ApplicationRT as SharePoint application Runtime
     participant Graph as Microsoft Graph
 
-    alt Human-delegated call
-        Caller->>Entra: Request delegated mcp.invoke scope
-        Entra-->>Caller: Access token with user and client claims
-    else AWS application call
-        Caller->>Entra: Request audience/.default using workload credential
-        Entra-->>Caller: App-only token with client and app-role claims
+    alt Delegated call
+        Employee->>Helper: Run entra_token_helper.ps1 delegated
+        Helper->>Entra: Start device-code flow for mcp.invoke
+        Entra-->>Helper: Device-code sign-in instructions
+        Helper-->>Employee: Display sign-in instructions
+        Employee->>Entra: Complete authentication
+        Helper->>Entra: Poll token endpoint
+        Entra-->>Helper: Access token with user and client claims
+        Helper-->>Employee: Return token to ENTRA_ACCESS_TOKEN assignment
+        Employee->>Claude: Start MCP client with the environment token
+        Claude->>Gateway: MCP request with delegated bearer token
+        Gateway->>Gateway: Validate issuer, audience, expiry, and client
+        Gateway->>Cedar: Authorize sharepoint-delegated upload action
+        Cedar-->>Gateway: Allow or deny from scope, role, tool, and input
+        Gateway->>Interceptor: Validated bearer token and delegated-lane action
+        Interceptor-->>Gateway: Controlled x-mcp-user-assertion
+        Gateway->>DelegatedRT: SigV4 invoke delegated target with assertion
+        DelegatedRT->>DelegatedRT: Reject invalid upload input
+        DelegatedRT->>Entra: Exchange through OBO for Microsoft Graph
+        Entra-->>DelegatedRT: Delegated Graph token
+        DelegatedRT->>Graph: Upload file as employee
+        Graph->>Graph: Enforce native SharePoint ACL
+        Graph-->>DelegatedRT: Result or access denied
+        DelegatedRT-->>Gateway: MCP tool result
+        Gateway-->>Claude: MCP response
+    else App-only call
+        App->>Entra: Request audience/.default using workload credential
+        Entra-->>App: App-only token with client and app-role claims
+        App->>Gateway: MCP request with app-only bearer token
+        Gateway->>Gateway: Validate issuer, audience, expiry, and client
+        Gateway->>Cedar: Authorize sharepoint-application upload action
+        Cedar-->>Gateway: Allow or deny from app role, tool, and input
+        Gateway->>ApplicationRT: SigV4 invoke without user assertion
+        ApplicationRT->>ApplicationRT: Reject invalid upload input
+        ApplicationRT->>Entra: Request Graph app-only token
+        Entra-->>ApplicationRT: Graph application token
+        ApplicationRT->>Graph: Upload file as application
+        Graph->>Graph: Enforce Sites.Selected grant
+        Graph-->>ApplicationRT: Result or access denied
+        ApplicationRT-->>Gateway: MCP tool result
+        Gateway-->>App: MCP response
     end
-
-    Caller->>Gateway: MCP request with Bearer token and correlation ID
-    Gateway->>Gateway: Validate issuer, audience, expiry, and allowed client
-    Gateway->>Policy: Evaluate caller, tool, and discovery permissions
-    Policy-->>Gateway: Allow or deny
-    Gateway->>Server: Forward authorized MCP request
-    Server->>Server: Validate trusted claims and tool arguments
-    Server->>Policy: Re-evaluate tool, site, path, and write controls
-    Policy-->>Server: Allow or deny
-    Server->>Graph: Call with separate downstream credential
-    Graph-->>Server: Result and ETag where applicable
-    Server-->>Gateway: MCP tool result
-    Gateway-->>Caller: MCP response
 ```
 
 For a user-facing AWS application, prefer a delegated or on-behalf-of token when
@@ -120,18 +165,87 @@ normally carries application roles rather than a delegated `scp` claim, so the
 Gateway and policy configuration must support the selected grant type; do not
 make a delegated scope the only authorization condition for service tokens.
 
+## Documentation-Assisted Terraform Delivery
+
+Claude Code—not a generic coding agent—uses the governed documentation targets
+to research current AWS, Microsoft, and Terraform behavior. It writes the code
+in the employee's local checkout and uses normal Git/PR mechanics. Azure DevOps
+Server and central TFE remain the only code-review and Terraform execution path.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Employee as Employee
+    participant Helper as Entra token helper
+    participant Entra as Microsoft Entra ID
+    participant Claude as Claude Code
+    participant Gateway as AgentCore Gateway
+    participant Cedar as Direct Cedar
+    participant PublicDocs as AWS Knowledge / Microsoft Learn
+    participant TerraformMCP as Terraform MCP Runtime
+    participant Registry as Public Terraform Registry
+    participant Repo as Local checkout
+    participant ADO as Azure DevOps Server
+    participant TFE as Terraform Enterprise
+    participant AWS as AWS target account
+
+    Employee->>Helper: Request delegated Enterprise MCP token
+    Helper->>Entra: Device-code authentication
+    Entra-->>Helper: Delegated access token
+    Helper-->>Employee: Set ENTRA_ACCESS_TOKEN
+    Employee->>Claude: Ask for an infrastructure change
+    loop Retrieve current documentation as needed
+        Claude->>Gateway: MCP documentation tool call with bearer token
+        Gateway->>Cedar: Authorize exact target-qualified tool
+        Cedar-->>Gateway: Allow or deny
+        alt AWS or Microsoft documentation
+            Gateway->>PublicDocs: Direct remote MCP call
+            PublicDocs-->>Gateway: Public documentation result
+        else Terraform provider/module documentation
+            Gateway->>TerraformMCP: SigV4 invoke registry-only target
+            TerraformMCP->>Registry: Read public Registry metadata/docs
+            Registry-->>TerraformMCP: Documentation result
+            TerraformMCP-->>Gateway: MCP result
+        end
+        Gateway-->>Claude: Governed documentation response
+    end
+    Claude->>Repo: Create or update Terraform code
+    Claude-->>Employee: Present diff for review
+    Employee->>Claude: Approve standard Git/PR action
+    Claude->>ADO: Git push and create/update PR
+    ADO->>TFE: Existing VCS trigger starts run
+    TFE->>TFE: Plan, policy checks, and approval
+    TFE->>AWS: Approved Terraform apply
+    Note over Gateway,TFE: Gateway and Terraform MCP do not push code or execute TFE runs
+```
+
+The editable sequence sources are
+`docs/architecture/claude-code-terraform-docs-sequence.mmd` and
+`docs/architecture/claude-code-terraform-docs-sequence.drawio`.
+
 ## Identity and Authorization Contract
 
 | Boundary | Credential | Required checks |
 | --- | --- | --- |
 | Caller to Gateway | Entra access token | Issuer, audience, expiry, allowed client, and grant-compatible scope or app role |
+| Gateway to either Runtime | Gateway IAM role with SigV4 | Runtime resource policy allows only the Gateway role |
+| Gateway to AWS Knowledge or Microsoft Learn | No outbound credential; approved public-docs exception | TLS/hostname, reviewed target/tool, data-classification, rate/size limits, and target kill switch |
 | MCP server to AWS services | Per-server AWS identity | Least-privilege logs, metrics, secret retrieval, and approved service calls |
-| MCP server to Microsoft Graph | Separate Entra application credential | Selected Graph application permissions and site-level restrictions |
+| Terraform MCP Runtime to public Registry | No TFE credential | Public `registry` toolset only; Terraform operations disabled |
+| Delegated Runtime to Microsoft Graph | OBO delegated Graph token | Native SharePoint user/site/item permissions |
+| Application Runtime to Microsoft Graph | Separate Entra application credential | Selected Graph application permissions and `Sites.Selected` grants |
 
 Trusted caller identity must come from validated request context, never from
-ordinary MCP tool arguments. A caller must not be able to set
-`x-mcp-subject`, `x-mcp-client-id`, `x-mcp-groups`, or `x-mcp-app-roles`
-directly and have the server trust those values.
+ordinary MCP tool arguments. The OBO assertion header is a credential copied
+and overwritten by the trusted Gateway interceptor, not a caller-controlled
+identity claim. Only the delegated target and Runtime allowlist it; the
+application lane does not.
+
+CRM does not automatically require two Runtimes. Start with one
+`crm-application` lane when every approved CRM tool uses the same service
+identity. Add a `crm-delegated` lane from the same CRM image only when the CRM
+API supports and requires delegated access. CRM and SharePoint still remain
+separate server images and ownership boundaries.
 
 Recommended claim mapping:
 
@@ -147,73 +261,31 @@ Recommended claim mapping:
 
 ### Acquire a delegated token on Windows PowerShell
 
-The following device-code example requests the Enterprise MCP delegated scope.
-Register the client as a public client and replace the placeholders.
+The employee runs the repository token helper. The helper performs the Entra
+device-code flow and returns the delegated Enterprise MCP token to the
+PowerShell assignment below. Claude Code does not authenticate the employee or
+request the token; it only reads `ENTRA_ACCESS_TOKEN` when sending MCP requests.
 
 ```powershell
-$TenantId = "<entra-tenant-id>"
-$ClientId = "<public-client-application-id>"
-$Audience = "api://enterprise-mcp-nonprod"
-$Scopes = "$Audience/mcp.invoke openid profile offline_access"
-
-$DeviceCode = Invoke-RestMethod `
-    -Method Post `
-    -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" `
-    -ContentType "application/x-www-form-urlencoded" `
-    -Body @{
-        client_id = $ClientId
-        scope     = $Scopes
-    }
-
-Write-Host $DeviceCode.message
-$Deadline = [DateTimeOffset]::UtcNow.AddSeconds([int]$DeviceCode.expires_in)
-$Interval = [int]$DeviceCode.interval
-$Token = $null
-
-:poll while ([DateTimeOffset]::UtcNow -lt $Deadline) {
-    Start-Sleep -Seconds $Interval
-    try {
-        $Token = Invoke-RestMethod `
-            -Method Post `
-            -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" `
-            -ContentType "application/x-www-form-urlencoded" `
-            -Body @{
-                grant_type = "urn:ietf:params:oauth:grant-type:device_code"
-                client_id  = $ClientId
-                device_code = $DeviceCode.device_code
-            }
-        break poll
-    }
-    catch {
-        $OAuthError = $_.ErrorDetails.Message | ConvertFrom-Json
-        if ($OAuthError.error -eq "authorization_pending") {
-            continue poll
-        }
-        if ($OAuthError.error -eq "slow_down") {
-            $Interval += 5
-            continue poll
-        }
-        throw
-    }
-}
-
-if (-not $Token.access_token) {
-    throw "The device-code flow expired before sign-in completed."
-}
-
-# Keep the token in process memory. Do not print or persist it.
-$env:ENTERPRISE_MCP_ACCESS_TOKEN = $Token.access_token
+Set-Location examples/enterprise_mcp_platform
+$env:ENTRA_TENANT_ID = "<tenant-id>"
+$env:ENTRA_CLIENT_ID = "<interactive-mcp-public-client-id>"
+$env:ENTRA_MCP_AUDIENCE = "api://enterprise-mcp-nonprod"
+$env:ENTRA_ACCESS_TOKEN = & .\clients\entra_token_helper.ps1 delegated
 ```
 
-### Initialize MCP, list tools, and call a tool
+### Connect to MCP, list tools, and call a tool
 
 Install the Python MCP SDK, then run this client with a short-lived token in the
-current process.
+current process. The server code uses Python MCP SDK 2.0, while the managed
+AgentCore Gateway currently supports handshake-era MCP protocol versions rather
+than `2026-07-28`. Gateway clients therefore use SDK 2 with `mode="legacy"`
+until AWS documents and validates support for the newer protocol.
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install "mcp==1.12.4"
+python -m pip install "mcp==2.0.0"
 
 $env:ENTERPRISE_MCP_GATEWAY_URL = `
     "https://<gateway-id>.gateway.bedrock-agentcore.<region>.amazonaws.com/mcp"
@@ -229,13 +301,14 @@ import asyncio
 import os
 import uuid
 
-from mcp import ClientSession
-from mcp.client.streamable_http import streamablehttp_client
+import httpx2
+from mcp.client import Client
+from mcp.client.streamable_http import streamable_http_client
 
 
 async def main() -> None:
     gateway_url = os.environ["ENTERPRISE_MCP_GATEWAY_URL"]
-    access_token = os.environ["ENTERPRISE_MCP_ACCESS_TOKEN"]
+    access_token = os.environ["ENTRA_ACCESS_TOKEN"]
     correlation_id = str(uuid.uuid4())
 
     headers = {
@@ -243,27 +316,29 @@ async def main() -> None:
         "X-Correlation-Id": correlation_id,
     }
 
-    async with streamablehttp_client(
-        gateway_url,
+    async with httpx2.AsyncClient(
         headers=headers,
-    ) as (read_stream, write_stream, _):
-        async with ClientSession(read_stream, write_stream) as session:
-            await session.initialize()
-
-            tools = await session.list_tools()
+        timeout=httpx2.Timeout(120.0),
+        follow_redirects=True,
+    ) as http_client:
+        transport = streamable_http_client(
+            gateway_url,
+            http_client=http_client,
+            terminate_on_close=False,
+        )
+        async with Client(transport, mode="legacy") as client:
+            tools = await client.list_tools()
             print("Available tools:", [tool.name for tool in tools.tools])
 
-            result = await session.call_tool(
-                "sharepoint_list_site_content",
+            result = await client.call_tool(
+                "sharepoint_upload_file",
                 arguments={
                     "site_id": "engineering-site",
-                    "path": "/Shared Documents/Engineering",
-                    "recursive": False,
-                    "max_items": 50,
-                    "correlation_id": correlation_id,
+                    "file_path": "Shared Documents/Engineering/example.txt",
+                    "content": "Uploaded by the delegated example.",
                 },
             )
-            print(result.structuredContent or result.content)
+            print(result.structured_content or result.content)
 
 
 if __name__ == "__main__":
@@ -275,7 +350,7 @@ The Gateway may expose the built-in
 service flows should call predefined tools rather than use semantic search.
 
 ```python
-search_result = await session.call_tool(
+search_result = await client.call_tool(
     "x_amz_bedrock_agentcore_search",
     arguments={"query": "approved tools that read SharePoint engineering files"},
 )
@@ -378,13 +453,11 @@ def call_mcp_tool(tool_name: str, arguments: dict, correlation_id: str) -> dict:
 def lambda_handler(event: dict, context: object) -> dict:
     correlation_id = getattr(context, "aws_request_id", str(uuid.uuid4()))
     result = call_mcp_tool(
-        "sharepoint_list_site_content",
+        "sharepoint_upload_file",
         {
             "site_id": "engineering-site",
-            "path": "/Shared Documents/Engineering",
-            "recursive": False,
-            "max_items": 50,
-            "correlation_id": correlation_id,
+            "file_path": "Shared Documents/Engineering/example.txt",
+            "content": "Uploaded by the app-only example.",
         },
         correlation_id,
     )
@@ -398,251 +471,135 @@ that operating model.
 ## SharePoint MCP Server Pattern
 
 An MCP server listens on `0.0.0.0:8000/mcp`, uses streamable HTTP, and remains
-stateless so AgentCore Runtime can scale it horizontally.
+stateless so AgentCore Runtime can scale it horizontally. The PoC exposes one
+SharePoint write operation: upload UTF-8 text to a path in the site's default
+document library.
 
 ```python
 from __future__ import annotations
 
-import re
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import Context, MCPServer
 
 
-mcp = FastMCP("sharepoint-mcp", host="0.0.0.0", stateless_http=True)
-SAFE_ID = re.compile(r"^[A-Za-z0-9._:@/-]{1,220}$")
-
-
-def require_safe_id(name: str, value: str) -> str:
-    normalized = value.strip()
-    if not SAFE_ID.fullmatch(normalized):
-        raise ValueError(f"{name} has an invalid format")
-    return normalized
-
-
-def require_text(name: str, value: str, max_chars: int) -> str:
-    normalized = value.strip()
-    if not normalized or len(normalized) > max_chars:
-        raise ValueError(f"{name} must contain 1 to {max_chars} characters")
-    return normalized
-
-
-def authorize_tool(
-    *,
-    trusted_caller: dict[str, Any],
-    tool_name: str,
-    site_id: str,
-    resource_path: str,
-) -> None:
-    # The real implementation loads the versioned allowlist shown below.
-    if trusted_caller["client_id"] not in {"claude-code-client", "aws-ai-app"}:
-        raise PermissionError("client_not_allowed")
-    if tool_name not in trusted_caller["allowed_tools"]:
-        raise PermissionError("tool_not_allowed")
-    if site_id not in trusted_caller["allowed_sites"]:
-        raise PermissionError("site_not_allowed")
-    if not resource_path.startswith("/Shared Documents/Engineering"):
-        raise PermissionError("path_not_allowed")
+mcp = MCPServer("sharepoint-mcp")
 
 
 @mcp.tool()
-def sharepoint_list_site_content(
+def sharepoint_upload_file(
     site_id: str,
-    path: str,
-    correlation_id: str,
-    recursive: bool = False,
-    max_items: int = 50,
+    file_path: str,
+    content: str,
+    ctx: Context,
 ) -> dict[str, Any]:
-    safe_site_id = require_safe_id("site_id", site_id)
-    safe_path = require_text("path", path, 300)
-    safe_correlation_id = require_safe_id("correlation_id", correlation_id)
-    if not 1 <= max_items <= 200:
-        raise ValueError("max_items must be between 1 and 200")
-
-    # Resolve this from Gateway-validated, server-side request context.
-    # Never accept trusted_caller as an MCP tool argument.
-    trusted_caller = current_trusted_caller()
-    authorize_tool(
-        trusted_caller=trusted_caller,
-        tool_name="sharepoint_list_site_content",
-        site_id=safe_site_id,
-        resource_path=safe_path,
+    validate_upload_input(site_id, file_path, content)
+    return graph_upload_file(
+        site_id=site_id,
+        file_path=file_path,
+        content=content,
+        user_assertion=user_assertion_from_context(ctx),
     )
-
-    result = graph_list_site_content(
-        site_id=safe_site_id,
-        path=safe_path,
-        recursive=recursive,
-        max_items=max_items,
-    )
-    audit(
-        event_name="tool.sharepoint_list_site_content",
-        correlation_id=safe_correlation_id,
-        result="success",
-        site_id=safe_site_id,
-        path=safe_path,
-        item_count=len(result),
-    )
-    return {"status": "ok", "site_id": safe_site_id, "result": result}
 
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    mcp.run(
+        transport="streamable-http",
+        host="0.0.0.0",
+        port=8000,
+        stateless_http=True,
+    )
 ```
 
-`current_trusted_caller`, `graph_list_site_content`, and `audit` are boundary
-adapters in this example:
-
-- `current_trusted_caller` reads request-local claims created from
-  Gateway-validated context. It must fail closed if required claims are absent.
-- `graph_list_site_content` obtains its own Graph credential and enforces the
-  approved site boundary.
-- `audit` emits structured metadata but never tokens, credentials, full
-  document content, or unrestricted tool arguments.
-
-Write tools require additional controls:
-
-| Field | Rule |
-| --- | --- |
-| `change_ticket_id` | Required and restricted to an approved pattern such as `CHG-12345`, `RFC-12345`, or `ADO-12345` |
-| `idempotency_key` | Required and stored for replay protection |
-| `audit_reason` | Required, bounded, and included in structured audit metadata |
-| `expected_etag` | Required for updates when Microsoft Graph supports optimistic concurrency |
-| target site/path | Must match both caller policy and the downstream application's selected permissions |
+`validate_upload_input` either accepts each value unchanged or raises an error.
+It does not trim, normalize, repair, or substitute values. `Context` is injected
+by the MCP SDK and is not a fourth client-visible input. The Graph adapter uses
+OBO in the delegated lane or the dedicated Graph application in the
+application lane; SharePoint ACLs or `Sites.Selected` enforce site access.
 
 ## Policy as Code
 
-The human-maintained policy is the source of truth. Generated JSON can be
-consumed by MCP server code and CI, but it must not be edited directly.
+The reviewed `.cedar` files are the only MCP tool-authorization source. There
+is no policy YAML, generated Runtime JSON, or server-side authorization copy.
 
-```yaml
-version: "2026-07-24"
-
-metadata:
-  name: enterprise-mcp-tool-policy
-  default_decision: deny
-
-subjects:
-  claude-code-sharepoint-readers:
-    type: human_delegated
-    entra:
-      allowed_clients: [claude-code-client]
-      required_scopes: [mcp.invoke]
-      required_roles_any: [MCP.SharePoint.Read]
-      required_groups_any: [mcp-sharepoint-readers]
-
-  aws-ai-application:
-    type: service_app
-    entra:
-      allowed_clients: [aws-ai-app]
-      required_roles_any: [MCP.SharePoint.Read]
-
-discovery:
-  semantic_search:
-    tool_name: x_amz_bedrock_agentcore_search
-    allowed_subjects:
-      - claude-code-sharepoint-readers
-    denied_subjects:
-      - aws-ai-application
-
-approved_resources:
-  sharepoint_sites:
-    engineering:
-      site_id: engineering-site
-      allowed_paths:
-        - /Shared Documents/Engineering
-        - /SitePages
-
-tools:
-  sharepoint_list_site_content:
-    server: sharepoint-mcp
-    write: false
-    authorization:
-      allowed_subjects:
-        - claude-code-sharepoint-readers
-        - aws-ai-application
-      allowed_sites:
-        - engineering
-    input_constraints:
-      required: [site_id, path, correlation_id]
-      path_must_be_under_allowed_paths: true
-
-  sharepoint_update_file_content:
-    server: sharepoint-mcp
-    write: true
-    authorization:
-      allowed_subjects:
-        - claude-code-sharepoint-publishers
-      allowed_sites:
-        - engineering
-    write_controls:
-      require_change_ticket: true
-      require_idempotency_key: true
-      require_expected_etag: true
-      require_audit_reason: true
+```cedar
+permit (
+    principal is AgentCore::OAuthUser,
+    action == AgentCore::Action::"sharepoint-delegated___sharepoint_upload_file",
+    resource == AgentCore::Gateway::"__GATEWAY_ARN__"
+)
+when {
+    principal.hasTag("scp") &&
+    (
+        principal.getTag("scp") == "mcp.invoke" ||
+        principal.getTag("scp") like "mcp.invoke *" ||
+        principal.getTag("scp") like "* mcp.invoke" ||
+        principal.getTag("scp") like "* mcp.invoke *"
+    ) &&
+    principal.hasTag("roles") &&
+    principal.getTag("roles") like "*\"MCP.SharePoint.Delegated.Upload\"*"
+};
 ```
 
-Authorization checks are conjunctive: when a subject defines an allowed client,
-scope, group, and role, all configured categories must pass. Within
-`required_groups_any` and `required_roles_any`, at least one configured value
-must match.
+This policy grants a delegated employee the upload tool. It does not grant Site
+A, B, C, or D: Graph OBO and native SharePoint permissions decide that. The
+application policy targets
+`sharepoint-application___sharepoint_upload_file`, while Graph application
+permissions and `Sites.Selected` define its site access.
 
-The general AWS AI application is intentionally denied semantic discovery. It
-uses predefined tool names and arguments, which makes its behavior easier to
-review, test, and audit.
+The three underscores are required by AgentCore Gateway. AWS constructs every
+aggregated MCP tool name as `<TargetName>___<ToolName>`; this repository did not
+invent a SharePoint-specific separator. Terraform replaces
+`__GATEWAY_ARN__` with the concrete Gateway ARN because AgentCore requires a
+specific Gateway resource when Cedar names a specific action.
 
-## Trusted Claim Propagation
+Terraform passes the substituted statements to `aws_bedrockagentcore_policy`
+with `FAIL_ON_ANY_FINDINGS`. Validate in
+non-production against the live Gateway schema, then move the policy engine
+from `LOG_ONLY` to `ENFORCE`. The Gateway keeps the delegated-only
+`mcp.invoke` scope gate until the same approved `ENFORCE` cutover enables
+app-only access.
 
-If a Gateway interceptor is used, it sanitizes identity values from
-Gateway-validated request context and adds only an allowlisted set of headers.
-The incoming values with the same names must not be trusted.
+## Request Metadata Propagation
+
+The Gateway request interceptor forwards the Gateway-validated bearer token as
+`x-mcp-user-assertion` only for `sharepoint-delegated___*` calls. It does not
+make a second authorization decision: Cedar remains the tool-policy authority,
+while the delegated Runtime consumes the assertion only for the Graph OBO
+exchange. Application targets never receive this header.
 
 ```python
 def lambda_handler(event: dict, context: object) -> dict:
-    request_context = event.get("requestContext", {})
-    identity = request_context.get("identity", {})
-    request_id = request_context.get(
-        "requestId",
-        getattr(context, "aws_request_id", "unknown"),
-    )
+    request = event["mcp"]["gatewayRequest"]
+    tool_name = request["body"]["params"]["name"]
+    headers = {}
 
-    headers = {
-        "x-mcp-subject": safe_header(
-            identity.get("subject") or identity.get("userId") or "unknown"
-        ),
-        "x-mcp-client-id": safe_header(identity.get("clientId") or "unknown"),
-        "x-mcp-groups": safe_header(",".join(identity.get("groups", []))),
-        "x-mcp-app-roles": safe_header(",".join(identity.get("roles", []))),
-        "x-correlation-id": safe_header(request_id),
-    }
+    if tool_name.startswith("sharepoint-delegated___"):
+        bearer = extract_bearer(request["headers"])
+        headers["x-mcp-user-assertion"] = bearer
 
     return {
         "interceptorOutputVersion": "1.0",
         "mcp": {
             "transformedGatewayRequest": {
                 "headers": headers,
-                "body": event["mcp"]["gatewayRequest"]["body"],
+                "body": request["body"],
             }
         },
     }
-
-
-def safe_header(value: object) -> str:
-    text = str(value)
-    return "".join(char for char in text if 32 <= ord(char) <= 126)[:1024]
 ```
 
-The Gateway and receiving MCP server must allowlist exactly the trusted headers
-that the server consumes. Interceptor-generated values override any
+The actual implementation rejects a missing or malformed bearer token, caps
+the assertion length, and never logs it. Only the delegated target and Runtime
+allowlist the assertion header. Interceptor-generated values override any
 client-provided values with the same names.
 
 ## AWS Deployment Shape
 
-The following condensed Terraform shows the shared Gateway and the current
-AgentCore Runtime hosting pattern. It intentionally omits service-specific
-routing plumbing so the developer model stays `Gateway → MCP server`. Pin the
-AWS provider version in the real deployment and verify the current provider
-schema before applying.
+The current Terraform creates one shared Gateway and flattens each enabled
+service lane into its own Runtime, target, IAM role, configuration, and Cedar
+resource policy. Lanes for the same service reuse one immutable image. The AWS
+and archive providers are pinned in the example and the lock file is committed.
 
 ```hcl
 resource "aws_bedrockagentcore_gateway" "enterprise_mcp" {
@@ -668,13 +625,15 @@ resource "aws_bedrockagentcore_gateway" "enterprise_mcp" {
   }
 }
 
-resource "aws_bedrockagentcore_agent_runtime" "sharepoint" {
-  agent_runtime_name = "${var.environment}_sharepoint_mcp"
-  role_arn           = aws_iam_role.sharepoint_runtime.arn
+resource "aws_bedrockagentcore_agent_runtime" "mcp_server" {
+  for_each = local.enabled_mcp_runtime_lanes
+
+  agent_runtime_name = "${var.environment}_${replace(each.key, "-", "_")}_mcp"
+  role_arn           = aws_iam_role.runtime[each.key].arn
 
   agent_runtime_artifact {
     container_configuration {
-      container_uri = var.sharepoint_image_uri
+      container_uri = each.value.image_uri
     }
   }
 
@@ -691,13 +650,10 @@ resource "aws_bedrockagentcore_agent_runtime" "sharepoint" {
   }
 
   request_header_configuration {
-    request_header_allowlist = [
-      "x-mcp-subject",
-      "x-mcp-client-id",
-      "x-mcp-groups",
-      "x-mcp-app-roles",
+    request_header_allowlist = each.value.obo_assertion_required ? [
       "x-correlation-id",
-    ]
+      "x-mcp-user-assertion",
+    ] : ["x-correlation-id"]
   }
 }
 ```
@@ -725,7 +681,7 @@ approved dependency set. Service teams still own their MCP tools and downstream
 adapters.
 
 ```dockerfile
-FROM public.ecr.aws/docker/library/python:3.12-slim
+FROM public.ecr.aws/docker/library/python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -758,19 +714,22 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: "3.12"
-
   - script: |
-      python -m pip install --upgrade pip
-      python -m pip install jsonschema pyyaml
-      python policy/validate_policy.py --check
-    displayName: Validate policy schema and generated JSON
+      set -euo pipefail
+      cedar_files="$(find policy/cedar -type f -name '*.cedar' -print)"
+      test -n "$cedar_files"
+      while IFS= read -r cedar_file; do
+        test -s "$cedar_file"
+        grep -q 'resource is AgentCore::Gateway' "$cedar_file"
+      done <<EOF
+      $cedar_files
+      EOF
+    displayName: Check direct Cedar source
 ```
 
-Server CI should add unit tests for input validation and authorization, build
-the service image, scan dependencies and the image, and run an MCP
+AgentCore policy create/update with `FAIL_ON_ANY_FINDINGS` is the authoritative
+live-schema validation. Server CI should add unit tests for input validation,
+build the service image, scan dependencies and the image, and run an MCP
 `initialize`/`tools/list` smoke test before publishing.
 
 ## Verification Checklist
@@ -785,16 +744,25 @@ Before a non-production deployment:
    and cannot use semantic search.
 4. Confirm an unknown client, wrong audience, expired token, and missing
    required claim are denied.
-5. Confirm a valid caller is denied for an unapproved site, path, or tool.
-6. Confirm write tools reject a missing ticket, duplicate idempotency key, and
-   stale ETag.
+5. Confirm Cedar denies an unapproved tool, SharePoint ACL denies a delegated
+   cross-site request, and `Sites.Selected` denies an application cross-site
+   request.
+6. Confirm a valid upload preserves the supplied path and content, including
+   empty content, while missing or invalid inputs raise an error without
+   cleanup or repair.
 7. Confirm Gateway routes requests only to the approved MCP server and rejects
    an unknown server.
 8. Confirm the MCP server uses a separate Graph credential and cannot access
    unapproved SharePoint sites.
-9. Search logs for token-shaped values and full document content; none should
-   be present.
-10. Render every Mermaid block and validate every fenced code block.
+9. Confirm the public documentation targets expose only reviewed read-only
+   tools and reject any AWS-operation or TFE-operation attempt.
+10. Confirm the Terraform MCP Runtime has only the `registry` toolset,
+    `ENABLE_TF_OPERATIONS=false`, and no TFE credential.
+11. Synchronize a changed test target and confirm a newly discovered tool is
+    denied until Cedar is explicitly reviewed and updated.
+12. Search logs for token-shaped values, documentation queries, private source
+    code, and full document content; none should be present.
+13. Render every Mermaid block and validate every fenced code block.
 
 Expected failure mapping:
 
@@ -804,21 +772,23 @@ Expected failure mapping:
 | Gateway returns `403` | allowed client, Gateway policy, delegated scope, app role, and group mapping |
 | Tool is missing | discovery permission, semantic-search policy, and server routing configuration |
 | MCP server is unavailable | selected AWS service health, Gateway route, network path, and region |
-| MCP server denies a valid caller | trusted header propagation and subject-policy matching |
+| Public documentation target fails | vendor endpoint status, MCP version/schema drift, rate limit, egress policy, and target synchronization |
+| Terraform documentation tool is missing | Runtime health, `registry` toolset, Gateway target synchronization, and Cedar action |
+| SharePoint denies a delegated caller | OBO exchange and the employee's native site/item permissions |
 | Graph returns `403` | downstream app permission, admin consent, selected-site grant, and target site |
-| Graph update returns `412` | stale ETag; reread and retry through the approved workflow |
+| Upload input is rejected | inspect the exact `site_id`, `file_path`, or `content`; the server does not clean or replace it |
 
 ## Current Validation State
 
-The repository provides the architecture, Terraform shape, policy model,
+The repository provides the architecture, Terraform shape, direct Cedar source,
 container contract, and dry-run client/server patterns. Structural validation
 can prove configuration consistency, but it cannot prove live Entra claims,
-PrivateLink routing, live Gateway-to-server routing, or Microsoft Graph
-permissions.
+the externally managed PrivateLink route, live Gateway-to-server routing, or
+Microsoft Graph permissions.
 
 Production readiness still requires deployment in a non-production AWS account
 and Entra tenant, live token tests for both caller types, negative authorization
-tests, real Graph read/write validation with selected-site permissions, and
+tests, real Graph upload validation with selected-site permissions, and
 operational evidence for logging, alerts, rollback, credential rotation, and
 disaster recovery.
 
@@ -826,7 +796,14 @@ disaster recovery.
 
 - [AgentCore Gateway custom JWT authorization](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/inbound-jwt-authorizer.html)
 - [AgentCore Gateway request-header propagation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-headers.html)
+- [AgentCore Gateway MCP server targets](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-MCPservers.html)
+- [AgentCore Gateway tool naming](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-tool-naming.html)
+- [AgentCore policy action scope](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/policy-scope.html)
+- [AWS Knowledge MCP server](https://awslabs.github.io/mcp/servers/aws-knowledge-mcp-server)
+- [Microsoft Learn MCP server](https://learn.microsoft.com/en-us/training/support/mcp-get-started-foundry)
+- [Terraform MCP server reference](https://developer.hashicorp.com/terraform/mcp-server/reference)
 - [Terraform AgentCore Gateway resource](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/bedrockagentcore_gateway)
 - [Microsoft identity platform scopes and `.default`](https://learn.microsoft.com/en-us/entra/identity-platform/scopes-oidc)
 - [Microsoft identity platform client-credentials flow](https://learn.microsoft.com/en-us/entra/identity-platform/scenario-daemon-acquire-token)
+- [Microsoft Graph delegated and app-only permissions](https://learn.microsoft.com/en-us/graph/permissions-overview)
 - [Model Context Protocol Python SDK](https://github.com/modelcontextprotocol/python-sdk)

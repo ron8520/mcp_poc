@@ -1,160 +1,86 @@
-<mxfile host="app.diagrams.net" modified="2026-07-22T00:00:00.000Z" agent="Codex" version="24.7.17" compressed="false" pages="1">
+<mxfile host="app.diagrams.net" modified="2026-07-29T00:00:00.000Z" agent="Codex" version="24.7.17" compressed="false" pages="1">
   <diagram id="claude-code-identity-sequence" name="Claude Code Identity Sequence">
-    <mxGraphModel dx="1730" dy="1190" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1730" pageHeight="1190" math="0" shadow="0">
+    <mxGraphModel dx="2200" dy="1690" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1690" math="0" shadow="0">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-
-        <mxCell id="title" value="Claude Code to governed SharePoint MCP sequence" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#212529;" vertex="1" parent="1">
-          <mxGeometry x="45" y="20" width="1640" height="36" as="geometry" />
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Employee A to SharePoint - token helper and delegated OBO sequence" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=24;fontStyle=1;fontColor=#17324D;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="2120" height="40" as="geometry"/>
         </mxCell>
-        <mxCell id="subtitle" value="Entra JWT authorizes the MCP caller; AWS IAM separately authorizes Gateway-to-Runtime invocation; Microsoft Graph uses a downstream app credential." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#5F6368;" vertex="1" parent="1">
-          <mxGeometry x="45" y="58" width="1640" height="30" as="geometry" />
+        <mxCell id="subtitle" value="The PowerShell helper authenticates Employee A to Entra and returns ENTRA_ACCESS_TOKEN; Claude Code only carries that token to Gateway." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=13;fontColor=#526579;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="2120" height="30" as="geometry"/>
         </mxCell>
-
-        <mxCell id="dev" value="&lt;b&gt;Developer / Claude Code&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#E7F5FF;strokeColor=#1C7ED6;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="45" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="employee" value="&lt;b&gt;Employee A&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="30" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="helper" value="&lt;b&gt;Entra token helper&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#E7F5FF;strokeColor=#1C7ED6;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="255" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="helper" value="&lt;b&gt;PowerShell token helper&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="240" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="bedrock" value="&lt;b&gt;Amazon Bedrock&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#FFF4E6;strokeColor=#F08C00;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="465" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="450" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#E6FCF5;strokeColor=#0CA678;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="675" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="claude" value="&lt;b&gt;Claude Code&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="660" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="iam" value="&lt;b&gt;AWS IAM roles&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#FFF4E6;strokeColor=#F08C00;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="885" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="gateway" value="&lt;b&gt;AgentCore Gateway&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="870" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="gateway" value="&lt;b&gt;AgentCore Gateway&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#F3F0FF;strokeColor=#7048E8;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="1095" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="cedar" value="&lt;b&gt;Direct Cedar&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="runtime" value="&lt;b&gt;SharePoint MCP Runtime&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#F3F0FF;strokeColor=#7048E8;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="1305" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="interceptor" value="&lt;b&gt;OBO assertion interceptor&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="sharepoint" value="&lt;b&gt;SharePoint / Graph&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;align=center;verticalAlign=middle;fillColor=#E6FCF5;strokeColor=#0CA678;strokeWidth=2;fontColor=#212529;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="1515" y="105" width="170" height="64" as="geometry" />
+        <mxCell id="runtime" value="&lt;b&gt;SharePoint delegated Runtime&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF6EC;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-
-        <mxCell id="phase_model" value="OPTIONAL MODEL PATH" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#FFF4E6;strokeColor=#F08C00;fontColor=#9C5B00;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="45" y="184" width="145" height="24" as="geometry" />
+        <mxCell id="graph" value="&lt;b&gt;Microsoft Graph&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1710" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="phase_token" value="ENTRA CALLER TOKEN" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#E6FCF5;strokeColor=#0CA678;fontColor=#087F5B;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="45" y="244" width="145" height="24" as="geometry" />
+        <mxCell id="sharepoint" value="&lt;b&gt;SharePoint&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1920" y="110" width="170" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="phase_gateway" value="GATEWAY AUTHORIZATION" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#F3F0FF;strokeColor=#7048E8;fontColor=#5F3DC4;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="45" y="494" width="160" height="24" as="geometry" />
-        </mxCell>
-        <mxCell id="phase_runtime" value="RUNTIME + DOWNSTREAM" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;align=center;verticalAlign=middle;fillColor=#E6FCF5;strokeColor=#0CA678;fontColor=#087F5B;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="45" y="894" width="165" height="24" as="geometry" />
-        </mxCell>
-
-        <mxCell id="lifeline_dev" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="130" y="169" as="sourcePoint" /><mxPoint x="130" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_helper" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="169" as="sourcePoint" /><mxPoint x="340" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_bedrock" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="550" y="169" as="sourcePoint" /><mxPoint x="550" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_entra" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="760" y="169" as="sourcePoint" /><mxPoint x="760" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_iam" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="970" y="169" as="sourcePoint" /><mxPoint x="970" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_gateway" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1180" y="169" as="sourcePoint" /><mxPoint x="1180" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_runtime" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1390" y="169" as="sourcePoint" /><mxPoint x="1390" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="lifeline_sharepoint" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#ADB5BD;strokeWidth=1;dashed=1;dashPattern=5 5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1600" y="169" as="sourcePoint" /><mxPoint x="1600" y="1145" as="targetPoint" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="message_01" value="&lt;b&gt;1&lt;/b&gt; &#183; Optional model call using approved Bedrock path" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#F08C00;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="130" y="225" as="sourcePoint" /><mxPoint x="550" y="225" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_02" value="&lt;b&gt;2&lt;/b&gt; &#183; Need MCP access token" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#1C7ED6;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="130" y="285" as="sourcePoint" /><mxPoint x="340" y="285" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_03" value="&lt;b&gt;3&lt;/b&gt; &#183; Request delegated token for api://enterprise-mcp-&amp;lt;env&amp;gt;" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#0CA678;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="345" as="sourcePoint" /><mxPoint x="760" y="345" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_04" value="&lt;b&gt;4&lt;/b&gt; &#183; JWT with user, client, group and scope claims" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=0;endSize=8;strokeColor=#0CA678;strokeWidth=1.5;dashed=1;dashPattern=6 4;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="760" y="405" as="sourcePoint" /><mxPoint x="340" y="405" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_05" value="&lt;b&gt;5&lt;/b&gt; &#183; Entra JWT for MCP" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=0;endSize=8;strokeColor=#1C7ED6;strokeWidth=1.5;dashed=1;dashPattern=6 4;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="465" as="sourcePoint" /><mxPoint x="130" y="465" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_06" value="&lt;b&gt;6&lt;/b&gt; &#183; HTTPS MCP request with Authorization: Bearer Entra JWT" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="130" y="535" as="sourcePoint" /><mxPoint x="1180" y="535" as="targetPoint" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="message_07_label" value="&lt;b&gt;7&lt;/b&gt; &#183; Validate issuer, audience, client, scope and group" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5F6368;fontSize=12;spacingLeft=4;" vertex="1" parent="1">
-          <mxGeometry x="1200" y="559" width="420" height="24" as="geometry" />
-        </mxCell>
-        <mxCell id="message_07" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1180" y="595" as="sourcePoint" />
-            <mxPoint x="1180" y="625" as="targetPoint" />
-            <Array as="points"><mxPoint x="1260" y="595" /><mxPoint x="1260" y="625" /></Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="message_08_label" value="&lt;b&gt;8&lt;/b&gt; &#183; Evaluate Gateway tool allowlist and policy" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5F6368;fontSize=12;spacingLeft=4;" vertex="1" parent="1">
-          <mxGeometry x="1200" y="629" width="390" height="24" as="geometry" />
-        </mxCell>
-        <mxCell id="message_08" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1180" y="665" as="sourcePoint" />
-            <mxPoint x="1180" y="695" as="targetPoint" />
-            <Array as="points"><mxPoint x="1260" y="665" /><mxPoint x="1260" y="695" /></Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="message_09" value="&lt;b&gt;9&lt;/b&gt; &#183; Use Gateway role for AWS-side Runtime invoke" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#F08C00;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1180" y="735" as="sourcePoint" /><mxPoint x="970" y="735" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_10" value="&lt;b&gt;10&lt;/b&gt; &#183; Forward MCP request signed by Gateway IAM role" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1180" y="795" as="sourcePoint" /><mxPoint x="1390" y="795" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_11_label" value="&lt;b&gt;11&lt;/b&gt; &#183; Validate tool input, site ID, ETag and idempotency" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5F6368;fontSize=12;spacingLeft=4;" vertex="1" parent="1">
-          <mxGeometry x="1410" y="819" width="300" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="message_11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1390" y="865" as="sourcePoint" />
-            <mxPoint x="1390" y="895" as="targetPoint" />
-            <Array as="points"><mxPoint x="1470" y="865" /><mxPoint x="1470" y="895" /></Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="message_12" value="&lt;b&gt;12&lt;/b&gt; &#183; Call Graph with downstream app credential" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=8;strokeColor=#0CA678;strokeWidth=1.5;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1390" y="935" as="sourcePoint" /><mxPoint x="1600" y="935" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_13" value="&lt;b&gt;13&lt;/b&gt; &#183; SharePoint response" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=0;endSize=8;strokeColor=#0CA678;strokeWidth=1.5;dashed=1;dashPattern=6 4;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1600" y="995" as="sourcePoint" /><mxPoint x="1390" y="995" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_14" value="&lt;b&gt;14&lt;/b&gt; &#183; MCP tool result" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=0;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;dashed=1;dashPattern=6 4;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1390" y="1055" as="sourcePoint" /><mxPoint x="1180" y="1055" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="message_15" value="&lt;b&gt;15&lt;/b&gt; &#183; MCP response" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=0;endSize=8;strokeColor=#7048E8;strokeWidth=1.5;dashed=1;dashPattern=6 4;fontColor=#5F6368;fontSize=12;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1180" y="1115" as="sourcePoint" /><mxPoint x="130" y="1115" as="targetPoint" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="legend_request" value="Request / invocation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5F6368;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="1340" y="52" width="125" height="24" as="geometry" />
-        </mxCell>
-        <mxCell id="legend_request_line" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=1;endSize=7;strokeColor=#495057;strokeWidth=1.5;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1285" y="64" as="sourcePoint" /><mxPoint x="1330" y="64" as="targetPoint" /></mxGeometry>
-        </mxCell>
-        <mxCell id="legend_response" value="Response" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5F6368;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="1580" y="52" width="80" height="24" as="geometry" />
-        </mxCell>
-        <mxCell id="legend_response_line" value="" style="edgeStyle=none;rounded=0;html=1;endArrow=block;endFill=0;endSize=7;strokeColor=#495057;strokeWidth=1.5;dashed=1;dashPattern=6 4;curved=0;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="1515" y="64" as="sourcePoint" /><mxPoint x="1560" y="64" as="targetPoint" /></mxGeometry>
-        </mxCell>
+        <mxCell id="l1" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="115" y="170" as="sourcePoint"/><mxPoint x="115" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l2" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="170" as="sourcePoint"/><mxPoint x="325" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l3" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="535" y="170" as="sourcePoint"/><mxPoint x="535" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l4" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="745" y="170" as="sourcePoint"/><mxPoint x="745" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l5" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="955" y="170" as="sourcePoint"/><mxPoint x="955" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l6" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1165" y="170" as="sourcePoint"/><mxPoint x="1165" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l7" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1375" y="170" as="sourcePoint"/><mxPoint x="1375" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l8" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1585" y="170" as="sourcePoint"/><mxPoint x="1585" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l9" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1795" y="170" as="sourcePoint"/><mxPoint x="1795" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="l10" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#ADB5BD;dashed=1;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="2005" y="170" as="sourcePoint"/><mxPoint x="2005" y="1640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m1" value="1 · Run entra_token_helper.ps1 delegated" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="115" y="215" as="sourcePoint"/><mxPoint x="325" y="215" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m2" value="2 · Start device-code flow for Enterprise MCP scope" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="265" as="sourcePoint"/><mxPoint x="535" y="265" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m3" value="3 · Device code + verification URL" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="535" y="315" as="sourcePoint"/><mxPoint x="325" y="315" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m4" value="4 · Display sign-in instructions" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="365" as="sourcePoint"/><mxPoint x="115" y="365" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m5" value="5 · Complete enterprise sign-in and MFA" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="115" y="415" as="sourcePoint"/><mxPoint x="535" y="415" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m6" value="6 · Poll token endpoint with device code" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="465" as="sourcePoint"/><mxPoint x="535" y="465" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m7" value="7 · Delegated Enterprise MCP JWT" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="535" y="515" as="sourcePoint"/><mxPoint x="325" y="515" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m8" value="8 · Return token into ENTRA_ACCESS_TOKEN" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="325" y="565" as="sourcePoint"/><mxPoint x="115" y="565" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m9" value="9 · Start Claude Code with environment variable" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="115" y="615" as="sourcePoint"/><mxPoint x="745" y="615" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="claude-note" value="Claude Code does not authenticate Employee A" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="250" y="635" width="580" height="36" as="geometry"/></mxCell>
+        <mxCell id="self0label" value="10 · Read ENTRA_ACCESS_TOKEN" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=left;fontSize=12;fontColor=#526579;" vertex="1" parent="1"><mxGeometry x="765" y="680" width="230" height="28" as="geometry"/></mxCell>
+        <mxCell id="self0" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#2E74B5;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="745" y="715" as="sourcePoint"/><mxPoint x="745" y="745" as="targetPoint"/><Array as="points"><mxPoint x="825" y="715"/><mxPoint x="825" y="745"/></Array></mxGeometry></mxCell>
+        <mxCell id="m11" value="11 · MCP tool call + bearer JWT" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="745" y="785" as="sourcePoint"/><mxPoint x="955" y="785" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="self1label" value="12 · Validate issuer, audience, expiry and client" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=left;fontSize=12;fontColor=#526579;" vertex="1" parent="1"><mxGeometry x="975" y="805" width="300" height="28" as="geometry"/></mxCell>
+        <mxCell id="self1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#2E74B5;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="955" y="840" as="sourcePoint"/><mxPoint x="955" y="870" as="targetPoint"/><Array as="points"><mxPoint x="1035" y="840"/><mxPoint x="1035" y="870"/></Array></mxGeometry></mxCell>
+        <mxCell id="m13" value="13 · Authorize sharepoint-delegated___sharepoint_upload_file" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="955" y="910" as="sourcePoint"/><mxPoint x="1165" y="910" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m14" value="14 · Allow or deny" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1165" y="960" as="sourcePoint"/><mxPoint x="955" y="960" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="deny" value="DENY: Gateway returns 403; neither interceptor nor Runtime is invoked" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDEDEC;strokeColor=#B42318;fontColor=#B42318;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="865" y="985" width="500" height="42" as="geometry"/></mxCell>
+        <mxCell id="m15" value="15 · ALLOW: validated bearer + delegated action" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="955" y="1065" as="sourcePoint"/><mxPoint x="1375" y="1065" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m16" value="16 · Controlled x-mcp-user-assertion" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1375" y="1115" as="sourcePoint"/><mxPoint x="955" y="1115" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m17" value="17 · SigV4 invoke sharepoint-delegated target + assertion" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#2E7D32;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="955" y="1165" as="sourcePoint"/><mxPoint x="1585" y="1165" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="self2label" value="18 · Reject invalid upload arguments" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=left;fontSize=12;fontColor=#526579;" vertex="1" parent="1"><mxGeometry x="1605" y="1185" width="290" height="28" as="geometry"/></mxCell>
+        <mxCell id="self2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#2E7D32;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1585" y="1220" as="sourcePoint"/><mxPoint x="1585" y="1250" as="targetPoint"/><Array as="points"><mxPoint x="1660" y="1220"/><mxPoint x="1660" y="1250"/></Array></mxGeometry></mxCell>
+        <mxCell id="m19" value="19 · OBO exchange with user assertion" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1585" y="1290" as="sourcePoint"/><mxPoint x="535" y="1290" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m20" value="20 · Delegated Graph token" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#6F42C1;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="535" y="1340" as="sourcePoint"/><mxPoint x="1585" y="1340" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m21" value="21 · Graph call as employee" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#C56A00;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1585" y="1390" as="sourcePoint"/><mxPoint x="1795" y="1390" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m22" value="22 · Enforce native employee ACL" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#C56A00;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1795" y="1440" as="sourcePoint"/><mxPoint x="2005" y="1440" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m23" value="23 · Site A result or B/C/D access denied" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#C56A00;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="2005" y="1490" as="sourcePoint"/><mxPoint x="1585" y="1490" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m24" value="24 · MCP result" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1585" y="1535" as="sourcePoint"/><mxPoint x="955" y="1535" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m25" value="25 · MCP response" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="955" y="1570" as="sourcePoint"/><mxPoint x="745" y="1570" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m26" value="26 · Show result" style="edgeStyle=none;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#2E74B5;labelBackgroundColor=#FFFFFF;curved=0;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="745" y="1615" as="sourcePoint"/><mxPoint x="115" y="1615" as="targetPoint"/></mxGeometry></mxCell>
       </root>
     </mxGraphModel>
   </diagram>

@@ -1,6 +1,21 @@
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "ap-southeast-2"
+
+  validation {
+    condition     = var.region == "ap-southeast-2"
+    error_message = "region must be ap-southeast-2 (Sydney); enable another region only after AgentCore Gateway/Runtime endpoint and VPC support is validated."
+  }
+}
+
+variable "target_account_id" {
+  type        = string
+  description = "AWS account that owns the AgentCore deployment. Supplied by the central platform/TFE configuration."
+
+  validation {
+    condition     = can(regex("^[0-9]{12}$", var.target_account_id))
+    error_message = "target_account_id must be a 12-digit AWS account ID."
+  }
 }
 
 variable "environment" {
@@ -30,6 +45,12 @@ variable "gateway_policy_mode" {
   }
 }
 
+variable "gateway_app_only_ingress_enabled" {
+  type        = bool
+  default     = false
+  description = "Remove the transitional delegated-scope gate only after Cedar is ENFORCE."
+}
+
 variable "entra_discovery_url" {
   type        = string
   description = "Entra OIDC discovery URL ending with .well-known/openid-configuration."
@@ -57,21 +78,6 @@ variable "runtime_security_group_ids" {
   description = "Security groups for Runtime ENIs."
 }
 
-variable "client_vpc_id" {
-  type        = string
-  description = "VPC used by Lambda and private developer access."
-}
-
-variable "gateway_endpoint_subnet_ids" {
-  type        = list(string)
-  description = "Subnets for the AgentCore Gateway interface endpoint."
-}
-
-variable "gateway_endpoint_security_group_ids" {
-  type        = list(string)
-  description = "Security groups for the Gateway interface endpoint."
-}
-
 variable "tags" {
   type        = map(string)
   default     = {}
@@ -85,6 +91,21 @@ variable "mcp_servers" {
     image_uri           = string
     ecr_repository_arns = list(string)
     environment         = optional(map(string), {})
+    lanes = map(object({
+      enabled                = optional(bool, true)
+      description            = optional(string)
+      environment            = optional(map(string), {})
+      secret_arns            = optional(list(string), [])
+      secret_kms_key_arns    = optional(list(string), [])
+      obo_assertion_required = optional(bool, false)
+    }))
   }))
-  description = "MCP server runtimes to deploy and register as Gateway targets."
+  description = "MCP services and the identity-specific Runtime lanes built from each service image."
+
+  validation {
+    condition = alltrue([
+      for server in values(var.mcp_servers) : length(server.lanes) > 0
+    ])
+    error_message = "Every MCP service must define at least one Runtime lane."
+  }
 }

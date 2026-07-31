@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    participant Employee as Employee
+    participant Helper as Entra token helper
+    participant Entra as Microsoft Entra ID
+    participant Claude as Claude Code
+    participant Gateway as AgentCore Gateway
+    participant Cedar as Direct Cedar
+    participant PublicDocs as AWS Knowledge / Microsoft Learn
+    participant TerraformMCP as Terraform MCP Runtime
+    participant Registry as Public Terraform Registry
+    participant Repo as Local checkout
+    participant ADO as Azure DevOps Server
+    participant TFE as Terraform Enterprise
+    participant AWS as AWS target account
+
+    Employee->>Helper: Request delegated Enterprise MCP token
+    Helper->>Entra: Device-code authentication
+    Entra-->>Helper: Delegated access token
+    Helper-->>Employee: Set ENTRA_ACCESS_TOKEN
+    Employee->>Claude: Ask for an infrastructure change
+    loop Retrieve current documentation as needed
+        Claude->>Gateway: MCP documentation tool call with bearer token
+        Gateway->>Cedar: Authorize exact target-qualified tool
+        Cedar-->>Gateway: Allow or deny
+        alt AWS or Microsoft documentation
+            Gateway->>PublicDocs: Direct remote MCP call
+            PublicDocs-->>Gateway: Public documentation result
+        else Terraform provider/module documentation
+            Gateway->>TerraformMCP: SigV4 invoke registry-only target
+            TerraformMCP->>Registry: Read public Registry metadata/docs
+            Registry-->>TerraformMCP: Documentation result
+            TerraformMCP-->>Gateway: MCP result
+        end
+        Gateway-->>Claude: Governed documentation response
+    end
+    Claude->>Repo: Create or update Terraform code
+    Claude-->>Employee: Present diff for review
+    Employee->>Claude: Approve standard Git/PR action
+    Claude->>ADO: Git push and create/update PR
+    ADO->>TFE: Existing VCS trigger starts run
+    TFE->>TFE: Plan, policy checks, and approval
+    TFE->>AWS: Approved Terraform apply
+    Note over Gateway,TFE: Gateway and Terraform MCP do not push code or execute TFE runs

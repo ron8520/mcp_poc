@@ -13,10 +13,10 @@ images/
 common/
   mcp_runtime/                 shared runtime helpers only
 policy/
-  tool_allowlist.yaml          human-maintained authorization matrix
-  tool_allowlist.schema.json   JSON Schema for the YAML format
-  generated/
-    tool_allowlist.json        generated runtime policy artifact
+  README.md                    policy boundary and deployment workflow
+  cedar/
+    sharepoint-delegated.cedar delegated-access tool authorization
+    sharepoint-application.cedar app-only tool authorization
 servers/
   sharepoint_mcp/              implemented example
   crm_mcp/                     placeholder boundary
@@ -25,7 +25,8 @@ clients/                       validation clients
   entra_token_helper.ps1        Windows PowerShell delegated/app-only token helper
 identity/
   entra/                       cloud-owned Entra Terraform root
-gateway/                       optional Gateway-adjacent code
+gateway/
+  obo_assertion_interceptor.py trusted delegated-token propagation
 pipelines/
   azure-devops/
     mcp-server-ci.yml          MCP server build/test/publish example
@@ -37,13 +38,21 @@ infra/
   variables.tf                 root inputs
   outputs.tf                   root outputs
   iam.tf                       IAM roles and policies
-  agentcore_runtime.tf         one AgentCore Runtime per enabled MCP server
+  agentcore_runtime.tf         one AgentCore Runtime per enabled credential lane
   agentcore_gateway.tf         shared AgentCore Gateway and runtime targets
-  gateway_private_access.tf    private interface endpoint for Gateway access
+  gateway_interceptor.tf       OBO assertion interceptor Lambda
   envs/
     nonprod.tfvars             nonprod values
     prod.tfvars                prod values
 ```
+
+The Terraform root currently deploys AgentCore Gateway/Runtime only in Sydney
+(`ap-southeast-2`). Melbourne (`ap-southeast-4`) remains gated until AWS
+publishes the required service endpoints and VPC support and a non-production
+deployment is validated. The target account ID and Runtime network IDs are
+supplied by central platform/TFE configuration. Gateway PrivateLink and private
+DNS are managed in the external network/platform account and are intentionally
+not created by this root.
 
 ## Server Boundary Rule
 
@@ -59,6 +68,11 @@ business-system tool in one file.
 
 ## Local SharePoint Test
 
+The server images use Python MCP SDK 2.0 and `MCPServer`. The local client pins
+the `2026-07-28` protocol for direct server validation. AgentCore Gateway
+clients remain on SDK 2 with `mode="legacy"` until AWS supports and validates
+the `2026-07-28` protocol; this does not require a separate server image.
+
 ```bash
 cd examples/enterprise_mcp_platform
 python -m venv .venv
@@ -66,11 +80,6 @@ python -m venv .venv
 pip install -r requirements.txt
 
 export GRAPH_DRY_RUN=true
-export MCP_SUBJECT=local-dev-user
-export MCP_CLIENT_ID=claude-code-mcp-client-id
-export MCP_GROUPS=mcp-sharepoint-readers
-export MCP_APP_ROLES=MCP.SharePoint.Read
-export MCP_SCOPES=mcp.invoke
 python -m servers.sharepoint_mcp.src.server
 ```
 
@@ -87,17 +96,22 @@ python clients/local_client.py
 AgentCore Gateway is not a Lambda handler. It is deployed through Terraform in
 `infra/agentcore_gateway.tf`.
 
-The Python file under `gateway/` is only an optional Lambda interceptor example
-for sanitized caller-context headers.
+The request interceptor under `gateway/` is part of the SharePoint OBO lane. It
+copies the Gateway-validated bearer token into `x-mcp-user-assertion` only for
+`sharepoint-delegated___*` calls. The delegated target and Runtime are the only
+resources that allowlist that header. The application lane never receives it.
 
 This setup uses Entra ID with Gateway `CUSTOM_JWT`. It does not deploy Cognito
 or AgentCore Identity. AgentCore Identity should only be evaluated later if a
 real outbound-token brokering requirement appears.
 
-Claude Code uses an Entra delegated access token as the MCP caller credential.
-The MCP request to the AWS-side Gateway uses `Authorization: Bearer <Entra JWT>`.
-AWS IAM roles are used after the request reaches AWS infrastructure, such as the
-Gateway role invoking Runtime and the Runtime role accessing AWS services.
+The employee runs `entra_token_helper.ps1 delegated` to obtain an Entra
+delegated access token and assign it to `ENTRA_ACCESS_TOKEN`. Claude Code does
+not authenticate the employee or request the token; it only reads the
+environment variable and sends `Authorization: Bearer <Entra JWT>` to the
+AWS-side Gateway. AWS IAM roles are used after the request reaches AWS
+infrastructure, such as the Gateway role invoking Runtime and the Runtime role
+accessing AWS services.
 
 Terraform is under:
 
@@ -110,7 +124,7 @@ infra/
   iam.tf
   agentcore_runtime.tf
   agentcore_gateway.tf
-  gateway_private_access.tf
+  gateway_interceptor.tf
   envs/
     nonprod.tfvars
     prod.tfvars
@@ -128,11 +142,15 @@ prod    -> terraform plan -var-file=envs/prod.tfvars
 If applies are configured separately, use the same var-file values with
 `terraform apply`.
 
-Both environment runs deploy all enabled `mcp_servers` entries from the
-selected tfvars file.
+Each enabled `mcp_servers` entry owns one service image. Terraform flattens its
+enabled `lanes` into Runtime/target pairs. The SharePoint entry therefore
+deploys `sharepoint-delegated` and `sharepoint-application` from the exact same
+image URI without duplicating the service build.
 
-SharePoint is enabled in the example. CRM and internal software are shown as
-disabled entries until their tool contracts are approved.
+SharePoint is enabled in the example. CRM is a disabled one-lane
+`crm-application` example until its tool contracts and downstream identity
+model are approved. Add a CRM delegated lane only if the CRM API must preserve
+delegated end-user identity; two lanes are not a universal requirement.
 
 ## Entra Token Examples
 
@@ -143,7 +161,7 @@ Assist client, app roles, and optional Conditional Access lives in:
 identity/entra/
 ```
 
-Claude Code/developer delegated token:
+Employee delegated token for Claude Code:
 
 ```powershell
 Set-Location examples/enterprise_mcp_platform
@@ -153,9 +171,10 @@ $env:ENTRA_MCP_AUDIENCE = "api://enterprise-mcp-nonprod"
 $env:ENTRA_ACCESS_TOKEN = & .\clients\entra_token_helper.ps1 delegated
 ```
 
-Pass that token to the Claude Code MCP client or validation client as the bearer
-token. Do not SigV4-sign the MCP request from Claude Code; IAM is not the MCP
-caller identity.
+The employee runs this command; the helper performs the device-code flow and
+the PowerShell assignment stores its returned token in `ENTRA_ACCESS_TOKEN`.
+Claude Code only reads and sends that token. Do not SigV4-sign the MCP request
+from Claude Code; IAM is not the MCP caller identity.
 
 Generic AI application or other service app-only token:
 
@@ -178,9 +197,9 @@ with:
 
 ```bash
 cd examples/enterprise_mcp_platform
-export ENTERPRISE_MCP_URL="https://gateway-id.gateway.bedrock-agentcore.us-west-2.amazonaws.com/mcp"
+export ENTERPRISE_MCP_URL="https://gateway-id.gateway.bedrock-agentcore.ap-southeast-2.amazonaws.com/mcp"
 export ENTRA_ACCESS_TOKEN="<entra-token>"
-export AGENTCORE_TOOL_SEARCH_QUERY="find SharePoint file read tools"
+export AGENTCORE_TOOL_SEARCH_QUERY="find the SharePoint file upload tool"
 python clients/gateway_semantic_search.py
 ```
 
@@ -189,35 +208,32 @@ approval and Runtime input validation before it can be invoked.
 
 ## Policy As Code
 
-Policy owners edit:
+Policy owners edit Cedar directly:
 
 ```text
-policy/tool_allowlist.yaml
+policy/cedar/sharepoint-delegated.cedar
+policy/cedar/sharepoint-application.cedar
 ```
 
-CI validates it against:
+There is no YAML abstraction, generated JSON, or Runtime policy copy. AgentCore
+Gateway is the single tool-authorization point. During Terraform
+create/update, `aws_bedrockagentcore_policy` uses
+`validation_mode = "FAIL_ON_ANY_FINDINGS"` so AgentCore validates each
+statement against the live Gateway schema.
 
-```text
-policy/tool_allowlist.schema.json
-```
+The delegated Cedar policy grants separate read and upload capabilities;
+Microsoft Graph OBO and native SharePoint permissions decide which sites and
+items the employee may access. The application Cedar policy grants the same
+capability split to a service principal; Graph application permissions and
+`Sites.Selected` decide its site boundary. The upload tool accepts only
+`site_id`, `file_path`, and `content`, and raises an error without changing
+invalid values.
 
-Runtime containers load:
-
-```text
-policy/generated/tool_allowlist.json
-```
-
-Regenerate and validate the runtime artifact with:
-
-```bash
-cd examples/enterprise_mcp_platform
-python policy/validate_policy.py
-python policy/validate_policy.py --check
-```
-
-The YAML includes embedded policy test cases for caller/tool/resource decisions.
-For example, SharePoint readers can discover SharePoint read tools but cannot
-call CRM write tools, and People Assist cannot use semantic search.
+AgentCore Gateway exposes these tools as
+`sharepoint-delegated___sharepoint_upload_file` and
+`sharepoint-application___sharepoint_upload_file`. The three underscores are
+AWS's fixed `<TargetName>___<ToolName>` separator, not a convention introduced
+by this repository.
 
 ## Azure DevOps CI/CD
 
@@ -244,8 +260,7 @@ example remains nested in this repo:
 
 ```text
 /examples/enterprise_mcp_platform/policy/*;
-/examples/enterprise_mcp_platform/policy/generated/*;
-/examples/enterprise_mcp_platform/requirements.txt;
+/examples/enterprise_mcp_platform/policy/cedar/*;
 /examples/enterprise_mcp_platform/pipelines/azure-devops/policy-ci.yml
 ```
 
@@ -265,7 +280,7 @@ base image.
 The optional future platform image would use a URI like:
 
 ```text
-111122223333.dkr.ecr.us-west-2.amazonaws.com/internal/mcp-python-base:2026-07-04
+111122223333.dkr.ecr.ap-southeast-2.amazonaws.com/internal/mcp-python-base:2026-07-04
 ```
 
 The optional base-image example lives in:

@@ -1,25 +1,46 @@
 sequenceDiagram
-    participant Dev as Developer / Claude Code
-    participant Helper as Entra token helper
-    participant Bedrock as Amazon Bedrock
+    autonumber
+    participant Employee as Employee A
+    participant Helper as PowerShell token helper
     participant Entra as Microsoft Entra ID
-    participant IAM as AWS IAM roles
+    participant Claude as Claude Code
     participant GW as AgentCore Gateway
-    participant RT as SharePoint MCP Runtime
-    participant SP as SharePoint / Graph
+    participant Cedar as Direct Cedar policy
+    participant Interceptor as OBO assertion interceptor
+    participant UserRT as SharePoint delegated Runtime
+    participant Graph as Microsoft Graph
+    participant SP as SharePoint
 
-    Dev->>Bedrock: Optional model call using approved Bedrock path
-    Dev->>Helper: Need MCP access token
-    Helper->>Entra: Request delegated token for api://enterprise-mcp-<env>
-    Entra-->>Helper: JWT with user/client/group/scope claims
-    Helper-->>Dev: Entra JWT for MCP
-    Dev->>GW: HTTPS MCP request with Authorization: Bearer Entra JWT
-    GW->>GW: Validate issuer, audience, client, scope, group
-    GW->>GW: Evaluate tool allowlist/policy
-    GW->>IAM: Use Gateway role for AWS-side Runtime invoke
-    GW->>RT: Forward MCP request signed by Gateway IAM role
-    RT->>RT: Validate tool input, site ID, ETag, idempotency
-    RT->>SP: Call Graph with downstream app credential
-    SP-->>RT: Response
-    RT-->>GW: Tool result
-    GW-->>Dev: MCP response
+    Employee->>Helper: Run entra_token_helper.ps1 delegated
+    Helper->>Entra: Start device-code flow for Enterprise MCP scope
+    Entra-->>Helper: Device code and verification URL
+    Helper-->>Employee: Display sign-in instructions
+    Employee->>Entra: Complete enterprise sign-in and MFA
+    Helper->>Entra: Poll token endpoint with device code
+    Entra-->>Helper: Delegated Enterprise MCP JWT
+    Helper-->>Employee: Return token into ENTRA_ACCESS_TOKEN
+    Employee->>Claude: Start Claude Code with the environment variable
+    Note over Employee,Claude: Claude Code does not authenticate the employee
+    Claude->>Claude: Read ENTRA_ACCESS_TOKEN
+    Claude->>GW: MCP tool call with bearer JWT
+    GW->>GW: Validate issuer, audience, expiry, and client
+    GW->>Cedar: Authorize sharepoint-delegated___sharepoint_upload_file
+    Cedar-->>GW: Allow or deny
+    alt Cedar allows
+        GW->>Interceptor: Validated bearer and sharepoint-delegated action
+        Interceptor-->>GW: x-mcp-user-assertion
+        GW->>UserRT: SigV4 invoke with assertion header
+        UserRT->>UserRT: Reject invalid upload arguments
+        UserRT->>Entra: OBO exchange for Microsoft Graph
+        Entra-->>UserRT: Delegated Graph access token
+        UserRT->>Graph: Call Graph as employee
+        Graph->>SP: Evaluate native employee permissions
+        SP-->>Graph: Site A allowed, B/C/D denied
+        Graph-->>UserRT: Result or access denied
+        UserRT-->>GW: MCP result
+        GW-->>Claude: MCP response
+        Claude-->>Employee: Show result
+    else Cedar denies
+        GW-->>Claude: 403, Runtime is not invoked
+        Claude-->>Employee: Show authorization failure
+    end

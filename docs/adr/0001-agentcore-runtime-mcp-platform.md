@@ -4,6 +4,15 @@ Date: 2026-07-04
 
 Status: Accepted for PoC validation
 
+The original authorization model and request sequences below are superseded by
+ADR 0006. The shared Gateway, downstream-system server boundaries, Runtime
+hosting, and AWS IAM separation decisions remain in force.
+
+ADR 0009 supersedes the universal Runtime-hosting requirement below. Approved
+vendor-operated remote MCP endpoints may connect directly as Gateway targets;
+platform-owned and enterprise-hosted MCP servers continue to use the approved
+Runtime pattern.
+
 ## Context
 
 The clarified requirement is to start with one central enterprise MCP endpoint
@@ -117,7 +126,8 @@ Specific decisions:
 - Keep MCP server images self-contained for the PoC. Treat a centrally owned MCP
   base image as an optional future hardening pattern.
 - Use AgentCore Gateway PrivateLink for private clients that run in VPCs or
-  connected private networks.
+  connected private networks. Per ADR 0008, the external network/platform
+  account owns the endpoint, private DNS, endpoint policy, and routing.
 - Use the AWS-managed Gateway URL as the MCP server URL.
 - Do not use CloudFront, Lambda@Edge, or CDN-backed custom-domain routing for
   this public-sector MCP path.
@@ -143,7 +153,8 @@ Adopt these sample patterns:
 - Gateway as the single Claude Code MCP server.
 - Gateway semantic search for tool discovery.
 - Runtime MCP server containers listening on `0.0.0.0:8000/mcp`.
-- `FastMCP(..., stateless_http=True)` and `streamable-http`.
+- Python SDK 2 `MCPServer` with `streamable-http` and
+  `stateless_http=True`.
 - Terraform-managed Runtime with `server_protocol = "MCP"`.
 - MCP smoke tests that initialize, list tools, and call a selected tool.
 - IAM trust policies constrained by source account and source ARN.
@@ -176,13 +187,13 @@ Keep the optional base-image pattern documented for later adoption. A future
 platform-owned base image might use a URI like:
 
 ```text
-111122223333.dkr.ecr.us-west-2.amazonaws.com/internal/mcp-python-base:2026-07-04
+111122223333.dkr.ecr.ap-southeast-2.amazonaws.com/internal/mcp-python-base:2026-07-04
 ```
 
 If the pattern is adopted later, service Dockerfiles can extend the base:
 
 ```dockerfile
-ARG MCP_BASE_IMAGE=111122223333.dkr.ecr.us-west-2.amazonaws.com/internal/mcp-python-base:2026-07-04
+ARG MCP_BASE_IMAGE=111122223333.dkr.ecr.ap-southeast-2.amazonaws.com/internal/mcp-python-base:2026-07-04
 FROM ${MCP_BASE_IMAGE}
 ```
 
@@ -362,9 +373,8 @@ not collapsed into one credential.
 - [Enterprise MCP platform example](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform)
 - [SharePoint MCP server](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/servers/sharepoint_mcp)
 - [Optional MCP Python base image](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/images/mcp_python_base)
-- [Tool allowlist YAML](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/policy/tool_allowlist.yaml)
-- [Tool allowlist JSON Schema](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/policy/tool_allowlist.schema.json)
-- [Generated runtime allowlist JSON](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/policy/generated/tool_allowlist.json)
+- [Direct Cedar policy](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/policy)
+- [ADR 0006: Direct Cedar and dual SharePoint identity lanes](/Users/ronruan/Desktop/mcp_poc/docs/adr/0006-direct-cedar-and-dual-sharepoint-identity-lanes.md)
 - [Windows PowerShell Entra token helper](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/clients/entra_token_helper.ps1)
 - [Shared Terraform root](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/infra/main.tf)
 - [Terraform IAM resources](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/infra/iam.tf)
@@ -382,8 +392,8 @@ not collapsed into one credential.
   endpoint with Gateway IAM signing in the target account.
 - Validate Gateway semantic search and document how Claude Code should call
   `x_amz_bedrock_agentcore_search`.
-- Confirm the PrivateLink/private DNS path for Lambda and private developer
-  networks.
+- Confirm the external network/platform account's PrivateLink/private DNS path
+  for Lambda and private developer networks.
 - Confirm whether any future vanity domain can be supported without a CDN and
   without breaking TLS or OAuth discovery.
 - Replace dry-run Graph operations with real Microsoft Graph calls and selected

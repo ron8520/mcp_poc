@@ -1,2 +1,2 @@
-# SharePoint-specific Python dependencies go here.
-# Keep shared MCP runtime dependencies in the repository-level requirements.txt.
+boto3
+msal

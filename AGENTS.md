@@ -10,12 +10,19 @@ MCP platform on AWS.
 The current target architecture is:
 
 - one shared Amazon Bedrock AgentCore Gateway MCP endpoint
-- one AgentCore Runtime per enabled MCP server
+- one AgentCore Runtime per enabled downstream-identity lane; multiple lanes
+  for one server reuse the same immutable service image
 - SharePoint as the first enabled MCP server
 - CRM, internal software, and future systems as separate MCP server boundaries
 - Microsoft Entra ID JWTs for MCP caller identity
 - AWS IAM kept separate for Bedrock model access
 - Terraform for infrastructure
+- Sydney (`ap-southeast-2`) as the current AgentCore Gateway/Runtime deployment
+  region; Melbourne (`ap-southeast-4`) remains gated on AWS service support
+- target AWS account ID and existing network resources supplied by the central
+  platform/TFE configuration
+- AgentCore Gateway PrivateLink, private DNS, endpoint policy, and routing
+  owned by the external network/platform account rather than this Terraform root
 - no CloudFront or CDN-backed custom domain for the MCP path
 - centrally owned MCP base images extended by each service image
 
@@ -38,6 +45,23 @@ Before changing files:
 If the request is ambiguous, make a reasonable local assumption when the risk is
 low. Ask only when the choice would change architecture, security posture, data
 handling, or deployment behavior.
+
+## Multi-Agent Coordination
+
+When a task includes code changes, diagram work, and documentation updates,
+prefer splitting those workstreams across three separate sub-agents so they can
+run in parallel:
+
+- one sub-agent implements and verifies the code changes
+- one sub-agent creates or updates diagrams and performs visual or structural
+  checks
+- one sub-agent updates the affected documentation and checks cross-document
+  consistency
+
+Keep file ownership clear and avoid overlapping edits between sub-agents. A
+coordinating main agent must retain responsibility for scope and architectural
+consistency, integrate the outputs, run the final end-to-end verification, and
+accept or reject the completed change against the task's success criteria.
 
 ## Architecture Decision Records
 
@@ -125,7 +149,7 @@ Good:
 
 ```text
 - Added the SharePoint MCP server boundary with dry-run Graph client behavior.
-- Validate real Microsoft Graph writes with ETag handling.
+- Validate one real Microsoft Graph file upload against the selected test site.
 ```
 
 Avoid:
@@ -190,9 +214,11 @@ For MCP identity:
 - Downstream SharePoint access uses separate downstream credentials.
 - Do not reuse inbound MCP caller JWTs as Microsoft Graph tokens.
 
-Write tools must be auditable and should require a change ticket,
-idempotency key, approved target, and concurrency control where the downstream
-system supports it.
+The SharePoint upload tool accepts only the inputs needed to upload one file.
+Reject invalid `site_id`, `file_path`, or `content` with an error. Do not trim,
+normalize, repair, or silently replace invalid input. SharePoint ACLs for
+delegated access and `Sites.Selected` for application access remain the
+downstream site-authorization boundary.
 
 ## Testing and Verification
 

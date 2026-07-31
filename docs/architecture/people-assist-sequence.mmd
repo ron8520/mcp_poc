@@ -1,21 +1,30 @@
 sequenceDiagram
-    participant UI as Chainlit UI
-    participant PA as People Assist Lambda
-    participant Mail as Email service
+    autonumber
+    participant Scheduler as Scheduler / background AI job
     participant Entra as Microsoft Entra ID
     participant GW as AgentCore Gateway
-    participant RT as SharePoint MCP Runtime
-    participant SP as SharePoint / Graph
+    participant Cedar as Direct Cedar policy
+    participant AutoRT as SharePoint application Runtime
+    participant Graph as Microsoft Graph
+    participant SP as SharePoint
 
-    UI->>PA: User request
-    PA->>Mail: Send email directly when needed
-    PA->>Entra: Client credentials token for api://enterprise-mcp-<env>
-    Entra-->>PA: App-only JWT
-    PA->>GW: MCP request with Authorization: Bearer JWT
-    GW->>GW: Validate app token and app role
-    GW->>RT: Forward MCP request signed by Gateway IAM role
-    RT->>SP: SharePoint read or approved write
-    SP-->>RT: Response
-    RT-->>GW: Tool result
-    GW-->>PA: MCP response
-    PA-->>UI: Final answer/action result
+    Scheduler->>Entra: Client credentials for Enterprise MCP API
+    Entra-->>Scheduler: App-only MCP JWT with application roles
+    Scheduler->>GW: Predefined MCP tool call with bearer JWT
+    GW->>GW: Validate issuer, audience, expiry, and client
+    GW->>Cedar: Authorize sharepoint-application___sharepoint_upload_file
+    Cedar-->>GW: Allow or deny
+    alt Cedar allows
+        GW->>AutoRT: SigV4 invoke without user assertion
+        AutoRT->>AutoRT: Reject invalid upload arguments
+        AutoRT->>Entra: Client credentials for Microsoft Graph
+        Entra-->>AutoRT: Graph application access token
+        AutoRT->>Graph: Call Graph as application
+        Graph->>SP: Evaluate Graph permissions and Sites.Selected
+        SP-->>Graph: Explicitly granted sites only
+        Graph-->>AutoRT: Result or access denied
+        AutoRT-->>GW: MCP result
+        GW-->>Scheduler: MCP response
+    else Cedar denies
+        GW-->>Scheduler: 403, Runtime is not invoked
+    end

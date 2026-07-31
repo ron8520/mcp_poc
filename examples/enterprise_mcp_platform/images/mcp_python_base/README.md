@@ -14,9 +14,9 @@ same baseline runtime behavior:
 - shared OCI labels for image inventory
 - `tini` as PID 1 for signal handling
 
-Keep business code, downstream credentials, and service-specific authorization
-outside this base image. Those belong in each MCP server image and in Gateway or
-Runtime policy.
+Keep business code and downstream credentials outside this base image. Tool
+authorization belongs in direct Cedar at Gateway; server images own only
+service-specific input validation and safe execution.
 
 ## Build
 
@@ -27,7 +27,7 @@ pipeline:
 cd examples/enterprise_mcp_platform
 docker build \
   -f images/mcp_python_base/Dockerfile \
-  -t 111122223333.dkr.ecr.us-west-2.amazonaws.com/internal/mcp-python-base:2026-07-04 \
+  -t 111122223333.dkr.ecr.ap-southeast-2.amazonaws.com/internal/mcp-python-base:2026-07-04 \
   .
 ```
 

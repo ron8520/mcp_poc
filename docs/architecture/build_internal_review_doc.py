@@ -346,7 +346,7 @@ def add_cover(doc: Document) -> None:
 
     for label, value in [
         ("Status", "Living technical guide"),
-        ("Updated", "22 July 2026"),
+        ("Updated", "31 July 2026"),
         ("Maintainer", "Cloud Platform Team"),
         ("Implementation root", "examples/enterprise_mcp_platform"),
     ]:

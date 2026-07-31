@@ -1,81 +1,122 @@
-<mxfile host="app.diagrams.net" modified="2026-07-04T00:00:00.000Z" agent="Codex" version="24.7.17">
+<mxfile host="app.diagrams.net" modified="2026-07-29T00:00:00.000Z" agent="Codex" version="24.7.17" compressed="false" pages="1">
   <diagram id="enterprise-mcp-platform" name="Enterprise MCP Platform">
-    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="1600" dy="980" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="980" math="0" shadow="0" adaptiveColors="auto">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="clients" value="MCP clients and agents" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="40" y="80" width="250" height="260" as="geometry" />
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Enterprise MCP Platform - Runtime-hosted and direct vendor targets" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1500" height="40" as="geometry"/>
         </mxCell>
-        <mxCell id="claude" value="Claude Code / VS Code&lt;br&gt;gets Entra delegated JWT&lt;br&gt;MCP bearer token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e7f5ff;strokeColor=#1c7ed6" vertex="1" parent="clients">
-          <mxGeometry x="30" y="50" width="190" height="70" as="geometry" />
+        <mxCell id="subtitle" value="One governed Gateway; public vendor documentation can be direct, while SharePoint and the restricted Terraform process use Runtime." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="1500" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="lambda" value="People Assist Lambda&lt;br&gt;optional MCP caller&lt;br&gt;email handled locally" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e7f5ff;strokeColor=#1c7ed6" vertex="1" parent="clients">
-          <mxGeometry x="30" y="140" width="190" height="70" as="geometry" />
+
+        <mxCell id="callers" value="APPROVED CALLERS" style="swimlane;html=1;rounded=1;startSize=34;fillColor=#F5F7FA;strokeColor=#C7D0D9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="35" y="110" width="245" height="310" as="geometry"/>
         </mxCell>
-        <mxCell id="identity" value="Identity" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="330" y="80" width="230" height="260" as="geometry" />
+        <mxCell id="claude" value="&lt;b&gt;Employee / Claude Code&lt;/b&gt;&lt;br&gt;delegated Entra JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="callers">
+          <mxGeometry x="25" y="65" width="195" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="entra" value="Microsoft Entra ID&lt;br&gt;enterprise-mcp-api&lt;br&gt;scopes / app roles / groups" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e6;strokeColor=#f08c00" vertex="1" parent="identity">
-          <mxGeometry x="25" y="50" width="180" height="80" as="geometry" />
+        <mxCell id="automation" value="&lt;b&gt;Approved AI application&lt;/b&gt;&lt;br&gt;app-only Entra JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="callers">
+          <mxGeometry x="25" y="185" width="195" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="iam" value="AWS IAM&lt;br&gt;server-side roles&lt;br&gt;Gateway/Runtime access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e6;strokeColor=#f08c00" vertex="1" parent="identity">
-          <mxGeometry x="25" y="150" width="180" height="80" as="geometry" />
+
+        <mxCell id="control" value="SHARED IDENTITY AND AUTHORIZATION" style="swimlane;html=1;rounded=1;startSize=34;fillColor=#EAF2F8;strokeColor=#A9C9E7;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="315" y="110" width="330" height="480" as="geometry"/>
         </mxCell>
-        <mxCell id="edge" value="Private access path" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="600" y="80" width="220" height="260" as="geometry" />
+        <mxCell id="entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;Enterprise MCP API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="control">
+          <mxGeometry x="45" y="55" width="240" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="dns" value="Interface VPC endpoint&lt;br&gt;bedrock-agentcore.gateway&lt;br&gt;private DNS enabled" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebfbee;strokeColor=#37b24d" vertex="1" parent="edge">
-          <mxGeometry x="25" y="55" width="170" height="75" as="geometry" />
+        <mxCell id="gateway" value="&lt;b&gt;One AgentCore Gateway&lt;/b&gt;&lt;br&gt;MCP + CUSTOM_JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="control">
+          <mxGeometry x="45" y="165" width="240" height="75" as="geometry"/>
         </mxCell>
-        <mxCell id="cf" value="AWS-side MCP endpoint&lt;br&gt;AgentCore Gateway URL&lt;br&gt;gateway-id.gateway.../mcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebfbee;strokeColor=#37b24d" vertex="1" parent="edge">
-          <mxGeometry x="25" y="155" width="170" height="65" as="geometry" />
+        <mxCell id="cedar" value="&lt;b&gt;Direct Cedar&lt;/b&gt;&lt;br&gt;caller + exact target/tool&lt;br&gt;default deny" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="control">
+          <mxGeometry x="45" y="280" width="240" height="90" as="geometry"/>
         </mxCell>
-        <mxCell id="agentcore" value="Amazon Bedrock AgentCore" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="860" y="50" width="270" height="340" as="geometry" />
+        <mxCell id="interceptor" value="SharePoint delegated assertion interceptor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;" vertex="1" parent="control">
+          <mxGeometry x="45" y="400" width="240" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="gw" value="AgentCore Gateway&lt;br&gt;MCP protocol&lt;br&gt;CUSTOM_JWT + policy engine&lt;br&gt;semantic search" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0ff;strokeColor=#7048e8" vertex="1" parent="agentcore">
-          <mxGeometry x="35" y="45" width="200" height="90" as="geometry" />
+
+        <mxCell id="targets" value="APPROVED GATEWAY TARGET PATTERNS" style="swimlane;html=1;rounded=1;startSize=34;fillColor=#EAF6EC;strokeColor=#AED5B0;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="110" width="420" height="570" as="geometry"/>
         </mxCell>
-        <mxCell id="target" value="Gateway MCP targets&lt;br&gt;sharepoint-mcp active&lt;br&gt;crm/internal future" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0ff;strokeColor=#7048e8" vertex="1" parent="agentcore">
-          <mxGeometry x="35" y="150" width="200" height="80" as="geometry" />
+        <mxCell id="aws_knowledge" value="&lt;b&gt;AWS Knowledge MCP&lt;/b&gt;&lt;br&gt;direct vendor-operated remote target" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="targets">
+          <mxGeometry x="35" y="50" width="350" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="runtime" value="AgentCore Runtimes&lt;br&gt;one per MCP server&lt;br&gt;0.0.0.0:8000/mcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0ff;strokeColor=#7048e8" vertex="1" parent="agentcore">
-          <mxGeometry x="35" y="250" width="200" height="70" as="geometry" />
+        <mxCell id="ms_learn" value="&lt;b&gt;Microsoft Learn MCP&lt;/b&gt;&lt;br&gt;direct vendor-operated remote target" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="targets">
+          <mxGeometry x="35" y="140" width="350" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="downstream" value="Downstream" style="swimlane;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#495057;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="1180" y="120" width="190" height="180" as="geometry" />
+        <mxCell id="terraform_target" value="&lt;b&gt;terraform-registry target&lt;/b&gt;&lt;br&gt;AgentCore Runtime; registry toolset only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="targets">
+          <mxGeometry x="35" y="230" width="350" height="75" as="geometry"/>
         </mxCell>
-        <mxCell id="graph" value="Microsoft Graph / SharePoint&lt;br&gt;selected permissions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff0f6;strokeColor=#c2255c" vertex="1" parent="downstream">
-          <mxGeometry x="20" y="65" width="150" height="70" as="geometry" />
+        <mxCell id="terraform_runtime" value="Terraform MCP Runtime&lt;br&gt;no TFE credential; operations disabled" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;" vertex="1" parent="targets">
+          <mxGeometry x="75" y="320" width="270" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="e1" value="HTTPS MCP&lt;br&gt;Bearer Entra JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#1c7ed6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="claude" target="dns">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="sp_user" value="sharepoint-delegated target + Runtime&lt;br&gt;Graph OBO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="targets">
+          <mxGeometry x="35" y="400" width="165" height="75" as="geometry"/>
         </mxCell>
-        <mxCell id="e2" value="app-only JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#1c7ed6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="lambda" target="dns">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="sp_auto" value="sharepoint-application target + Runtime&lt;br&gt;Graph app-only token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="targets">
+          <mxGeometry x="220" y="400" width="165" height="75" as="geometry"/>
         </mxCell>
-        <mxCell id="e3" value="issues tokens" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;strokeColor=#f08c00;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="entra" target="claude">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="future" value="CRM / internal / Databricks&lt;br&gt;future reviewed decisions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F7FA;strokeColor=#7890A8;dashed=1;" vertex="1" parent="targets">
+          <mxGeometry x="75" y="490" width="270" height="55" as="geometry"/>
         </mxCell>
-        <mxCell id="e4" value="server-side IAM roles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;strokeColor=#f08c00;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="iam" target="target">
-          <mxGeometry relative="1" as="geometry" />
+
+        <mxCell id="sources" value="AUTHORITATIVE SOURCES" style="swimlane;html=1;rounded=1;startSize=34;fillColor=#FFF3E0;strokeColor=#E4C08F;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="110" width="400" height="570" as="geometry"/>
         </mxCell>
-        <mxCell id="e5" value="private DNS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#37b24d;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="dns" target="cf">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="aws_content" value="AWS public technical content" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="sources">
+          <mxGeometry x="45" y="55" width="310" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#37b24d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cf" target="gw">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="ms_content" value="Microsoft Learn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="sources">
+          <mxGeometry x="45" y="145" width="310" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#7048e8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="gw" target="target">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="registry" value="Public Terraform Registry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="sources">
+          <mxGeometry x="45" y="265" width="310" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="e8" value="Gateway role signs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#7048e8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="target" target="runtime">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="sharepoint" value="Microsoft Graph / SharePoint&lt;br&gt;employee ACL or Sites.Selected" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="sources">
+          <mxGeometry x="45" y="420" width="310" height="75" as="geometry"/>
         </mxCell>
-        <mxCell id="e9" value="Graph app credential" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#c2255c;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="runtime" target="graph">
-          <mxGeometry relative="1" as="geometry" />
+
+        <mxCell id="delivery" value="TERRAFORM CODE DELIVERY - OUTSIDE MCP" style="swimlane;html=1;rounded=1;startSize=34;fillColor=#F5F7FA;strokeColor=#C7D0D9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="315" y="730" width="1225" height="185" as="geometry"/>
         </mxCell>
+        <mxCell id="repo" value="Local Terraform checkout&lt;br&gt;Claude Code edits" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="delivery">
+          <mxGeometry x="45" y="65" width="230" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ado" value="Self-managed Azure DevOps Server&lt;br&gt;Git / PR / policies" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="delivery">
+          <mxGeometry x="340" y="65" width="250" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="tfe" value="Central Terraform Enterprise&lt;br&gt;plan / approval / apply" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="delivery">
+          <mxGeometry x="655" y="65" width="250" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="aws" value="AWS target account" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#C56A00;strokeWidth=2;" vertex="1" parent="delivery">
+          <mxGeometry x="970" y="65" width="205" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" value="delegated JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#6F42C1;" edge="1" parent="1" source="entra" target="claude"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="app-only JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#6F42C1;" edge="1" parent="1" source="entra" target="automation"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="MCP bearer token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E74B5;" edge="1" parent="1" source="claude" target="gateway"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="MCP bearer token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E74B5;" edge="1" parent="1" source="automation" target="gateway"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="authorize" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E74B5;" edge="1" parent="1" source="gateway" target="cedar"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="public docs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E7D32;" edge="1" parent="1" source="cedar" target="aws_knowledge"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="public docs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E7D32;" edge="1" parent="1" source="cedar" target="ms_learn"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="registry docs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E7D32;" edge="1" parent="1" source="cedar" target="terraform_target"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="SharePoint tools" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E7D32;" edge="1" parent="1" source="cedar" target="sp_user"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="SharePoint tools" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E7D32;" edge="1" parent="1" source="cedar" target="sp_auto"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="validated assertion" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#6F42C1;" edge="1" parent="1" source="gateway" target="interceptor"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" value="delegated lane only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#6F42C1;" edge="1" parent="1" source="interceptor" target="sp_user"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#C56A00;" edge="1" parent="1" source="aws_knowledge" target="aws_content"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#C56A00;" edge="1" parent="1" source="ms_learn" target="ms_content"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" value="SigV4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E7D32;" edge="1" parent="1" source="terraform_target" target="terraform_runtime"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" value="read docs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#C56A00;" edge="1" parent="1" source="terraform_runtime" target="registry"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e17" value="OBO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#C56A00;" edge="1" parent="1" source="sp_user" target="sharepoint"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e18" value="Sites.Selected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#C56A00;" edge="1" parent="1" source="sp_auto" target="sharepoint"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e19" value="future" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#7890A8;dashed=1;" edge="1" parent="1" source="cedar" target="future"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e20" value="create / update code" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E74B5;" edge="1" parent="1" source="claude" target="repo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e21" value="Git push / PR" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E74B5;" edge="1" parent="1" source="repo" target="ado"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e22" value="VCS trigger" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2E74B5;" edge="1" parent="1" source="ado" target="tfe"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e23" value="approved apply" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#C56A00;" edge="1" parent="1" source="tfe" target="aws"><mxGeometry relative="1" as="geometry"/></mxCell>
       </root>
     </mxGraphModel>
   </diagram>

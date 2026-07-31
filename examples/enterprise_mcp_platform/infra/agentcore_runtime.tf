@@ -1,5 +1,5 @@
 resource "aws_bedrockagentcore_agent_runtime" "mcp_server" {
-  for_each = local.enabled_mcp_servers
+  for_each = local.enabled_mcp_runtime_lanes
 
   agent_runtime_name = replace("${var.environment}-${each.key}", "-", "_")
   description        = each.value.description
@@ -27,7 +27,10 @@ resource "aws_bedrockagentcore_agent_runtime" "mcp_server" {
   }
 
   request_header_configuration {
-    request_header_allowlist = local.trusted_request_headers
+    request_header_allowlist = concat(
+      local.base_request_headers,
+      each.value.obo_assertion_required ? [local.obo_assertion_header] : []
+    )
   }
 
   tags = local.tags

@@ -4,10 +4,14 @@ Date: 2026-07-06
 
 Status: Accepted for PoC validation
 
+The YAML/generated-policy workflow below is superseded by ADR 0006. The
+single-repo and Azure DevOps ownership decisions remain in force.
+
 ## Context
 
-The platform repository is hosted in on-prem Azure DevOps. The cloud team owns
-the MCP server code, policy YAML, Entra identity Terraform, and AWS AgentCore
+The platform repository is hosted in self-managed Azure DevOps Server on AWS.
+The cloud team owns
+the MCP server code, Cedar policy, Entra identity Terraform, and AWS AgentCore
 infrastructure Terraform for nonprod and prod.
 
 Terraform repository/workspace creation and Terraform execution pipelines are
@@ -40,10 +44,10 @@ examples/enterprise_mcp_platform/pipelines/azure-devops/
 
 Pipeline responsibilities:
 
-- `policy-ci.yml`: validate policy YAML, schema, generated JSON, and embedded
-  policy tests.
-- `mcp-server-ci.yml`: compile MCP server code, validate policy compatibility,
-  build service images, and optionally push to central ECR.
+- `policy-ci.yml`: validate the direct Cedar source layout and publish reviewed
+  policy source when requested.
+- `mcp-server-ci.yml`: compile MCP server code, build service images, and
+  optionally push to central ECR.
 
 Do not define Terraform plan/apply pipelines here. The central TFE admin repo
 creates the Terraform workspaces and execution pipeline for:
@@ -66,7 +70,7 @@ self-hosted agents, and approval gates for image publish. Use the central TFE
 admin process for Terraform plan/apply approvals.
 
 ADR 0005 defines the required, path-scoped Azure DevOps build validation policy
-for policy bundle pull requests.
+for direct Cedar pull requests.
 
 ## Consequences
 
