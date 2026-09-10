@@ -7,6 +7,14 @@ Status: Accepted
 ADR 0010 renames user/automation lanes to delegated/application lanes and
 replaces the SharePoint write contract with one fail-fast file-upload tool. The
 rule that Runtime lanes follow downstream credential mode remains in force.
+ADR 0011 clarifies the target exception: app-only Runtime sizing follows
+approved trust-domain isolation rather than caller/provider count. This target
+is accepted for PoC validation only; the current repository still has the two
+fixed SharePoint lanes and app-only ingress remains gated.
+
+ADR 0012 supersedes ADR 0011 and the target-only statement that Gateway invokes
+every Runtime with IAM/SigV4. The current PoC remains unchanged; the target uses
+AgentCore Identity for both delegated/OBO and autonomous M2M token acquisition.
 
 ## Context
 

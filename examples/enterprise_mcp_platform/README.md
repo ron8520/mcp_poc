@@ -38,12 +38,17 @@ infra/
   variables.tf                 root inputs
   outputs.tf                   root outputs
   iam.tf                       IAM roles and policies
-  agentcore_runtime.tf         one AgentCore Runtime per enabled credential lane
+  agentcore_runtime.tf         current PoC Runtime per enabled credential lane
   agentcore_gateway.tf         shared AgentCore Gateway and runtime targets
   gateway_interceptor.tf       OBO assertion interceptor Lambda
   envs/
     nonprod.tfvars             nonprod values
     prod.tfvars                prod values
+deployment/
+  README.md                    composed root run path and state warning
+  main.tf                      composed Entra + AgentCore environment root
+  envs/                        nonprod/prod environment values
+  examples/                    inactive app-only catalog handoff example
 ```
 
 The Terraform root currently deploys AgentCore Gateway/Runtime only in Sydney
@@ -68,16 +73,18 @@ business-system tool in one file.
 
 ## Local SharePoint Test
 
-The server images use Python MCP SDK 2.0 and `MCPServer`. The local client pins
-the `2026-07-28` protocol for direct server validation. AgentCore Gateway
-clients remain on SDK 2 with `mode="legacy"` until AWS supports and validates
-the `2026-07-28` protocol; this does not require a separate server image.
+The current released MCP specification is `2025-11-25`. The server images use
+Python SDK `mcp==2.0.0`, targeting the `2026-07-28` release candidate for direct
+validation. AgentCore Gateway clients remain on SDK 2 with `mode="legacy"`;
+managed Gateway dialect support for the RC remains unverified and does not
+require a separate server image.
 
 ```bash
 cd examples/enterprise_mcp_platform
 python -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
+pip install -r servers/sharepoint_mcp/requirements.txt
 
 export GRAPH_DRY_RUN=true
 python -m servers.sharepoint_mcp.src.server
@@ -91,7 +98,11 @@ cd examples/enterprise_mcp_platform
 python clients/local_client.py
 ```
 
-## Gateway Deployment
+The SharePoint pipeline compiles and unit-tests the server, then builds its
+AgentCore Runtime image for the required `linux/arm64` platform. Local Docker
+builders therefore need ARM64 support or configured cross-platform emulation.
+
+## Current PoC Gateway Deployment
 
 AgentCore Gateway is not a Lambda handler. It is deployed through Terraform in
 `infra/agentcore_gateway.tf`.
@@ -101,9 +112,16 @@ copies the Gateway-validated bearer token into `x-mcp-user-assertion` only for
 `sharepoint-delegated___*` calls. The delegated target and Runtime are the only
 resources that allowlist that header. The application lane never receives it.
 
-This setup uses Entra ID with Gateway `CUSTOM_JWT`. It does not deploy Cognito
-or AgentCore Identity. AgentCore Identity should only be evaluated later if a
-real outbound-token brokering requirement appears.
+This current repository implementation uses Entra ID with Gateway
+`CUSTOM_JWT`. Inbound validation is the managed AgentCore Identity capability.
+The fixed MSAL lanes remain the default, while the opt-in app-only path now has
+an explicit caller-context resolver, native AgentCore M2M adapter, and Terraform
+wiring. App-only ingress stays gated; local tests and plans do not prove live
+provider registration, token exchange, or Graph grants. The target identity-
+routing design is accepted for PoC validation in [ADR
+0012](../../docs/adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md) and
+[ADR 0013](../../docs/adr/0013-staged-entra-app-only-catalog-and-bau-rollout.md),
+with the flow in [sharepoint-identity-routing](../../docs/architecture/sharepoint-identity-routing.md).
 
 The employee runs `entra_token_helper.ps1 delegated` to obtain an Entra
 delegated access token and assign it to `ENTRA_ACCESS_TOKEN`. Claude Code does
@@ -113,7 +131,7 @@ AWS-side Gateway. AWS IAM roles are used after the request reaches AWS
 infrastructure, such as the Gateway role invoking Runtime and the Runtime role
 accessing AWS services.
 
-Terraform is under:
+The standalone module roots remain under:
 
 ```text
 infra/
@@ -130,9 +148,11 @@ infra/
     prod.tfvars
 ```
 
-For central TFE Terraform runs, use `infra` as the working directory for both
-nonprod and prod. Configure the workspace/run to select the appropriate var
-file:
+For the composed environment deployment, use `deployment` as the central TFE
+working directory for both nonprod and prod. It composes
+`module.entra -> ../identity/entra` and `module.platform -> ../infra`; the one
+TFE workspace/state for each environment owns the resulting Entra and AWS
+resources. Select the appropriate var file:
 
 ```text
 nonprod -> terraform plan -var-file=envs/nonprod.tfvars
@@ -145,12 +165,40 @@ If applies are configured separately, use the same var-file values with
 Each enabled `mcp_servers` entry owns one service image. Terraform flattens its
 enabled `lanes` into Runtime/target pairs. The SharePoint entry therefore
 deploys `sharepoint-delegated` and `sharepoint-application` from the exact same
-image URI without duplicating the service build.
+image URI without duplicating the service build. This is the current PoC shape;
+app-only Gateway ingress remains gated off.
+
+The target uses AgentCore Identity for both lane types: delegated Runtimes use
+OBO providers, and autonomous application Runtimes use M2M providers. The app-
+only shape is one application Runtime for each approved trust domain, not one
+Runtime per caller or provider. A thin default-deny resolver may select multiple
+approved M2M profiles within the domain while reusing the same immutable image.
+Delegated and application workload IAM use non-overlapping provider-ARN
+allowlists. A new Runtime is normally needed only for a new trust-domain
+isolation boundary; target mapping/configuration delivery and provider least-
+privilege validation remain outstanding.
+
+The preferred app-only PoC gate is a Gateway request interceptor that copies the
+original signed caller JWT to `x-mcp-caller-assertion` without token exchange,
+secret lookup, or provider selection. The Runtime accepts only Gateway SigV4
+ingress and revalidates `iss`, Gateway `aud`, `exp`, `tid`, v2 `azp` or v1
+`appid`, and `roles`. Native no-code composition is not provided by the official
+AWS documentation and remains unverified; `JWT_PASSTHROUGH` is not the default.
+
+The staged `app_only_apps` catalog creates separate caller and downstream
+registrations/service principals and assigns the reviewed roles. It does not
+create a caller password, certificate or federated credential. The caller
+authentication method and downstream AgentCore provider credential method both
+remain separate approved implementation gates; Entra/AD synchronization does
+not provision either credential. See [`deployment/README.md`](deployment/README.md)
+for the exact input, offline checks and state-migration warning.
 
 SharePoint is enabled in the example. CRM is a disabled one-lane
 `crm-application` example until its tool contracts and downstream identity
 model are approved. Add a CRM delegated lane only if the CRM API must preserve
-delegated end-user identity; two lanes are not a universal requirement.
+delegated end-user identity; two lanes are not a universal requirement. An
+employee-facing AI app is a delegated caller when user permissions must apply;
+an autonomous workflow is M2M only when no employee is the security subject.
 
 ## Entra Token Examples
 
@@ -176,7 +224,8 @@ the PowerShell assignment stores its returned token in `ENTRA_ACCESS_TOKEN`.
 Claude Code only reads and sends that token. Do not SigV4-sign the MCP request
 from Claude Code; IAM is not the MCP caller identity.
 
-Generic AI application or other service app-only token:
+Autonomous workflow or other service app-only token (target shape; Gateway
+app-only ingress currently gated):
 
 ```powershell
 Set-Location examples/enterprise_mcp_platform
@@ -187,8 +236,9 @@ $env:ENTRA_ACCESS_TOKEN = & .\clients\entra_token_helper.ps1 client-credentials
 ```
 
 This PowerShell helper is for Windows validation. Deployed LangGraph,
-LangChain, or LlamaIndex applications should acquire their app-only token in
-application code or through the approved workload-identity integration.
+LangChain, or LlamaIndex applications should acquire an app-only token only for
+approved autonomous work. Employee-facing applications that need downstream
+user authorization must use an approved delegated flow instead.
 
 ## Semantic Search Smoke Test
 
@@ -250,8 +300,8 @@ nested in the current repo. If the folder is promoted to its own Azure DevOps
 repo later, remove that path prefix from pipeline triggers and scripts.
 
 Terraform plan/apply pipeline YAML is intentionally not defined here. The
-central TFE admin repo creates the Terraform workspaces and execution pipeline
-for `identity/entra` and `infra`.
+central TFE admin repo creates one environment workspace/state and execution
+pipeline for `deployment/`, which composes `identity/entra` and `infra`.
 
 For Azure Repos PR validation, configure `policy-ci.yml` as a required branch
 policy build validation on the protected branch. The branch policy, not the

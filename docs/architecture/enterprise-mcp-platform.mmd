@@ -1,23 +1,29 @@
 %%{init: {"flowchart": {"curve": "linear"}}}%%
+%% Current PoC baseline: Gateway CUSTOM_JWT, fixed Runtime lanes, IAM/SigV4,
+%% delegated assertion-copy/MSAL OBO, and app-only client credentials gated off.
+%% Target AgentCore Identity OBO/M2M routing is Accepted for PoC validation,
+%% not implemented.
 flowchart LR
     Entra["Microsoft Entra ID<br>Enterprise MCP API"]
-    Claude["Employee using Claude Code<br>delegated Entra JWT"]
-    Automation["Approved AI application<br>app-only Entra JWT"]
+    EmployeeClient["Employee via AI app / MCP client<br>delegated Entra JWT"]
+    Automation["Approved background workflow<br>app-only Entra JWT"]
     Gateway["One AgentCore Gateway<br>MCP + CUSTOM_JWT"]
     Cedar["Direct Cedar<br>exact caller + target/tool"]
     Direct["Direct vendor remote target pattern<br>no Runtime proxy"]
-    Hosted["Enterprise-hosted Runtime pattern<br>IAM/SigV4"]
+    Hosted["Enterprise-hosted Runtime pattern<br>target auth selected per lane"]
     AWSKnowledge["AWS Knowledge MCP<br>public documentation"]
     MicrosoftLearn["Microsoft Learn MCP<br>public documentation"]
     Terraform["Terraform MCP Runtime<br>registry only; no TFE credential"]
-    SharePoint["SharePoint delegated/application Runtimes<br>OBO or app-only identity"]
+    SharePointCurrent["Current PoC SharePoint lanes<br>two fixed Runtimes; IAM/SigV4"]
+    IdentityTarget["Target lane routing<br>delegated user / autonomous M2M"]
+    Identity["AgentCore Identity<br>OBO + M2M OAuth broker"]
     Registry["Public Terraform Registry"]
     Graph["Microsoft Graph / SharePoint"]
     Future["CRM / internal / Databricks<br>future reviewed decisions"]
 
-    Entra --> Claude
+    Entra --> EmployeeClient
     Entra --> Automation
-    Claude --> Gateway
+    EmployeeClient --> Gateway
     Automation --> Gateway
     Gateway --> Cedar
     Cedar --> Direct
@@ -25,7 +31,10 @@ flowchart LR
     Direct --> AWSKnowledge
     Direct --> MicrosoftLearn
     Hosted --> Terraform
-    Hosted --> SharePoint
+    Hosted --> SharePointCurrent
+    Hosted -.-> IdentityTarget
     Terraform --> Registry
-    SharePoint --> Graph
+    SharePointCurrent --> Graph
+    IdentityTarget -.-> Identity
+    Identity -.-> Graph
     Cedar -.-> Future

@@ -88,3 +88,29 @@ variable "break_glass_user_object_ids" {
   default     = []
   description = "Emergency access users excluded from the optional Conditional Access example."
 }
+
+variable "app_only_apps" {
+  type = map(object({
+    owner  = string
+    grants = map(set(string))
+  }))
+  default     = {}
+  description = "Approved autonomous app catalog keyed by logical name and mapped to SharePoint tools per site."
+
+  validation {
+    condition = alltrue([
+      for app in values(var.app_only_apps) : (
+        length(app.grants) > 0 && alltrue([
+          for tools in values(app.grants) : length(tools) > 0 && alltrue([
+            for tool_name in tools : contains([
+              "sharepoint_list_site_content",
+              "sharepoint_get_file_text",
+              "sharepoint_upload_file",
+            ], tool_name)
+          ])
+        ])
+      )
+    ])
+    error_message = "app_only_apps must define at least one non-empty site grant per app and may contain only the approved SharePoint tool names."
+  }
+}

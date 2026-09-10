@@ -58,9 +58,9 @@
 <text x="740.0" y="511.0" text-anchor="middle" class="box-detail">and policy ENFORCE</text>
 <rect x="60" y="640" width="400" height="170" rx="10" fill="#F5F7FA" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
 <text x="260.0" y="695.0" text-anchor="middle" class="box-title">Phase 4</text>
-<text x="260.0" y="717.0" text-anchor="middle" class="box-title">AWS AI caller read</text>
-<text x="260.0" y="739.0" text-anchor="middle" class="box-detail">Optional app-only</text>
-<text x="260.0" y="761.0" text-anchor="middle" class="box-detail">agent or application</text>
+<text x="260.0" y="717.0" text-anchor="middle" class="box-title">Autonomous M2M read</text>
+<text x="260.0" y="739.0" text-anchor="middle" class="box-detail">Identity M2M + provider IAM</text>
+<text x="260.0" y="761.0" text-anchor="middle" class="box-detail">app-only ingress gate</text>
 <rect x="540" y="640" width="400" height="170" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
 <text x="740.0" y="695.0" text-anchor="middle" class="box-title">Phase 5</text>
 <text x="740.0" y="717.0" text-anchor="middle" class="box-title">Controlled upload pilot</text>

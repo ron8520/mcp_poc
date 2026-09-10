@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from examples.enterprise_mcp_platform.gateway.obo_assertion_interceptor import (
+from gateway.obo_assertion_interceptor import (
     ASSERTION_HEADER,
+    CALLER_ASSERTION_HEADER,
     lambda_handler,
 )
 
@@ -70,7 +71,9 @@ class OboAssertionInterceptorTest(unittest.TestCase):
             "header.payload.signature",
         )
 
-    def test_application_lane_never_receives_user_assertion(self) -> None:
+    def test_application_lane_receives_caller_assertion_and_overrides_client_header(
+        self,
+    ) -> None:
         body = {
             "jsonrpc": "2.0",
             "id": 2,
@@ -84,7 +87,10 @@ class OboAssertionInterceptorTest(unittest.TestCase):
             {
                 "mcp": {
                     "gatewayRequest": {
-                        "headers": {"Authorization": "Bearer app-token"},
+                        "headers": {
+                            "Authorization": "Bearer app-token",
+                            CALLER_ASSERTION_HEADER: "client-supplied-token",
+                        },
                         "body": body,
                     }
                 }
@@ -93,7 +99,64 @@ class OboAssertionInterceptorTest(unittest.TestCase):
         )
 
         transformed = result["mcp"]["transformedGatewayRequest"]
-        self.assertEqual(transformed, {"body": body})
+        self.assertEqual(transformed["body"], body)
+        self.assertEqual(
+            transformed["headers"][CALLER_ASSERTION_HEADER],
+            "app-token",
+        )
+        self.assertNotIn(ASSERTION_HEADER, transformed["headers"])
+
+    def test_application_lane_fails_closed_without_bearer_token(self) -> None:
+        body = {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "method": "tools/call",
+            "params": {
+                "name": "sharepoint-application___sharepoint_upload_file",
+                "arguments": {},
+            },
+        }
+
+        result = lambda_handler(
+            {"mcp": {"gatewayRequest": {"headers": {}, "body": body}}},
+            object(),
+        )
+
+        response = result["mcp"]["transformedGatewayResponse"]
+        self.assertEqual(response["statusCode"], 401)
+        self.assertEqual(response["body"]["id"], 5)
+        self.assertEqual(
+            response["body"]["error"]["message"],
+            "Application caller assertion is required",
+        )
+
+    def test_unknown_application_action_does_not_receive_sensitive_header(self) -> None:
+        body = {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "method": "tools/call",
+            "params": {
+                "name": "sharepoint-application___unknown_tool",
+                "arguments": {},
+            },
+        }
+
+        result = lambda_handler(
+            {
+                "mcp": {
+                    "gatewayRequest": {
+                        "headers": {"Authorization": "Bearer app-token"},
+                        "body": body,
+                    }
+                }
+            },
+            object(),
+        )
+
+        self.assertEqual(
+            result["mcp"]["transformedGatewayRequest"],
+            {"body": body},
+        )
 
     def test_delegated_lane_fails_closed_without_bearer_token(self) -> None:
         body = {

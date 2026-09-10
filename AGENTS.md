@@ -12,11 +12,21 @@ The current target architecture is:
 - one shared Amazon Bedrock AgentCore Gateway MCP endpoint
 - one AgentCore Runtime per enabled downstream-identity lane; multiple lanes
   for one server reuse the same immutable service image
+- target outbound OAuth uses AgentCore Identity for both delegated/OBO and
+  autonomous M2M lanes, with separate workload identities and provider-ARN IAM
+  boundaries; the default PoC uses Runtime MSAL/client credentials, with an
+  opt-in per-app AgentCore Identity M2M adapter pending live validation
+- lane selection follows the downstream security subject, not the client name:
+  employee-facing AI apps use delegated identity when user ACLs must apply,
+  while approved workflows with no employee subject use M2M
 - SharePoint as the first enabled MCP server
 - CRM, internal software, and future systems as separate MCP server boundaries
 - Microsoft Entra ID JWTs for MCP caller identity
 - AWS IAM kept separate for Bedrock model access
 - Terraform for infrastructure
+- one TFE workspace/state per environment, composed from
+  `examples/enterprise_mcp_platform/deployment/` using `module.entra` and
+  `module.platform`; see ADR 0013 for staged app-only rollout
 - Sydney (`ap-southeast-2`) as the current AgentCore Gateway/Runtime deployment
   region; Melbourne (`ap-southeast-4`) remains gated on AWS service support
 - target AWS account ID and existing network resources supplied by the central
@@ -46,22 +56,13 @@ If the request is ambiguous, make a reasonable local assumption when the risk is
 low. Ask only when the choice would change architecture, security posture, data
 handling, or deployment behavior.
 
-## Multi-Agent Coordination
+### Minimal error handling
 
-When a task includes code changes, diagram work, and documentation updates,
-prefer splitting those workstreams across three separate sub-agents so they can
-run in parallel:
-
-- one sub-agent implements and verifies the code changes
-- one sub-agent creates or updates diagrams and performs visual or structural
-  checks
-- one sub-agent updates the affected documentation and checks cross-document
-  consistency
-
-Keep file ownership clear and avoid overlapping edits between sub-agents. A
-coordinating main agent must retain responsibility for scope and architectural
-consistency, integrate the outputs, run the final end-to-end verification, and
-accept or reject the completed change against the task's success criteria.
+Validate the inputs required by an explicit contract, then let configuration,
+identity-provider, token, upstream, and downstream failures propagate to the
+owning boundary. Do not add catch-all handlers, default identities or providers,
+implicit mode switching, or fallback chains. Error handling must not log or
+disclose secrets, tokens, provider credentials, or sensitive downstream data.
 
 ## Architecture Decision Records
 
@@ -120,6 +121,9 @@ change:
 
 Do not let README describe one architecture while ADRs or progress files
 describe another.
+
+The Markdown architecture sources are authoritative. Do not create, regenerate,
+or maintain `docs/architecture/enterprise-mcp-platform-internal-review.docx`.
 
 ## Diagram Style
 

@@ -6,6 +6,7 @@ trigger:
     include:
       - examples/enterprise_mcp_platform/common/*
       - examples/enterprise_mcp_platform/common/**/*
+      - examples/enterprise_mcp_platform/gateway/*.py
       - examples/enterprise_mcp_platform/images/mcp_python_base/container_healthcheck.py
       - examples/enterprise_mcp_platform/requirements.txt
       - examples/enterprise_mcp_platform/servers/*
@@ -109,6 +110,8 @@ stages:
 
               from mcp.server.mcpserver import MCPServer
 
+              if os.environ["SERVER_NAME"] == "sharepoint_mcp":
+                  os.environ["GRAPH_DRY_RUN"] = "true"
               module = importlib.import_module(
                   f"servers.{os.environ['SERVER_NAME']}.src.server"
               )
@@ -120,7 +123,26 @@ stages:
           - bash: |
               set -euo pipefail
               cd examples/enterprise_mcp_platform
-              docker build \
+              . .venv/bin/activate
+              if [ "$(SERVER_NAME)" = "sharepoint_mcp" ]; then
+                PYTHONDONTWRITEBYTECODE=1 python -m unittest discover \
+                  -s servers/sharepoint_mcp \
+                  -p 'test_*.py'
+                PYTHONDONTWRITEBYTECODE=1 python -m unittest discover \
+                  -s gateway \
+                  -p 'test_*.py'
+              fi
+            displayName: Run server unit tests
+            condition: ne(variables.SKIP_SERVER, 'true')
+
+          - bash: |
+              set -euo pipefail
+              cd examples/enterprise_mcp_platform
+              platform_args=()
+              if [ "$(SERVER_NAME)" = "sharepoint_mcp" ]; then
+                platform_args=(--platform linux/arm64)
+              fi
+              docker build "${platform_args[@]}" \
                 --file "$(DOCKERFILE)" \
                 --tag "$(IMAGE_NAME):$(Build.SourceVersion)" \
                 .

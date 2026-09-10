@@ -5,7 +5,10 @@ Date: 2026-07-06
 Status: Accepted for PoC validation
 
 The YAML/generated-policy workflow below is superseded by ADR 0006. The
-single-repo and Azure DevOps ownership decisions remain in force.
+single-repo and Azure DevOps ownership decisions remain in force. ADR 0013
+supersedes the separate-TFE-state execution detail below: `identity/entra` and
+`infra` remain module boundaries, while the composed `deployment/` root owns one
+workspace/state per environment.
 
 ## Context
 
@@ -28,6 +31,7 @@ Use one cloud-owned platform repo with clear folder boundaries:
 
 ```text
 examples/enterprise_mcp_platform/
+  deployment/
   identity/entra/
   infra/
   policy/
@@ -50,20 +54,18 @@ Pipeline responsibilities:
   optionally push to central ECR.
 
 Do not define Terraform plan/apply pipelines here. The central TFE admin repo
-creates the Terraform workspaces and execution pipeline for:
-
-- `identity/entra`
-- `infra`
-
-Keep identity and AWS infrastructure as separate Terraform roots and separate
-state scopes:
+creates one workspace/state and execution pipeline per environment for the
+composed `deployment/` root. The composed root calls the two module boundaries:
 
 ```text
-identity/entra/envs/nonprod.tfvars
-identity/entra/envs/prod.tfvars
-infra/envs/nonprod.tfvars
-infra/envs/prod.tfvars
+deployment/main.tf
+  module.entra    -> ../identity/entra
+  module.platform -> ../infra
 ```
+
+Use `deployment/envs/nonprod.tfvars` and `deployment/envs/prod.tfvars` for the
+environment runs. The direct module directories remain available for narrow
+local validation and are not separate production TFE states.
 
 Use Azure DevOps branch policies, path-based reviewers, secure variable groups,
 self-hosted agents, and approval gates for image publish. Use the central TFE
@@ -80,7 +82,9 @@ Positive:
 - Policy, identity, infrastructure, and server code stay visibly connected.
 - Azure DevOps Server matches the actual source-control and non-Terraform
   pipeline platform.
-- Separate Terraform roots still preserve state and blast-radius boundaries.
+- Module boundaries remain visible while one environment state keeps Entra and
+  AgentCore wiring atomic; nonprod and prod still have separate state and
+  approval paths.
 - Terraform automation stays consistent with the enterprise central TFE admin
   model.
 - A separate policy repo is not required until ownership or release cadence
@@ -101,8 +105,9 @@ Tradeoffs:
 
 - Configure Azure DevOps variable groups for central ECR publish credentials.
 - Configure Azure DevOps approvals for image publish.
-- Confirm the central TFE admin repo points at the `identity/entra` and `infra`
-  roots with the correct nonprod/prod tfvars.
+- Confirm the central TFE admin repo points at the composed `deployment/` root
+  with the correct nonprod/prod tfvars and reviewed state migration plan, if an
+  existing standalone state is being moved.
 - Add the real central ECR registry and production agent pool names.
 - Add image scanning, SBOM, and signing steps once the internal tooling is
   confirmed.

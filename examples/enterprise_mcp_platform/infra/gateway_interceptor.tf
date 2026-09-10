@@ -51,7 +51,7 @@ resource "aws_iam_role_policy" "gateway_obo_interceptor_logs" {
 
 resource "aws_lambda_function" "gateway_obo_assertion" {
   function_name = local.gateway_obo_interceptor_name
-  description   = "Copies a Gateway-validated delegated token to the SharePoint OBO lane"
+  description   = "Copies Gateway-validated caller tokens to the matching SharePoint identity lane"
   role          = aws_iam_role.gateway_obo_interceptor.arn
   runtime       = "python3.12"
   handler       = "obo_assertion_interceptor.lambda_handler"

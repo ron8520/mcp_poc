@@ -14,9 +14,10 @@ It creates:
 - optional report-only Conditional Access policy for trusted internal network
   access.
 
-This is intentionally separate from `infra/`, which owns AWS AgentCore
-resources. The same cloud team can own both roots, but the state and apply
-scope should stay separate.
+This remains a separate Terraform module boundary from `infra/`, which owns AWS
+AgentCore resources. The central execution path composes both modules from
+`../deployment` so one TFE workspace and state owns the complete environment;
+the module boundary does not imply a separate production state.
 
 ## Public Access Note
 
@@ -37,27 +38,25 @@ Conditional Access and assignment.
 
 ## Terraform Usage
 
-Use this folder as a separate identity workspace/root:
+Use the composed environment root for central TFE runs:
 
 ```text
-examples/enterprise_mcp_platform/identity/entra
+examples/enterprise_mcp_platform/deployment
 ```
 
-Pipeline var-file selection:
+From that directory, select the environment explicitly:
 
-```text
-nonprod -> terraform plan -var-file=envs/nonprod.tfvars
-prod    -> terraform plan -var-file=envs/prod.tfvars
+```bash
+terraform plan -var-file=envs/nonprod.tfvars
+terraform plan -var-file=envs/prod.tfvars
 ```
 
-If applies are configured separately:
+An approved apply uses the same composed root and var-file. Do not create a
+separate production TFE state for this module. The direct `identity/entra`
+directory and its environment examples remain available for narrow module
+validation; they are not the central deployment path.
 
-```text
-nonprod -> terraform apply -var-file=envs/nonprod.tfvars
-prod    -> terraform apply -var-file=envs/prod.tfvars
-```
-
-Outputs consumed by AWS `infra/`:
+Outputs wired by the composed `deployment/` root into AWS `infra`:
 
 - `enterprise_mcp_discovery_url`
 - `enterprise_mcp_audience`
@@ -68,5 +67,23 @@ Keep `create_people_assist_client_secret = false` unless cloud/security
 governance has approved storing that secret in Terraform state. Prefer the
 enterprise secret management process for production client credentials.
 
+The client product does not choose the downstream lane. An employee-facing AI
+application uses an approved delegated grant when downstream user permissions
+must apply. A scheduler or workflow uses an application role and client
+credentials only when no employee is the security subject. Target downstream
+OBO and M2M credential-provider registrations are separate from this current
+caller-registration example and are brokered through AgentCore Identity under
+ADR 0012; do not reuse the Gateway-audience token as a downstream token.
+
+The app-only catalog creates caller and downstream application registrations,
+service principals, roles and permission requests; it does not create a caller
+password, certificate or federated credential. The caller authentication method
+and the downstream AgentCore provider credential method both require a separate
+approved implementation. Entra/AD synchronization supplies identity data but
+does not by itself provision either credential path, so a catalog entry cannot
+acquire an app-only token until those gates are complete.
+
 Terraform execution is handled by the central TFE admin repo, which creates the
-repo/workspaces and plan/apply automation for this root.
+environment workspaces and plan/apply automation for the composed
+`deployment/` root. See [`deployment/README.md`](../../deployment/README.md) for
+the run path and state-migration warning.

@@ -1,2 +1,4 @@
 boto3
 msal
+PyMuPDF
+PyJWT[crypto]

@@ -100,23 +100,23 @@ push code, create TFE runs, or apply infrastructure.
 %%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart LR
     Entra["Microsoft Entra ID<br>Enterprise MCP API"]
-    Claude["Employee using Claude Code<br>delegated Entra JWT"]
-    Automation["Approved AI application<br>app-only Entra JWT"]
+    EmployeeClient["Employee via AI app / MCP client<br>delegated Entra JWT"]
+    Automation["Approved background workflow<br>app-only Entra JWT"]
     Gateway["One AgentCore Gateway<br>MCP + CUSTOM_JWT"]
     Cedar["Direct Cedar<br>exact caller + target/tool + input"]
     Direct["Direct vendor remote target pattern<br>no Runtime proxy"]
-    Hosted["Enterprise-hosted Runtime pattern<br>IAM/SigV4"]
+    Hosted["Enterprise-hosted Runtime pattern<br>authorization selected per lane"]
     AWSKnowledge["AWS Knowledge MCP<br>public documentation"]
     MicrosoftLearn["Microsoft Learn MCP<br>public documentation"]
     Terraform["Terraform MCP Runtime<br>registry only; no TFE credential"]
-    SharePoint["SharePoint user/automation Runtimes<br>OBO or app identity"]
+    SharePoint["SharePoint delegated/M2M lanes<br>AgentCore Identity target per ADR 0012"]
     Registry["Public Terraform Registry"]
     Graph["Microsoft Graph / SharePoint"]
     Future["CRM / internal / Databricks<br>future reviewed decisions"]
 
-    Entra --> Claude
+    Entra --> EmployeeClient
     Entra --> Automation
-    Claude --> Gateway
+    EmployeeClient --> Gateway
     Automation --> Gateway
     Gateway --> Cedar
     Cedar --> Direct
@@ -129,6 +129,11 @@ flowchart LR
     SharePoint --> Graph
     Cedar -.-> Future
 ```
+
+ADR 0012 clarifies the caller labels in this flow: an employee-facing AI
+application uses delegated/OBO when downstream user permissions must apply; an
+app-only token is reserved for an autonomous workflow with no employee security
+subject.
 
 Editable sources:
 

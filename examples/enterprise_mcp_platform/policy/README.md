@@ -46,6 +46,16 @@ the same approved rollout that promotes Cedar to `ENFORCE`. Terraform blocks
 the switch in `LOG_ONLY`. Cedar then requires `mcp.invoke` for delegated actions
 and an application app role for app-only actions.
 
+This is the current PoC policy boundary; app-only ingress remains gated off. The
+accepted target adds no caller-controlled provider selection. Its thin
+trust-domain resolver uses validated caller client ID, exact target-qualified
+action, server-owned resource key, and environment. For SharePoint that key is
+the existing `site_id`. It rejects auth mode/provider alias/ARN, Graph client
+ID, secret and `resource_ref` inputs, passes `site_id` unchanged to Graph, and
+fails closed on mapping/config/provider misses without provider disclosure.
+Resolver safety, Identity provider IAM, and credential routing remain separate
+from this Gateway/Cedar caller and exact tool/input authorization.
+
 Promote policy changes through:
 
 1. source checks and security/data-owner review;
@@ -72,3 +82,12 @@ AgentCore exposes JWT claims as principal tags. The exact serialized form of
 the Entra `roles` claim must be verified with real non-production tokens before
 enforcement. The policies quote the full role value inside the serialized
 array to avoid prefix matches.
+
+The target identity design is documented in
+[`docs/architecture/sharepoint-identity-routing.md`](../../../docs/architecture/sharepoint-identity-routing.md)
+and [ADR 0012](../../../docs/adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md).
+The target delegated path uses two audience-specific AgentCore Identity OBO
+hops; the app-only Runtime uses a lane-scoped Identity M2M provider. A delegated
+token cannot invoke M2M actions and an application token cannot invoke delegated
+actions. Native no-code app-only caller-context composition is not provided by
+the official AWS documentation and remains unverified.

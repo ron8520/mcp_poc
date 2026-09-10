@@ -10,8 +10,9 @@ required now. Keep one repo with clear folder boundaries:
 | Folder | Purpose | Owner |
 | --- | --- | --- |
 | `policy/` | Direct AgentCore Cedar authorization source | cloud platform team |
-| `identity/entra/` | Entra app registrations, app roles, optional Conditional Access | cloud platform team |
-| `infra/` | AWS AgentCore Gateway, Runtime, IAM, and Cedar Terraform; consumes existing platform network inputs | cloud platform team |
+| `deployment/` | Composed environment Terraform root; one TFE workspace/state per environment | cloud platform team |
+| `identity/entra/` | Entra Terraform module for app registrations, app roles, optional Conditional Access | cloud platform team |
+| `infra/` | AWS AgentCore Gateway, Runtime, IAM, and Cedar Terraform module; consumes existing platform network inputs | cloud platform team |
 | `servers/sharepoint_mcp/` | SharePoint MCP server | cloud platform team with SharePoint owner review |
 | `servers/crm_mcp/` | CRM MCP server boundary | cloud platform team with CRM owner review |
 | `servers/internal_software_mcp/` | internal API MCP server boundary | cloud platform team with internal API owner review |
@@ -31,6 +32,7 @@ Recommended reviewer rules:
 ```text
 policy/**                         cloud platform + security/downstream owner
 identity/entra/**                 cloud platform + identity/security
+deployment/**                     cloud platform + identity/security/network
 infra/**                          cloud platform + security/network
 servers/sharepoint_mcp/**         cloud platform + SharePoint owner
 servers/crm_mcp/**                cloud platform + CRM owner
@@ -44,11 +46,14 @@ Keep these contracts stable:
   the live Gateway schema.
 - Policy CI is a required, path-scoped Azure DevOps branch-policy gate before
   merge.
-- Identity Terraform produces Entra audience, discovery URL, and client IDs for
-  the AWS Gateway configuration.
+- The composed deployment Terraform wires Entra audience, discovery URL, and
+  client IDs into the AWS Gateway configuration in the same environment state.
+- The app-only catalog creates registrations, service principals and role/
+  permission assignments but not caller passwords, certificates or federated
+  credentials; approved credential provisioning remains a separate gate.
 - MCP server CI builds final service images only from approved server source.
-- Infrastructure consumes final image URIs through `envs/nonprod.tfvars` and
-  `envs/prod.tfvars`.
+- The deployment root consumes final image URIs through its
+  `envs/nonprod.tfvars` and `envs/prod.tfvars`.
 - Terraform plan/apply automation is created by the central TFE admin repo.
 - Production image publish requires Azure DevOps approvals.
 

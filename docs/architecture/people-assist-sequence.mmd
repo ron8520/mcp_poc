@@ -1,3 +1,6 @@
+%% Current PoC application-lane shape. App-only Gateway ingress remains gated
+%% off. The target replaces direct downstream client credentials with a
+%% lane-scoped AgentCore Identity M2M provider after caller validation.
 sequenceDiagram
     autonumber
     participant Scheduler as Scheduler / background AI job
@@ -7,6 +10,8 @@ sequenceDiagram
     participant AutoRT as SharePoint application Runtime
     participant Graph as Microsoft Graph
     participant SP as SharePoint
+
+    Note over Scheduler,SP: Current PoC shape: direct client_credentials at Gateway and Graph. Target AgentCore Identity M2M is not implemented.
 
     Scheduler->>Entra: Client credentials for Enterprise MCP API
     Entra-->>Scheduler: App-only MCP JWT with application roles

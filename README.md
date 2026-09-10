@@ -17,41 +17,66 @@ without access to the original source tree or machine-local file paths.
 %%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart LR
     Entra["Microsoft Entra ID<br>Enterprise MCP API"]
-    Claude["Employee using Claude Code<br>delegated Entra JWT"]
-    Automation["Approved AI application<br>app-only Entra JWT"]
+    EmployeeClient["Employee via AI app / MCP client<br>delegated Entra JWT"]
+    Automation["Approved background workflow<br>app-only Entra JWT"]
     Gateway["One AgentCore Gateway<br>MCP + CUSTOM_JWT"]
     Cedar["Direct Cedar<br>exact caller + target/tool + input"]
+    Catalog["App-only catalog<br>stable workload → owner + site→exact tools"]
+    TFE["One TFE workspace/state<br>per environment"]
     Direct["Direct vendor remote target pattern<br>no Runtime proxy"]
     Hosted["Enterprise-hosted Runtime pattern<br>IAM/SigV4"]
     AWSKnowledge["AWS Knowledge MCP<br>public documentation"]
     MicrosoftLearn["Microsoft Learn MCP<br>public documentation"]
     Terraform["Terraform MCP Runtime<br>registry only; no TFE credential"]
-    SharePoint["SharePoint delegated/application Runtimes<br>OBO or app identity"]
+    SharePoint["Current PoC SharePoint lanes<br>two fixed Runtimes"]
+    IdentityTarget["Target AgentCore Identity routing<br>delegated OBO + autonomous M2M"]
     Registry["Public Terraform Registry"]
     Graph["Microsoft Graph / SharePoint"]
     Future["CRM / internal / Databricks<br>future reviewed decisions"]
 
-    Entra --> Claude
+    Entra --> EmployeeClient
     Entra --> Automation
-    Claude --> Gateway
+    EmployeeClient --> Gateway
     Automation --> Gateway
     Gateway --> Cedar
     Cedar --> Direct
     Cedar --> Hosted
+    TFE --> Catalog
+    TFE --> Entra
+    TFE --> Hosted
+    Catalog --> IdentityTarget
     Direct --> AWSKnowledge
     Direct --> MicrosoftLearn
     Hosted --> Terraform
     Hosted --> SharePoint
+    Hosted --> IdentityTarget
     Terraform --> Registry
     SharePoint --> Graph
+    IdentityTarget --> Graph
     Cedar -.-> Future
 ```
 
-The fixed boundaries are:
+The fixed boundaries are listed below. The editable layered architecture source
+is [`docs/architecture/enterprise-mcp-platform-layered.drawio`](docs/architecture/enterprise-mcp-platform-layered.drawio).
+Preview pages: [current implemented PoC](docs/architecture/enterprise-mcp-platform-current-poc.svg)
+([PNG](docs/architecture/enterprise-mcp-platform-current-poc.png)) and
+[target identity routing](docs/architecture/enterprise-mcp-platform-target-identity.svg)
+([PNG](docs/architecture/enterprise-mcp-platform-target-identity.png)). The
+current and target pages are separate and the target page is validation-only.
+Both pages separate the Network / Platform AWS Account and connectivity VPC
+from the MCP Workload AWS Account, AWS managed-service layer (AgentCore plus
+the Lambda interceptor), and Runtime VPC mode attachments.
+The target app-only catalog and environment state are shown as deployment
+controls, not as a new runtime policy engine.
 
 - AgentCore Gateway is the only MCP front door. There is no custom gateway,
   CloudFront distribution, or CDN-backed MCP domain.
 - Microsoft Entra ID identifies MCP callers.
+- An employee-facing AI application is not automatically app-only. If the
+  downstream operation must respect the employee's permissions, the AI
+  application sends a delegated user token and uses the delegated lane.
+- A scheduler, workflow, daemon, or service integration with no employee
+  security subject uses a narrowly approved application token and M2M lane.
 - Direct Cedar at Gateway is the only caller/tool authorization policy.
 - Approved vendor-operated remote MCP endpoints can be direct Gateway targets;
   an AgentCore Runtime proxy is not mandatory.
@@ -61,18 +86,22 @@ The fixed boundaries are:
 - The Terraform MCP server is enterprise-hosted on Runtime with only
   `--toolsets=registry`, `ENABLE_TF_OPERATIONS=false`, and no TFE credential.
   It retrieves documentation but cannot create a run or apply infrastructure.
-- Delegated requests use the `sharepoint-delegated` Runtime lane and a Graph
-  OBO token. SharePoint's native ACL decides which sites and items the employee
-  may use.
+- Delegated requests from Claude Code or another employee-facing AI application
+  use the `sharepoint-delegated` Runtime lane and a Graph OBO token. SharePoint's
+  native ACL decides which sites and items the employee may use.
 - A Gateway request interceptor propagates the already validated caller token
   only to the delegated lane. Gateway still invokes both Runtimes with
   IAM/SigV4.
-- App-only requests use the `sharepoint-application` Runtime lane and a
-  separate Graph app token. `Sites.Selected` decides which sites the
-  application may use.
+- The autonomous request shape uses the `sharepoint-application` Runtime lane
+  and a separate Graph app token. `Sites.Selected` decides which sites the
+  background workload may use; app-only Gateway ingress is currently gated off
+  in the PoC. The staged app-only catalog gives each approved workload a stable
+  caller app/service principal and a separate downstream SharePoint
+  app/service principal, with direct site-to-exact-tool grants.
 - Platform-owned downstream integrations keep separate MCP server source/image
-  and policy boundaries; materially different identity lanes may use separate
-  targets and Runtimes.
+  and policy boundaries. Each future server chooses delegated, M2M, both, native
+  IAM, or no outbound credential from its authorization semantics; materially
+  different identity lanes use separate targets and Runtime/workload identities.
 - Runtime rejects invalid upload input without trimming, normalizing, or
   repairing it. It does not load or re-evaluate a second authorization policy.
 - The workload Terraform root deploys AgentCore Gateway/Runtime in Sydney
@@ -92,12 +121,39 @@ DevOps work-management operations remain separate future decisions. ADR 0010
 defines the single SharePoint upload tool, fail-fast input behavior, and
 delegated/application lane names.
 
-## Request Sequence
+### Identity status boundary
 
-The same Gateway URL supports a human developer client and an approved general
-AI application running on AWS. The token grant and policy checks differ. This
-sequence uses the upload tool to show both credential lanes; list/read tools
-use the same lane selection.
+The current PoC identity path is implemented as two fixed SharePoint Runtime
+lanes: Gateway `CUSTOM_JWT`, Gateway-to-Runtime IAM/SigV4, a delegated-only
+assertion-copy interceptor, delegated Runtime MSAL OBO, and application Runtime
+Graph `client_credentials`. App-only Gateway ingress is currently gated off.
+The repository also contains the staged app-only caller-context resolver,
+explicit AgentCore M2M adapter, and Terraform wiring, but no live provider
+registration, caller application credential provisioning, token exchange, or
+downstream Graph-grant evidence.
+
+The target identity-routing design is **Accepted for PoC validation**, not
+implemented. AgentCore Identity is the target OAuth broker for both lane types:
+delegated access uses Gateway-audience -> Runtime-audience -> downstream-
+audience OBO, while autonomous application access uses Identity M2M
+`client_credentials`. Separate workload identities and provider-ARN IAM
+allowlists keep the lanes and trust domains isolated. The staged app-only work
+adds a stable workload-keyed catalog and explicit M2M adapter behind the gated
+ingress; provider registration, live M2M tokens and downstream site grants are
+still validation gates. The target must pass non-production validation before
+replacing the current interceptor, MSAL, and direct client-credentials paths.
+See [downstream identity routing (SharePoint example)](docs/architecture/sharepoint-identity-routing.md),
+[ADR 0012](docs/adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md), and
+[ADR 0013](docs/adr/0013-staged-entra-app-only-catalog-and-bau-rollout.md).
+
+## Current PoC Request Sequence (implemented reference)
+
+The same Gateway URL is the intended front door for employee-facing AI apps and
+MCP clients, and for approved autonomous workloads running on AWS. The
+delegated path is the current repository flow; the app-only branch below is a
+target shape whose Gateway ingress remains gated. The token grant and policy
+checks differ. This sequence uses the upload tool to show both credential lanes;
+list/read tools use the same lane selection.
 
 ```mermaid
 sequenceDiagram
@@ -139,7 +195,7 @@ sequenceDiagram
         Graph-->>DelegatedRT: Result or access denied
         DelegatedRT-->>Gateway: MCP tool result
         Gateway-->>Claude: MCP response
-    else App-only call
+    else App-only call (target shape; ingress currently gated)
         App->>Entra: Request audience/.default using workload credential
         Entra-->>App: App-only token with client and app-role claims
         App->>Gateway: MCP request with app-only bearer token
@@ -158,12 +214,50 @@ sequenceDiagram
     end
 ```
 
-For a user-facing AWS application, prefer a delegated or on-behalf-of token when
-the tool action must be attributable to the signed-in user. Use app-only
-identity only for a narrowly approved service workflow. An app-only Entra token
-normally carries application roles rather than a delegated `scp` claim, so the
-Gateway and policy configuration must support the selected grant type; do not
-make a delegated scope the only authorization condition for service tokens.
+For a user-facing AI application, use delegated/OBO whenever the downstream
+operation must respect the signed-in employee's permissions. Do not convert the
+request to M2M merely because an AI application sits between the employee and
+Gateway. Use app-only identity only for a narrowly approved autonomous workflow
+with no employee security subject. An app-only Entra token normally carries
+application roles rather than a delegated `scp` claim, so Gateway and Cedar must
+bind each grant type to its own exact target/actions. Neither the caller nor MCP
+tool input may select the credential mode or provider.
+
+### Staged app-only catalog flow (validation target)
+
+The app-only rollout keeps the current ingress switch disabled until the catalog,
+provider handoff and downstream grants are validated:
+
+```mermaid
+%%{init: {"flowchart": {"curve": "linear"}}}%%
+flowchart LR
+    Workload["Stable workload name<br>owner"] --> Catalog["App-only catalog<br>site → exact tools"]
+    Catalog --> Caller["Caller app + service principal<br>Enterprise MCP API role"]
+    Catalog --> Downstream["SharePoint app + service principal<br>Graph app permission"]
+    Caller --> Gateway["AgentCore Gateway<br>CUSTOM_JWT + Cedar"]
+    Gateway --> Runtime["Shared M2M Runtime<br>trusted app context"]
+    Runtime --> Resolver["Exact caller + action + site + environment"]
+    Resolver --> Binding["Existing provider ARN binding<br>interim PoC handoff"]
+    Binding --> Identity["AgentCore Identity M2M"]
+    Identity --> Downstream
+    Downstream --> Site["Sites.Selected<br>explicit site grant"]
+```
+
+The catalog is deployment configuration, not a generic policy engine. The first
+delivery is a bounded immutable JSON environment value. A pinned private S3
+snapshot may be evaluated for BAU later; AgentCore Configuration Bundle delivery
+is optional and deferred. `APP_ONLY_MAPPING_JSON` is capped at 5000 characters
+for the PoC. The provider credential method and native provider registration are
+unresolved; `app_only_provider_bindings` is an explicit logical-app to already-
+registered-provider-ARN handoff and does not prove live token exchange. Caller
+application credential provisioning is also unresolved; Entra/AD
+synchronization does not create a password, certificate or federated
+credential. The shared Runtime IAM role has the union of the provider ARNs it
+can access, so
+this is logical per-workload routing rather than per-app hard isolation. Graph
+`Sites.Selected` admin consent is represented by Terraform, while explicit
+per-site grants remain a separate downstream-owner/admin handoff. See [ADR
+0013](docs/adr/0013-staged-entra-app-only-catalog-and-bau-rollout.md).
 
 ## Documentation-Assisted Terraform Delivery
 
@@ -223,17 +317,26 @@ The editable sequence sources are
 `docs/architecture/claude-code-terraform-docs-sequence.mmd` and
 `docs/architecture/claude-code-terraform-docs-sequence.drawio`.
 
+That sequence is the implemented current PoC reference. The accepted target
+identity sequence for both delegated/OBO and autonomous M2M is documented in
+[`docs/architecture/sharepoint-identity-routing.md`](docs/architecture/sharepoint-identity-routing.md);
+it must not be read as a deployed AgentCore Identity flow.
+
 ## Identity and Authorization Contract
 
 | Boundary | Credential | Required checks |
 | --- | --- | --- |
 | Caller to Gateway | Entra access token | Issuer, audience, expiry, allowed client, and grant-compatible scope or app role |
-| Gateway to either Runtime | Gateway IAM role with SigV4 | Runtime resource policy allows only the Gateway role |
+| Deployment catalog | Reviewed Terraform `app_only_apps` input | Stable workload owner, caller/downstream app identities, and exact `site_id` -> tool grants |
+| Entra/AgentCore composition | One `deployment/` root per environment | TFE state composes `module.entra` and `module.platform`; outputs wire audience and caller IDs |
+| Current Gateway to either SharePoint Runtime | Gateway IAM role with SigV4 | Runtime resource policy allows only the Gateway role |
+| Target Gateway to delegated Runtime | AgentCore Identity OBO Token B for the Runtime audience | Runtime JWT issuer, audience, expiry, client and delegated context |
+| Target Gateway to application Runtime | Gateway IAM/SigV4 plus trusted signed caller context | Runtime allows Gateway only and revalidates the application caller before routing |
 | Gateway to AWS Knowledge or Microsoft Learn | No outbound credential; approved public-docs exception | TLS/hostname, reviewed target/tool, data-classification, rate/size limits, and target kill switch |
 | MCP server to AWS services | Per-server AWS identity | Least-privilege logs, metrics, secret retrieval, and approved service calls |
 | Terraform MCP Runtime to public Registry | No TFE credential | Public `registry` toolset only; Terraform operations disabled |
-| Delegated Runtime to Microsoft Graph | OBO delegated Graph token | Native SharePoint user/site/item permissions |
-| Application Runtime to Microsoft Graph | Separate Entra application credential | Selected Graph application permissions and `Sites.Selected` grants |
+| Target delegated Runtime to OAuth downstream | AgentCore Identity OBO token | Downstream user permissions; SharePoint uses native site/item ACLs |
+| Target application Runtime to OAuth downstream | AgentCore Identity M2M token from a lane-scoped provider | Downstream application grants; SharePoint uses `Sites.Selected` |
 
 Trusted caller identity must come from validated request context, never from
 ordinary MCP tool arguments. The OBO assertion header is a credential copied
@@ -242,10 +345,23 @@ identity claim. Only the delegated target and Runtime allowlist it; the
 application lane does not.
 
 CRM does not automatically require two Runtimes. Start with one
-`crm-application` lane when every approved CRM tool uses the same service
-identity. Add a `crm-delegated` lane from the same CRM image only when the CRM
-API supports and requires delegated access. CRM and SharePoint still remain
-separate server images and ownership boundaries.
+`crm-application` lane when every approved CRM tool is an autonomous operation
+using the same service identity. Add a `crm-delegated` lane from the same CRM
+image only when an employee remains the security subject and the CRM API
+supports delegated access. CRM and SharePoint still remain separate server
+images and ownership boundaries.
+
+For the accepted M2M target, a trust-domain Runtime contains the staged thin
+default-deny resolver for approved AgentCore Identity provider profiles. Its
+platform key is the validated caller client ID, exact target-qualified action,
+server-owned downstream resource key, and environment. For SharePoint that
+resource key remains the existing `site_id`, passed to Graph unchanged. Callers
+cannot provide a provider alias, ARN, client ID, secret, or authentication mode;
+resolver/config/provider misses fail closed without revealing provider details.
+The adapter uses explicit `GRAPH_AUTH_MODE=agentcore_m2m`, workload-name and
+M2M token calls, and per-request downstream tokens. The local path is under
+validation; live provider registration, token exchange, and Graph grants remain
+open gates.
 
 Recommended claim mapping:
 
@@ -277,10 +393,12 @@ $env:ENTRA_ACCESS_TOKEN = & .\clients\entra_token_helper.ps1 delegated
 ### Connect to MCP, list tools, and call a tool
 
 Install the Python MCP SDK, then run this client with a short-lived token in the
-current process. The server code uses Python MCP SDK 2.0, while the managed
-AgentCore Gateway currently supports handshake-era MCP protocol versions rather
-than `2026-07-28`. Gateway clients therefore use SDK 2 with `mode="legacy"`
-until AWS documents and validates support for the newer protocol.
+current process. The current released MCP specification is `2025-11-25`.
+The server code uses Python MCP SDK `mcp==2.0.0`, targeting the
+`2026-07-28` release candidate, while the managed AgentCore Gateway dialect and
+that RC remain validation items. Gateway clients therefore use SDK 2 with
+`mode="legacy"`; this repository does not claim native managed-Gateway support
+for `2026-07-28`.
 
 ```powershell
 py -m venv .venv
@@ -356,16 +474,21 @@ search_result = await client.call_tool(
 )
 ```
 
-## General AI Application on AWS
+## Autonomous Background Application on AWS (target shape; ingress currently gated)
 
-The AWS-hosted caller can be a Lambda function, container service, or
-orchestrated agent built with LangGraph, LangChain, or LlamaIndex. Its framework
-does not change the MCP security boundary: it still obtains an Entra token and
-calls the AgentCore Gateway MCP endpoint.
+The AWS-hosted caller can be a Lambda function, container service, scheduler, or
+orchestrated agent built with LangGraph, LangChain, or LlamaIndex. This example
+applies only when no employee is the downstream security subject. A user-facing
+AI application that must preserve employee permissions uses the delegated flow
+instead. The framework does not change the MCP security boundary: the caller
+still obtains the appropriate Entra token and calls the AgentCore Gateway MCP
+endpoint.
 
-This compact Lambda-compatible example uses client credentials for an approved
-service workflow, caches the token in the warm execution environment, and calls
-a predefined tool. Store the client secret in a managed secret service and
+This compact Lambda-compatible example shows the target `client_credentials`
+shape for an approved service workflow. App-only Gateway ingress is currently
+gated off; run it only after the caller-context, Cedar, resolver and downstream
+`Sites.Selected` validation gates pass. It caches the token in the warm
+execution environment. Store the client secret in a managed secret service and
 inject it at runtime; never log it or the returned token.
 
 ```python
@@ -560,7 +683,7 @@ from `LOG_ONLY` to `ENFORCE`. The Gateway keeps the delegated-only
 `mcp.invoke` scope gate until the same approved `ENFORCE` cutover enables
 app-only access.
 
-## Request Metadata Propagation
+## Current PoC Request Metadata Propagation
 
 The Gateway request interceptor forwards the Gateway-validated bearer token as
 `x-mcp-user-assertion` only for `sharepoint-delegated___*` calls. It does not
@@ -594,12 +717,40 @@ the assertion length, and never logs it. Only the delegated target and Runtime
 allowlist the assertion header. Interceptor-generated values override any
 client-provided values with the same names.
 
-## AWS Deployment Shape
+The target app-only caller-context gate is implemented as a staged PoC path: a
+Gateway request interceptor copies the original signed caller JWT to
+`x-mcp-caller-assertion` without exchanging a token, reading a secret, or
+selecting a provider. The trust-domain Runtime accepts only Gateway SigV4
+ingress and revalidates `iss`, Gateway `aud`, `exp`, `tid`, v2 `azp` or v1
+`appid`, `idtyp=app`, and `roles`. Native no-code composition of this context is
+not provided by the official AWS documentation and remains unverified.
+`JWT_PASSTHROUGH` is not the default
+because changing the token audience or allowing direct Runtime use would change
+the Gateway policy risk model.
 
-The current Terraform creates one shared Gateway and flattens each enabled
-service lane into its own Runtime, target, IAM role, configuration, and Cedar
-resource policy. Lanes for the same service reuse one immutable image. The AWS
-and archive providers are pinned in the example and the lock file is committed.
+After caller validation and resolver selection, the target application Runtime
+uses its lane-scoped workload identity to call AgentCore Identity M2M. Runtime
+IAM must name only the approved OAuth credential-provider ARNs; it must not use
+a wildcard provider resource. AgentCore Identity returns the downstream
+application token but does not reduce that application's downstream grants.
+
+## Current PoC AWS Deployment Shape
+
+The composed `deployment/` root creates one environment state and wires the
+Entra and platform modules. The platform module creates one shared Gateway and
+flattens each enabled service lane into its own Runtime, target, IAM role,
+configuration, and Cedar resource policy. Lanes for the same service reuse one
+immutable image. The AWS and archive providers are pinned in the example and
+the lock file is committed.
+
+The target app-only shape is one application Runtime for each approved trust
+domain, not one Runtime per caller or provider. A domain Runtime may route to
+multiple AgentCore Identity M2M providers through the thin resolver, while
+retaining the same immutable service image. Delegated Runtimes can access only
+approved OBO providers; application Runtimes can access only approved M2M
+providers. A new Runtime is normally required only for a new trust-domain
+isolation boundary; the current two fixed SharePoint lanes remain the
+implementation baseline until target gates pass.
 
 ```hcl
 resource "aws_bedrockagentcore_gateway" "enterprise_mcp" {
@@ -740,8 +891,9 @@ Before a non-production deployment:
    application-role assignments.
 2. Confirm a delegated client can initialize MCP and list only its authorized
    tools.
-3. Confirm the general AWS AI application can call only its predefined tools
-   and cannot use semantic search.
+3. Confirm the autonomous AWS workload can call only its predefined M2M
+   target/actions and cannot use semantic search; separately confirm an
+   employee-facing AI app remains on the delegated lane.
 4. Confirm an unknown client, wrong audience, expired token, and missing
    required claim are denied.
 5. Confirm Cedar denies an unapproved tool, SharePoint ACL denies a delegated
@@ -763,6 +915,12 @@ Before a non-production deployment:
 12. Search logs for token-shaped values, documentation queries, private source
     code, and full document content; none should be present.
 13. Render every Mermaid block and validate every fenced code block.
+14. Keep the current Lambda/MSAL and direct client-credentials paths until
+    non-production proves both AgentCore Identity modes: Gateway-audience ->
+    Runtime-audience -> Graph-audience OBO for delegated calls, and Runtime M2M
+    with lane-scoped provider IAM for app-only calls. Also prove grant-type lane
+    separation, caller-assertion validation, resolver fail-closed behavior, and
+    Graph `Sites.Selected` enforcement before enabling app-only ingress.
 
 Expected failure mapping:
 
@@ -792,11 +950,23 @@ tests, real Graph upload validation with selected-site permissions, and
 operational evidence for logging, alerts, rollback, credential rotation, and
 disaster recovery.
 
+The native delegated OBO migration, live AgentCore Identity M2M exchange,
+provider registration, caller credential provisioning, downstream site grants,
+and app-only ingress remain validation work. The staged app-only
+resolver/adapter and bounded mapping delivery are present locally but are not
+live deployment evidence. See [ADR
+0012](docs/adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md) and [ADR
+0013](docs/adr/0013-staged-entra-app-only-catalog-and-bau-rollout.md) for the
+required gates and operational controls.
+
 ## External References
 
 - [AgentCore Gateway custom JWT authorization](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/inbound-jwt-authorizer.html)
 - [AgentCore Gateway request-header propagation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-headers.html)
 - [AgentCore Gateway MCP server targets](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-MCPservers.html)
+- [AgentCore Identity OAuth tokens](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/identity-authentication.html)
+- [AgentCore Identity OBO token exchange](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/on-behalf-of-token-exchange.html)
+- [AgentCore credential-provider IAM scoping](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/scope-credential-provider-access.html)
 - [AgentCore Gateway tool naming](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-tool-naming.html)
 - [AgentCore policy action scope](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/policy-scope.html)
 - [AWS Knowledge MCP server](https://awslabs.github.io/mcp/servers/aws-knowledge-mcp-server)
@@ -807,3 +977,11 @@ disaster recovery.
 - [Microsoft identity platform client-credentials flow](https://learn.microsoft.com/en-us/entra/identity-platform/scenario-daemon-acquire-token)
 - [Microsoft Graph delegated and app-only permissions](https://learn.microsoft.com/en-us/graph/permissions-overview)
 - [Model Context Protocol Python SDK](https://github.com/modelcontextprotocol/python-sdk)
+- [AgentCore on-behalf-of token exchange](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/on-behalf-of-token-exchange.html)
+- [AgentCore Gateway target authorization](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-building-adding-targets-authorization.html)
+- [AgentCore Gateway interceptors](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-interceptors.html)
+- [AgentCore OAuth provider quota](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/bedrock-agentcore-limits.html)
+- [AgentCore Configuration Bundles](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/configuration-bundles.html)
+- [Microsoft Entra access-token claims](https://learn.microsoft.com/en-us/entra/identity-platform/access-token-claims-reference)
+- [Microsoft Graph Sites.Selected](https://learn.microsoft.com/en-us/graph/permissions-selected-overview)
+- [MCP releases](https://github.com/modelcontextprotocol/modelcontextprotocol/releases)

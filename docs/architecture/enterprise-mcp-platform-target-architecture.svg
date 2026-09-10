@@ -9,8 +9,8 @@
 <marker id="arrow-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E7D32"/></marker>
 </defs>
 <rect width="100%" height="100%" fill="#FFFFFF"/>
-<text x="35" y="48" class="title">Enterprise MCP Platform - Direct Cedar Target</text>
-<text x="35" y="76" class="subtitle">One Gateway with separate SharePoint delegated and application permission lanes</text>
+<text x="35" y="48" class="title">Enterprise MCP Platform - Target Identity Lanes</text>
+<text x="35" y="76" class="subtitle">AgentCore Identity brokers delegated OBO and autonomous M2M with separate provider IAM</text>
 <rect x="30" y="105" width="940" height="165" rx="12" fill="#F5F7FA" stroke="#C7D0D9" stroke-width="1.5"/>
 <text x="44" y="128" class="zone">CALLERS</text>
 <rect x="30" y="295" width="940" height="175" rx="12" fill="#F1ECFA" stroke="#C7B6EA" stroke-width="1.5"/>
@@ -37,26 +37,29 @@
 <path d="M 805.0 430.0 L 805.0 475.0 L 695.0 475.0 L 695.0 582.5 L 665.0 582.5" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
 <rect x="704.8" y="458.0" width="86.8" height="17" fill="#FFFFFF" opacity="0.92"/>
 <text x="707.8" y="470.0" class="edge-label">execution role</text>
-<path d="M 335.0 606.2 L 317.0 606.2 L 317.0 677.5 L 300.0 677.5" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
-<rect x="318.0" y="624.4" width="93.0" height="17" fill="#FFFFFF" opacity="0.92"/>
-<text x="321.0" y="636.4" class="edge-label">validated token</text>
-<path d="M 417.5 630.0 L 417.5 675.0 L 430.0 675.0 L 430.0 762.5 L 405.0 762.5" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
-<rect x="431.0" y="685.5" width="136.4" height="17" fill="#FFFFFF" opacity="0.92"/>
-<text x="434.0" y="697.5" class="edge-label">SigV4 delegated action</text>
+<path d="M 500.0 630.0 L 500.0 650.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="501.0" y="623.0" width="99.2" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="504.0" y="635.0" class="edge-label">OBO Token A to B</text>
+<path d="M 385.0 677.5 L 360.0 677.5 L 360.0 715.0 L 240.0 715.0 L 240.0 725.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="327.2" y="698.0" width="93.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="330.2" y="710.0" class="edge-label">Runtime Token B</text>
 <path d="M 582.5 630.0 L 582.5 685.0 L 760.0 685.0 L 760.0 725.0" fill="none" stroke="#2E74B5" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-blue)"/>
-<rect x="664.8" y="668.0" width="148.8" height="17" fill="#FFFFFF" opacity="0.92"/>
-<text x="667.8" y="680.0" class="edge-label">SigV4 application action</text>
-<path d="M 185.0 705.0 L 185.0 715.0 L 240.0 715.0 L 240.0 725.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
-<rect x="213.5" y="698.0" width="99.2" height="17" fill="#FFFFFF" opacity="0.92"/>
-<text x="216.5" y="710.0" class="edge-label">assertion header</text>
+<rect x="664.8" y="668.0" width="136.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="667.8" y="680.0" class="edge-label">SigV4 + caller context</text>
 <path d="M 240.0 800.0 L 240.0 840.0" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-green)"/>
 <path d="M 760.0 800.0 L 760.0 840.0" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-green)"/>
+<path d="M 405.0 863.8 L 445.0 863.8 L 445.0 691.2 L 385.0 691.2" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="446.0" y="750.5" width="99.2" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="449.0" y="762.5" class="edge-label">OBO Token B to C</text>
+<path d="M 595.0 863.8 L 555.0 863.8 L 555.0 691.2 L 615.0 691.2" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="556.0" y="750.5" width="105.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="559.0" y="762.5" class="edge-label">M2M token request</text>
 <path d="M 240.0 935.0 L 240.0 990.0 L 415.0 990.0 L 415.0 1055.0" fill="none" stroke="#C56A00" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-orange)"/>
-<rect x="333.5" y="973.0" width="55.8" height="17" fill="#FFFFFF" opacity="0.92"/>
-<text x="336.5" y="985.0" class="edge-label">Graph OBO</text>
+<rect x="333.5" y="973.0" width="105.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="336.5" y="985.0" class="edge-label">delegated Token C</text>
 <path d="M 760.0 935.0 L 760.0 990.0 L 585.0 990.0 L 585.0 1055.0" fill="none" stroke="#C56A00" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-orange)"/>
-<rect x="668.5" y="973.0" width="93.0" height="17" fill="#FFFFFF" opacity="0.92"/>
-<text x="671.5" y="985.0" class="edge-label">Graph app token</text>
+<rect x="668.5" y="973.0" width="80.6" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="671.5" y="985.0" class="edge-label">M2M app token</text>
 <path d="M 415.0 1145.0 L 415.0 1160.0 L 240.0 1160.0 L 240.0 1180.0" fill="none" stroke="#C56A00" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-orange)"/>
 <rect x="326.0" y="1143.0" width="62.0" height="17" fill="#FFFFFF" opacity="0.92"/>
 <text x="329.0" y="1155.0" class="edge-label">native ACL</text>
@@ -64,11 +67,11 @@
 <rect x="676.0" y="1143.0" width="93.0" height="17" fill="#FFFFFF" opacity="0.92"/>
 <text x="679.0" y="1155.0" class="edge-label">selected grants</text>
 <rect x="70" y="150" width="250" height="80" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
-<text x="195.0" y="182.0" text-anchor="middle" class="box-title">Employee / Claude Code</text>
+<text x="195.0" y="182.0" text-anchor="middle" class="box-title">Employee via AI app / client</text>
 <text x="195.0" y="204.0" text-anchor="middle" class="box-detail">Delegated Enterprise MCP token</text>
 <rect x="375" y="150" width="250" height="80" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
-<text x="500.0" y="182.0" text-anchor="middle" class="box-title">Application identity caller</text>
-<text x="500.0" y="204.0" text-anchor="middle" class="box-detail">App-only Enterprise MCP token</text>
+<text x="500.0" y="182.0" text-anchor="middle" class="box-title">Autonomous workload</text>
+<text x="500.0" y="204.0" text-anchor="middle" class="box-detail">Workflow / scheduler app-only token</text>
 <rect x="680" y="150" width="250" height="80" rx="10" fill="#FFFFFF" stroke="#7890A8" stroke-width="2" stroke-dasharray="8 5"/>
 <text x="805.0" y="182.0" text-anchor="middle" class="box-title">Future approved callers</text>
 <text x="805.0" y="204.0" text-anchor="middle" class="box-detail">Separate reviewed capability</text>
@@ -84,21 +87,21 @@
 <rect x="335" y="535" width="330" height="95" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
 <text x="500.0" y="574.5" text-anchor="middle" class="box-title">One AgentCore Gateway</text>
 <text x="500.0" y="596.5" text-anchor="middle" class="box-detail">MCP + CUSTOM_JWT + semantic search</text>
-<rect x="70" y="650" width="230" height="55" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
-<text x="185.0" y="669.5" text-anchor="middle" class="box-title">OBO assertion interceptor</text>
-<text x="185.0" y="691.5" text-anchor="middle" class="box-detail">Delegated lane only</text>
+<rect x="385" y="650" width="230" height="55" rx="10" fill="#FFFFFF" stroke="#6F42C1" stroke-width="2"/>
+<text x="500.0" y="669.5" text-anchor="middle" class="box-title">AgentCore Identity</text>
+<text x="500.0" y="691.5" text-anchor="middle" class="box-detail">OBO + M2M OAuth broker</text>
 <rect x="75" y="725" width="330" height="75" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
 <text x="240.0" y="754.5" text-anchor="middle" class="box-title">sharepoint-delegated target</text>
-<text x="240.0" y="776.5" text-anchor="middle" class="box-detail">Graph delegated permission</text>
+<text x="240.0" y="776.5" text-anchor="middle" class="box-detail">OAuth Runtime Token B</text>
 <rect x="595" y="725" width="330" height="75" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
 <text x="760.0" y="754.5" text-anchor="middle" class="box-title">sharepoint-application target</text>
-<text x="760.0" y="776.5" text-anchor="middle" class="box-detail">Graph application permission</text>
+<text x="760.0" y="776.5" text-anchor="middle" class="box-detail">SigV4 + trusted caller context</text>
 <rect x="75" y="840" width="330" height="95" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
 <text x="240.0" y="879.5" text-anchor="middle" class="box-title">SharePoint delegated Runtime</text>
-<text x="240.0" y="901.5" text-anchor="middle" class="box-detail">Shared image; Graph OBO</text>
+<text x="240.0" y="901.5" text-anchor="middle" class="box-detail">Shared image; Identity OBO Token C</text>
 <rect x="595" y="840" width="330" height="95" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
-<text x="760.0" y="879.5" text-anchor="middle" class="box-title">SharePoint application Runtime</text>
-<text x="760.0" y="901.5" text-anchor="middle" class="box-detail">Shared image; Graph app token</text>
+<text x="760.0" y="879.5" text-anchor="middle" class="box-title">SharePoint M2M Runtime</text>
+<text x="760.0" y="901.5" text-anchor="middle" class="box-detail">Shared image; Identity M2M token</text>
 <rect x="330" y="1055" width="340" height="90" rx="10" fill="#FFFFFF" stroke="#C56A00" stroke-width="2"/>
 <text x="500.0" y="1092.0" text-anchor="middle" class="box-title">Microsoft Graph / SharePoint</text>
 <text x="500.0" y="1114.0" text-anchor="middle" class="box-detail">Downstream system of record</text>

@@ -10,6 +10,12 @@ resource "azuread_application" "enterprise_mcp_api" {
   sign_in_audience = "AzureADMyOrg"
   identifier_uris  = [var.enterprise_mcp_audience]
 
+  optional_claims {
+    access_token {
+      name = "idtyp"
+    }
+  }
+
   api {
     requested_access_token_version = 2
 

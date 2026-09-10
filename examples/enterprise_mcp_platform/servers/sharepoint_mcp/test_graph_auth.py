@@ -5,7 +5,7 @@ import unittest
 from typing import Any
 from unittest.mock import patch
 
-from examples.enterprise_mcp_platform.servers.sharepoint_mcp.src.graph_auth import (
+from servers.sharepoint_mcp.src.graph_auth import (
     GraphAuthConfig,
     GraphAuthError,
     GraphTokenProvider,

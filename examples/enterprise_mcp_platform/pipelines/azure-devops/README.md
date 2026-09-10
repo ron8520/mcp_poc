@@ -6,7 +6,7 @@ owned by the cloud team.
 The examples assume self-hosted Linux agents with:
 
 - Python 3.11 or newer
-- Docker
+- Docker with ARM64 build support for the SharePoint AgentCore Runtime image
 - AWS CLI, for central ECR publish
 - network access to central ECR
 
@@ -23,7 +23,7 @@ Terraform execution pipeline automatically.
 | Pipeline | Purpose |
 | --- | --- |
 | `policy-ci.yml` | Check the direct Cedar source layout and optionally publish the reviewed source bundle. |
-| `mcp-server-ci.yml` | Compile MCP server Python, build Docker images, and optionally push to central ECR. |
+| `mcp-server-ci.yml` | Compile MCP server Python, run SharePoint unit tests, build Docker images, and optionally push to central ECR. |
 
 ## Recommended Azure DevOps Setup
 

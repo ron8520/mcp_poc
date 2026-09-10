@@ -1,3 +1,5 @@
+%% Current PoC implemented reference. Native two-hop AgentCore Identity OBO is
+%% a separate target and remains gated on non-production validation.
 sequenceDiagram
     autonumber
     participant Employee as Employee A
@@ -10,6 +12,9 @@ sequenceDiagram
     participant UserRT as SharePoint delegated Runtime
     participant Graph as Microsoft Graph
     participant SP as SharePoint
+
+    Note over Employee,SP: Current PoC: Gateway CUSTOM_JWT -> IAM/SigV4 -> assertion-copy/MSAL OBO; app-only ingress is gated off.
+    Note over Employee,SP: Claude Code is one example; any employee-facing AI app uses this delegated lane when user ACLs must apply.
 
     Employee->>Helper: Run entra_token_helper.ps1 delegated
     Helper->>Entra: Start device-code flow for Enterprise MCP scope

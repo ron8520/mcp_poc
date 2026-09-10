@@ -68,6 +68,12 @@ variable "entra_allowed_clients" {
   description = "Entra application client IDs allowed to call the Gateway."
 }
 
+variable "entra_tenant_id" {
+  type        = string
+  default     = null
+  description = "Entra tenant ID supplied by the composition root for app-only runtime wiring."
+}
+
 variable "private_subnet_ids" {
   type        = list(string)
   description = "Private subnets for AgentCore Runtime VPC mode."
@@ -94,6 +100,7 @@ variable "mcp_servers" {
     lanes = map(object({
       enabled                = optional(bool, true)
       description            = optional(string)
+      image_uri              = optional(string)
       environment            = optional(map(string), {})
       secret_arns            = optional(list(string), [])
       secret_kms_key_arns    = optional(list(string), [])
@@ -108,4 +115,14 @@ variable "mcp_servers" {
     ])
     error_message = "Every MCP service must define at least one Runtime lane."
   }
+}
+
+variable "app_only_bindings" {
+  type = map(object({
+    caller_client_id = string
+    provider_arn     = string
+    grants           = map(set(string))
+  }))
+  default     = {}
+  description = "Explicit app-only caller/provider bindings. Provider registration is external to this root."
 }

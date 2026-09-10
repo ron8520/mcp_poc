@@ -13,6 +13,10 @@ vendor-operated remote MCP endpoints may connect directly as Gateway targets;
 platform-owned and enterprise-hosted MCP servers continue to use the approved
 Runtime pattern.
 
+ADR 0012 supersedes the target-only assumption that every Gateway-to-Runtime
+call uses IAM/SigV4. The current PoC keeps IAM/SigV4, while the target delegated
+lane validates an AgentCore Identity `TOKEN_EXCHANGE` and Runtime-audience JWT.
+
 ## Context
 
 The clarified requirement is to start with one central enterprise MCP endpoint

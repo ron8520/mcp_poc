@@ -52,8 +52,8 @@ resource "aws_bedrockagentcore_gateway" "this" {
 
   lifecycle {
     precondition {
-      condition     = !var.gateway_app_only_ingress_enabled || var.gateway_policy_mode == "ENFORCE"
-      error_message = "App-only Gateway ingress can be enabled only when Cedar is in ENFORCE mode."
+      condition     = !var.gateway_app_only_ingress_enabled || (var.gateway_policy_mode == "ENFORCE" && local.app_only_enabled)
+      error_message = "App-only Gateway ingress requires ENFORCE mode and configured per-app identity bindings."
     }
   }
 
@@ -88,7 +88,8 @@ resource "aws_bedrockagentcore_gateway_target" "runtime_mcp" {
   metadata_configuration {
     allowed_request_headers = concat(
       local.base_request_headers,
-      each.value.obo_assertion_required ? [local.obo_assertion_header] : []
+      each.value.obo_assertion_required ? [local.obo_assertion_header] : [],
+      each.key == local.app_only_target && local.app_only_enabled ? [local.app_only_header] : []
     )
   }
 

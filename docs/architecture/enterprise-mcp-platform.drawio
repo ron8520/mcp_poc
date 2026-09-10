@@ -4,20 +4,20 @@
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
-        <mxCell id="title" value="Enterprise MCP Platform - Runtime-hosted and direct vendor targets" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="title" value="Enterprise MCP Platform - current PoC boundaries" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="40" y="20" width="1500" height="40" as="geometry"/>
         </mxCell>
-        <mxCell id="subtitle" value="One governed Gateway; public vendor documentation can be direct, while SharePoint and the restricted Terraform process use Runtime." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
+        <mxCell id="subtitle" value="Current PoC only: one governed Gateway; SharePoint still uses direct MSAL OBO or client credentials. AgentCore Identity is the target state in ADR 0012." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
           <mxGeometry x="40" y="60" width="1500" height="30" as="geometry"/>
         </mxCell>
 
         <mxCell id="callers" value="APPROVED CALLERS" style="swimlane;html=1;rounded=1;startSize=34;fillColor=#F5F7FA;strokeColor=#C7D0D9;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="35" y="110" width="245" height="310" as="geometry"/>
         </mxCell>
-        <mxCell id="claude" value="&lt;b&gt;Employee / Claude Code&lt;/b&gt;&lt;br&gt;delegated Entra JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="callers">
+        <mxCell id="claude" value="&lt;b&gt;Employee via AI app / client&lt;/b&gt;&lt;br&gt;delegated Entra JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2F8;strokeColor=#2E74B5;strokeWidth=2;" vertex="1" parent="callers">
           <mxGeometry x="25" y="65" width="195" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="automation" value="&lt;b&gt;Approved AI application&lt;/b&gt;&lt;br&gt;app-only Entra JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="callers">
+        <mxCell id="automation" value="&lt;b&gt;Approved background workflow&lt;/b&gt;&lt;br&gt;app-only Entra JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1ECFA;strokeColor=#6F42C1;strokeWidth=2;" vertex="1" parent="callers">
           <mxGeometry x="25" y="185" width="195" height="80" as="geometry"/>
         </mxCell>
 

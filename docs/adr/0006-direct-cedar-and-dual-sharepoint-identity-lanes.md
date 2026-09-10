@@ -7,6 +7,9 @@ Status: Accepted for implementation
 ADR 0010 supersedes the `sharepoint-user` / `sharepoint-automation` names and
 the multi-tool write contract. The direct Cedar, separate downstream credential
 modes, OBO, application identity, and shared-image decisions remain in force.
+ADR 0012 supersedes ADR 0011's target identity-routing path. The current
+repository PoC remains the two fixed lanes described here; target AgentCore
+Identity OBO/M2M providers and resolver behavior are not implemented.
 
 ## Context
 

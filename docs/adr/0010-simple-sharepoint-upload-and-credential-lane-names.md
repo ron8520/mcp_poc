@@ -4,6 +4,12 @@ Date: 2026-07-31
 
 Status: Accepted
 
+ADR 0012 preserves this minimal contract and the delegated/application lane
+names while superseding ADR 0011's target identity path. Its AgentCore Identity
+OBO/M2M providers and trust-domain resolver are target validation work, not
+current repository implementation; app-only ingress remains gated until the
+stated non-production gates pass.
+
 ## Context
 
 The SharePoint write surface had grown into separate page-insert and

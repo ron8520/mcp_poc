@@ -3,8 +3,9 @@
 These diagrams describe the cloud-team-owned operating model for the
 self-managed Azure DevOps Server repository hosted on AWS. The repo keeps
 identity, AWS infrastructure, policy, shared runtime helpers, and MCP server
-code together, while still keeping clear folder boundaries and separate
-Terraform state per root/environment.
+code together, while still keeping clear module boundaries. The composed
+`deployment/` root is the TFE execution path, with one state per environment;
+`identity/entra` and `infra` are modules inside that state.
 
 ## MCP Server CI/CD
 
@@ -65,47 +66,60 @@ block PR completion for matching policy changes.
 
 ```mermaid
 flowchart TD
-    Cloud["Cloud team updates identity/entra Terraform"] --> PR["Azure DevOps pull request"]
+    Cloud["Cloud team updates identity/entra or deployment Terraform"] --> PR["Azure DevOps pull request"]
     PR --> Review["Cloud/security review"]
     Review --> TFEAdmin["Central TFE admin repo-created workspace\nruns plan/apply automatically"]
-    TFEAdmin --> ApiApp["Enterprise MCP API\nscope: mcp.invoke\napp roles"]
-    TFEAdmin --> ClaudeClient["Claude Code public client"]
-    TFEAdmin --> PeopleClient["People Assist service client"]
-    TFEAdmin --> AppRoles["Assign groups/service principals to app roles"]
-    TFEAdmin --> CA["Optional report-only Conditional Access\ntrusted internal networks"]
+    TFEAdmin --> Deployment["deployment/\none TFE state per environment"]
+    Deployment --> ApiApp["Enterprise MCP API\nscope: mcp.invoke\napp roles"]
+    Deployment --> ClaudeClient["Claude Code public client"]
+    Deployment --> PeopleClient["People Assist service client"]
+    Deployment --> AppRoles["Assign groups/service principals to app roles"]
+    Deployment --> CA["Optional report-only Conditional Access\ntrusted internal networks"]
     ApiApp --> Outputs["Audience, discovery URL, client IDs"]
     ClaudeClient --> Outputs
     PeopleClient --> Outputs
-    Outputs --> AwsVars["Values copied or exported to AWS infra vars"]
+    Outputs --> Platform["module.platform\nAgentCore Gateway/Runtime wiring"]
 ```
 
 ## AWS AgentCore Terraform Flow
 
 ```mermaid
 flowchart TD
-    Claude["Employee uses Claude Code to update<br>infra Terraform or tfvars"] --> PR["Azure DevOps pull request"]
+    Claude["Employee uses Claude Code to update<br>deployment Terraform or environment tfvars"] --> PR["Azure DevOps pull request"]
     PR --> Review["Cloud/security/network review"]
     Review --> TFEAdmin["Central TFE admin repo-created workspace\nruns plan/apply automatically"]
-    TFEAdmin --> Gateway["AgentCore Gateway\nCUSTOM_JWT"]
-    TFEAdmin --> Runtime["AgentCore Runtime per enabled credential lane\nplus Registry-only Terraform MCP"]
-    TFEAdmin --> VendorTargets["Direct AWS Knowledge and Microsoft Learn targets"]
-    TFEAdmin --> Interceptor["Gateway REQUEST interceptor"]
-    TFEAdmin --> Policy["Direct Cedar policies"]
+    TFEAdmin --> Deployment["deployment/\nmodule.entra + module.platform"]
+    Deployment --> Gateway["AgentCore Gateway\nCUSTOM_JWT"]
+    Deployment --> Runtime["Current PoC: fixed Runtime lanes\nplus Registry-only Terraform MCP"]
+    Deployment -.-> TargetRouting["Target: AgentCore Identity OBO + M2M\nlane-scoped providers + resolver"]
+    Deployment --> VendorTargets["Direct AWS Knowledge and Microsoft Learn targets"]
+    Deployment --> Interceptor["Gateway REQUEST interceptor"]
+    Deployment --> Policy["Direct Cedar policies"]
     Network["Network/platform account"] --> PrivateLink["Existing Gateway interface endpoint/private DNS"]
     Gateway --> Policy
     Gateway --> Interceptor
     Gateway --> VendorTargets
-    Gateway --> Targets["Runtime-hosted targets use IAM/SigV4"]
+    Gateway --> Targets["Current Runtime targets: IAM/SigV4\ntarget delegated lane: OAuth Token B"]
     Targets --> Runtime
-    Runtime --> Downstream["MCP servers use lane-specific downstream credentials"]
+    Runtime --> Downstream["Target OAuth lanes use AgentCore Identity\nOBO or M2M by security subject"]
 ```
+
+The AWS flow above is the current repository implementation reference. The
+target trust-domain Runtime, AgentCore Identity OBO/M2M providers, and live
+provider registration are **Accepted for PoC validation**, not deployed. The
+staged app-only resolver/adapter and bounded mapping are present behind the
+ingress gate. The current two fixed SharePoint lanes remain in place while
+delegated two-hop OBO, application M2M, provider-ARN IAM, and app-only
+caller-context gates are tested. See
+[`sharepoint-identity-routing.md`](sharepoint-identity-routing.md) and
+[`ADR 0012`](../adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md).
 
 The documentation targets can inform Claude Code, but they are not part of the
 Git or deployment path. Claude Code writes the local checkout, Azure DevOps
 Server owns Git/PR controls, and central TFE owns plan/apply. See
 `claude-code-terraform-docs-sequence.mmd`.
 
-## Claude Code Tool Discovery And Authorization
+## Current PoC Claude Code Tool Discovery And Authorization
 
 ```mermaid
 sequenceDiagram
@@ -151,7 +165,7 @@ sequenceDiagram
     GW-->>Claude: MCP response
 ```
 
-## Application Credential Authorization
+## Current PoC Application Credential Authorization
 
 ```mermaid
 sequenceDiagram
@@ -179,6 +193,19 @@ sequenceDiagram
     GW-->>PA: Response
 ```
 
+The application sequence is a current PoC shape, not enabled app-only ingress.
+The target keeps `client_credentials` semantics but retrieves the downstream
+token through a lane-scoped AgentCore Identity M2M provider. A Gateway request-
+interceptor PoC gate copies the signed caller JWT to
+`x-mcp-caller-assertion`, then revalidates the Gateway audience, tenant, client,
+and roles in the trust-domain Runtime. A thin resolver uses caller client ID,
+exact target-qualified action, server-owned resource key (`site_id` for
+SharePoint), and environment; callers cannot select auth mode or provider
+details. Misses and unavailable configuration/providers fail closed. The
+official AWS documentation does not provide the complete native no-code caller-
+context composition, so it remains unverified. `JWT_PASSTHROUGH` is not the
+default.
+
 ## Cloud-Owned Repo Boundaries
 
 ```mermaid
@@ -186,8 +213,9 @@ flowchart LR
     subgraph Repo["enterprise-mcp-platform on Azure DevOps Server"]
         Policy["policy/cedar/\ndirect AgentCore Cedar"]
         Servers["servers/\nSharePoint, CRM, internal software MCP"]
-        Identity["identity/entra/\nEntra apps, app roles, Conditional Access"]
-        Infra["infra/\nAgentCore Gateway, Runtime, IAM, direct Cedar"]
+        Identity["identity/entra/\nEntra module: apps, roles, Conditional Access"]
+        Infra["infra/\nAgentCore Gateway, Runtime, IAM, direct Cedar module"]
+        Deployment["deployment/\ncomposed environment root"]
         Pipelines["pipelines/azure-devops/\npolicy and image CI/CD"]
         TFEAdmin["central TFE admin repo\nworkspace/pipeline automation"]
         Network["network/platform repo\nPrivateLink, DNS, routing"]
@@ -199,8 +227,9 @@ flowchart LR
     Network -->|"existing network prerequisites"| Infra
     Pipelines --> Policy
     Pipelines --> Servers
-    TFEAdmin --> Identity
-    TFEAdmin --> Infra
+    TFEAdmin --> Deployment
+    Deployment --> Identity
+    Deployment --> Infra
 ```
 
 DevOps ownership should be explicit:

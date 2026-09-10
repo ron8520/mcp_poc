@@ -11,7 +11,14 @@ resource "aws_bedrockagentcore_agent_runtime" "mcp_server" {
     }
   }
 
-  environment_variables = each.value.environment
+  environment_variables = merge(each.value.environment,
+    each.key == local.app_only_target && local.app_only_enabled ? {
+      GRAPH_AUTH_MODE         = "agentcore_m2m"
+      APP_ONLY_MAPPING_JSON   = local.app_only_mapping_json
+      MCP_ENVIRONMENT         = var.environment
+      AGENTCORE_WORKLOAD_NAME = aws_bedrockagentcore_workload_identity.sharepoint_application[0].name
+    } : {}
+  )
 
   network_configuration {
     network_mode = "VPC"
@@ -29,13 +36,15 @@ resource "aws_bedrockagentcore_agent_runtime" "mcp_server" {
   request_header_configuration {
     request_header_allowlist = concat(
       local.base_request_headers,
-      each.value.obo_assertion_required ? [local.obo_assertion_header] : []
+      each.value.obo_assertion_required ? [local.obo_assertion_header] : [],
+      each.key == local.app_only_target && local.app_only_enabled ? [local.app_only_header] : []
     )
   }
 
   tags = local.tags
 
   depends_on = [
-    aws_iam_role_policy.runtime
+    aws_iam_role_policy.runtime,
+    aws_iam_role_policy.runtime_app_only_identity
   ]
 }
