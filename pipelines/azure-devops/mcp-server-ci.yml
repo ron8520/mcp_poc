@@ -1,0 +1,109 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - clients/**/*
+      - gateway/*.py
+      - gateway/**/*.py
+      - images/container_healthcheck.py
+      - images/mcp_python_base/**/*
+      - requirements.txt
+      - servers/sharepoint_mcp/**/*
+      - pipelines/azure-devops/mcp-server-ci.yml
+
+# Azure Repos PR validation is enforced by required branch policies, not this
+# YAML block. Configure matching path filters in Azure DevOps branch policies.
+pr: none
+
+parameters:
+  - name: publishImage
+    displayName: Push image to central ECR
+    type: boolean
+    default: false
+
+  - name: imageTag
+    displayName: Image tag for manual publish
+    type: string
+    default: manual
+
+variables:
+  PYTHON_EXECUTABLE: python3
+  AWS_REGION: ap-southeast-2
+  SERVICE_REQUIREMENTS: servers/sharepoint_mcp/requirements.txt
+  DOCKERFILE: servers/sharepoint_mcp/Dockerfile
+  IMAGE_NAME: sharepoint-mcp
+
+pool:
+  name: $(AZDO_AGENT_POOL)
+
+stages:
+  - stage: ValidateAndBuild
+    displayName: Validate and build the SharePoint MCP server image
+    jobs:
+      - job: BuildSharePointImage
+        displayName: Build SharePoint MCP server image
+        steps:
+          - checkout: self
+            clean: true
+
+          - bash: |
+              set -euo pipefail
+              "$(PYTHON_EXECUTABLE)" -m venv .venv
+              . .venv/bin/activate
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              pip install -r "$(SERVICE_REQUIREMENTS)"
+            displayName: Install Python dependencies
+
+          - bash: |
+              set -euo pipefail
+              . .venv/bin/activate
+              PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
+                $(find clients gateway servers/sharepoint_mcp -name '*.py' | sort)
+            displayName: Compile Python sources
+
+          - bash: |
+              set -euo pipefail
+              . .venv/bin/activate
+              GRAPH_DRY_RUN=true python - <<'PY'
+              import importlib
+
+              from mcp.server import MCPServer
+
+              module = importlib.import_module("servers.sharepoint_mcp.src.server")
+              assert isinstance(module.mcp, MCPServer)
+              PY
+            displayName: Validate MCPServer SDK v2
+
+          - bash: |
+              set -euo pipefail
+              . .venv/bin/activate
+              PYTHONDONTWRITEBYTECODE=1 python -m unittest discover \
+                -s servers/sharepoint_mcp \
+                -p 'test_*.py'
+              PYTHONDONTWRITEBYTECODE=1 python -m unittest discover \
+                -s gateway \
+                -p 'test_*.py'
+            displayName: Run server and Gateway unit tests
+
+          - bash: |
+              set -euo pipefail
+              docker build --platform linux/arm64 \
+                --file "$(DOCKERFILE)" \
+                --tag "$(IMAGE_NAME):$(Build.SourceVersion)" \
+                .
+            displayName: Build Docker image
+
+          - bash: |
+              set -euo pipefail
+              test -n "$(INTERNAL_ECR_REGISTRY)"
+              aws ecr get-login-password --region "$(AWS_REGION)" \
+                | docker login --username AWS --password-stdin "$(INTERNAL_ECR_REGISTRY)"
+              image_uri="$(INTERNAL_ECR_REGISTRY)/$(IMAGE_NAME):${{ parameters.imageTag }}"
+              docker tag "$(IMAGE_NAME):$(Build.SourceVersion)" "$image_uri"
+              docker push "$image_uri"
+              echo "Published $image_uri"
+            displayName: Push Docker image to central ECR
+            condition: and(succeeded(), eq('${{ parameters.publishImage }}', 'true'))

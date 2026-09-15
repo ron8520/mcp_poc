@@ -1,2 +1,0 @@
-# In production, replace this with an internally mirrored, hash-pinned lock file.
-mcp

@@ -1,2 +1,0 @@
-# Internal-software-specific Python dependencies go here after the tool contract is approved.
-# Keep shared MCP runtime dependencies in the repository-level requirements.txt.

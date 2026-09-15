@@ -23,9 +23,11 @@ The current target architecture is:
 - CRM, internal software, and future systems as separate MCP server boundaries
 - Microsoft Entra ID JWTs for MCP caller identity
 - AWS IAM kept separate for Bedrock model access
-- Terraform for infrastructure
+- ClickOps for the current PoC: EC2 workspace, CodeCommit source control,
+  ECR image publication, and AgentCore Console deployment; Terraform is retained
+  for the long-term infrastructure path, not applied during this stage
 - one TFE workspace/state per environment, composed from
-  `examples/enterprise_mcp_platform/deployment/` using `module.entra` and
+  `infra/deployment/` using `module.entra` and
   `module.platform`; see ADR 0013 for staged app-only rollout
 - Sydney (`ap-southeast-2`) as the current AgentCore Gateway/Runtime deployment
   region; Melbourne (`ap-southeast-4`) remains gated on AWS service support
@@ -34,7 +36,8 @@ The current target architecture is:
 - AgentCore Gateway PrivateLink, private DNS, endpoint policy, and routing
   owned by the external network/platform account rather than this Terraform root
 - no CloudFront or CDN-backed custom domain for the MCP path
-- centrally owned MCP base images extended by each service image
+- an independently buildable SharePoint image using MCP Python SDK 2.2.0;
+  centrally owned MCP base images remain an optional future template
 
 Keep this architecture consistent across code, diagrams, ADRs, and README
 content unless a new architecture decision explicitly changes it.
@@ -175,8 +178,8 @@ Keep downstream system code separated by server boundary:
 - SharePoint behavior belongs under the SharePoint MCP server.
 - CRM behavior belongs under the CRM MCP server.
 - internal software behavior belongs under the internal software MCP server.
-- shared cross-cutting helpers can live under `common/` when more than one
-  server uses them.
+- helpers remain with the service that uses them; extract shared helpers only
+  when more than one implemented server needs them.
 
 Do not mix business workflow logic directly into cloud SDK clients.
 
