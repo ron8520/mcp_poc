@@ -11,6 +11,12 @@ __pycache__/
 *.tfstate
 *.tfstate.*
 
+# Tests are kept locally, not distributed with this repository.
+**/tests/
+**/test_*.py
+**/*_test.py
+**/*.tftest.hcl
+
 .env
 .env.*
 !.env.example

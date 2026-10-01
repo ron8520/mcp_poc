@@ -1,20 +1,23 @@
 # Infrastructure
 
 This directory is the AgentCore platform Terraform module. The central TFE
-execution path is the composed `../deployment` root, which calls this module as
-`module.platform` and calls `../identity/entra` as `module.entra` in the same
+execution path is the composed `../../deployment` root, which calls this module as
+`module.platform` and calls `../entra` as `module.entra` in the same
 environment state.
 
 For narrow local validation of this module, initialize without a backend and
-run the module tests:
+validate the configuration:
 
 ```bash
 terraform init -backend=false
 terraform validate
-terraform test
 ```
 
-Use `../deployment/README.md` for the central TFE run path, environment plan
+The mock tests under `tests/` are local-only and ignored by Git. If those files
+are present locally, run `terraform test` separately; they are not included in
+a fresh clone.
+
+Use `../../deployment/README.md` for the central TFE run path, environment plan
 selection and state-migration warning. Do not create a separate production TFE
 state for this module.
 

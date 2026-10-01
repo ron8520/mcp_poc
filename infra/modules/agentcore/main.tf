@@ -58,5 +58,8 @@ locals {
 
   obo_assertion_header = "x-mcp-user-assertion"
 
-  cedar_policy_files = fileset("${path.module}/../../../policy/cedar", "*.cedar")
+  cedar_policy_files = toset([
+    for file in fileset("${path.module}/../../../policy/cedar", "*.cedar") : file
+    if file != "crm-application.cedar" || contains(keys(local.enabled_mcp_runtime_lanes), "crm-application")
+  ])
 }

@@ -18,7 +18,7 @@ MAX_ASSERTION_LENGTH = 4096
 
 
 def lambda_handler(event: dict[str, Any], context: object) -> dict[str, Any]:
-    """Inject the validated caller token into the selected SharePoint lane."""
+    """Inject the validated caller token into the selected MCP lane."""
     gateway_request = event.get("mcp", {}).get("gatewayRequest", {})
     body = gateway_request.get("body")
 
@@ -89,7 +89,7 @@ def _is_application_lane_call(body: object) -> bool:
     tool_name = params.get("name")
     if not isinstance(tool_name, str) or not tool_name:
         raise ValueError("tools/call params.name must be a non-empty string")
-    return tool_name in {
+    return tool_name == "crm-application___crm_update_case_summary" or tool_name in {
         f"{APPLICATION_TARGET_PREFIX}{name}" for name in APPLICATION_TOOL_NAMES
     }
 

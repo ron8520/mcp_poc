@@ -7,7 +7,8 @@ from xml.etree import ElementTree as ET
 
 
 HERE = Path(__file__).resolve().parent
-DRAWIO_PATH = HERE / "enterprise-mcp-platform-review.drawio"
+ARCHIVE = HERE / "archive"
+DRAWIO_PATH = ARCHIVE / "enterprise-mcp-platform-review.drawio"
 
 COLORS = {
     "ink": "#17324D",
@@ -463,6 +464,8 @@ def page_to_svg(page: Page) -> str:
 
 
 def build() -> None:
+    # The current review imports the drawing model; this entry point renders legacy pages.
+    ARCHIVE.mkdir(exist_ok=True)
     pages = [architecture_page(), identity_page(), migration_page()]
     mxfile = ET.Element(
         "mxfile",
@@ -477,7 +480,7 @@ def build() -> None:
     )
     for page in pages:
         mxfile.append(page_to_drawio(page))
-        (HERE / page.output).write_text(page_to_svg(page), encoding="utf-8")
+        (ARCHIVE / page.output).write_text(page_to_svg(page), encoding="utf-8")
 
     ET.indent(mxfile, space="  ")
     DRAWIO_PATH.write_text(ET.tostring(mxfile, encoding="unicode") + "\n", encoding="utf-8")

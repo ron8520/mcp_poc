@@ -126,7 +126,7 @@ def shared_nodes(*, target: bool) -> list[Node]:
     app_fill = COLORS["white"] if target else COLORS["red_fill"]
     app_stroke = COLORS["purple"] if target else COLORS["red"]
     app_dashed = not target
-    policy_detail = "Cedar · ENFORCE required" if target else "Cedar · current LOG_ONLY"
+    policy_detail = "Cedar · ENFORCE required" if target else "Cedar · reference LOG_ONLY"
     return [
         Node("entra", 45, 350, 195, 95, "Microsoft Entra ID", "Enterprise MCP API\nToken A audience", COLORS["white"], COLORS["purple"]),
         Node(
@@ -156,14 +156,14 @@ def shared_nodes(*, target: bool) -> list[Node]:
         Node("endpoint_controls", 335, 730, 180, 85, "Endpoint policy + SG", "Network controls", COLORS["white"], COLORS["green"], "vpc"),
         Node("policy", 610, 380, 280, 85, "AgentCore Policy Engine", policy_detail, COLORS["white"], COLORS["blue"], "agentcore"),
         Node("gateway", 610, 495, 280, 95, "AgentCore Gateway", "MCP · CUSTOM_JWT", COLORS["white"], COLORS["blue"], "agentcore"),
-        Node("build", 1020, 170, 190, 60, "CI / Docker build", "Signed service image", COLORS["white"], COLORS["line"]),
+        Node("build", 1020, 170, 190, 60, "CI / Docker build" if target else "EC2 manual build", "Signed service image" if target else "CodeCommit commit + digest", COLORS["white"], COLORS["line"]),
         Node("ecr", 1290, 155, 220, 90, "Amazon ECR", "Immutable service images", COLORS["white"], "#ED7100", "ecr"),
         Node("iam", 600, 775, 90, 75, "IAM", icon="iam", kind="icon_card"),
         Node("secrets", 705, 775, 90, 75, "Secrets", icon="secrets", kind="icon_card"),
         Node("cloudwatch", 810, 775, 90, 75, "Observability", icon="cloudwatch", kind="icon_card"),
         Node("graph", 1625, 390, 250, 90, "Microsoft Graph", "SharePoint first example"),
         Node("sharepoint", 1625, 520, 250, 100, "SharePoint Online", "Delegated ACLs\nSites.Selected for app-only"),
-        Node("crm_system", 1625, 685, 250, 80, "Microsoft CRM", "Future · choose delegated / M2M", COLORS["gray_fill"], COLORS["line"], dashed=True),
+        Node("crm_system", 1625, 685, 250, 80, "Dynamics 365", "Phase one · app-only summary\nSee phase-one overview", COLORS["gray_fill"], COLORS["line"], dashed=True),
         Node("internal_system", 1625, 800, 250, 80, "Internal / other platform", "Future · identity decision per server", COLORS["gray_fill"], COLORS["line"], dashed=True),
     ]
 
@@ -189,7 +189,7 @@ def current_page() -> Page:
         id="current-poc",
         name="Current implemented PoC",
         title="Enterprise MCP Platform · Current implemented PoC",
-        subtitle="Current repository PoC · solid arrows are active; red dashed paths are gated; gray dashed servers are future",
+        subtitle="Current repository PoC · solid arrows are active; red dashed paths are gated; gray dashed paths are not deployed",
         output="enterprise-mcp-platform-current-poc.svg",
         zones=common_zones(),
     )
@@ -197,18 +197,18 @@ def current_page() -> Page:
     p.nodes.extend(
         [
             Node("interceptor", 595, 625, 145, 75, "Request Lambda", "Bearer copy only", COLORS["white"], "#ED7100", "lambda"),
-            Node("identity", 755, 625, 145, 75, "Outbound Identity", "Not used in current PoC", COLORS["red_fill"], COLORS["red"], "agentcore", dashed=True),
+            Node("identity", 755, 625, 145, 75, "Outbound Identity", "Default off\nOpt-in unvalidated", COLORS["red_fill"], COLORS["red"], "agentcore", dashed=True),
             Node("delegated_runtime", 970, 385, 250, 95, "SharePoint MCP · delegated", "Runtime lane · IAM/SigV4\nMSAL OBO in server", COLORS["white"], COLORS["green"], "agentcore"),
             Node("application_runtime", 970, 510, 250, 95, "SharePoint MCP · application", "IAM/SigV4 · client_credentials\napp-only JWT ingress gated", COLORS["red_fill"], COLORS["red"], "agentcore", dashed=True),
             Node("sp_tools_group", 1240, 380, 250, 240, "Shared SharePoint tool contract", fill=COLORS["white"], stroke=COLORS["blue"], kind="group"),
             Node("sp_tool_list", 1270, 425, 190, 38, "List site content", fill="#FFB4A8", stroke="#E36B5D", kind="pill"),
             Node("sp_tool_read", 1270, 480, 190, 38, "Read bounded PDF text", fill="#FFB4A8", stroke="#E36B5D", kind="pill"),
             Node("sp_tool_upload", 1270, 535, 190, 38, "Upload UTF-8 file", fill="#FFB4A8", stroke="#E36B5D", kind="pill"),
-            Node("crm_runtime", 970, 665, 250, 80, "CRM MCP Runtime", "Disabled · tool contract TBD", COLORS["gray_fill"], COLORS["line"], "agentcore", dashed=True),
-            Node("crm_tools", 1270, 685, 190, 38, "Tools TBD", fill=COLORS["gray_fill"], stroke=COLORS["line"], dashed=True, kind="pill"),
+            Node("crm_runtime", 970, 665, 250, 80, "CRM MCP Runtime", "Local implementation · app-only", COLORS["gray_fill"], COLORS["line"], "agentcore", dashed=True),
+            Node("crm_tools", 1270, 685, 190, 38, "Update case summary", fill=COLORS["gray_fill"], stroke=COLORS["line"], dashed=True, kind="pill"),
             Node("internal_runtime", 970, 775, 250, 80, "Internal MCP Runtime", "Future reviewed boundary", COLORS["gray_fill"], COLORS["line"], "agentcore", dashed=True),
             Node("internal_tools", 1270, 795, 190, 38, "Tools TBD", fill=COLORS["gray_fill"], stroke=COLORS["line"], dashed=True, kind="pill"),
-            Node("current_note", 20, 975, 1880, 70, "CURRENT PoC", "SharePoint delegated is the active validation lane. The application Runtime/target is present in Terraform, app-only JWT ingress is gated, and Cedar remains LOG_ONLY. CRM and Internal are future boundaries. No outbound identity provider or resolver is implemented.", COLORS["gray_fill"], "#B8C1CC", kind="note"),
+            Node("current_note", 20, 975, 1880, 70, "CURRENT PoC", "SharePoint ClickOps reference; live validation pending. CRM summary update implemented locally; cloud deployment pending.\nGateway-only isolation needs closure (SP-01); ENFORCE is required for role isolation. See the first-slice review.", COLORS["gray_fill"], "#B8C1CC", kind="note"),
         ]
     )
     p.edges.extend(shared_ingress_edges(target=False))
@@ -235,7 +235,7 @@ def target_page() -> Page:
     p = Page(
         id="target-identity",
         name="Target identity routing",
-        title="Enterprise MCP Platform · Target identity routing",
+        title="Enterprise MCP Platform · SharePoint target identity routing",
         subtitle="PoC validation target · AgentCore Identity brokers delegated OBO and autonomous M2M; not the current implementation",
         output="enterprise-mcp-platform-target-identity.svg",
         zones=common_zones(),
@@ -253,8 +253,8 @@ def target_page() -> Page:
             Node("sp_tool_read", 1270, 480, 190, 38, "Read bounded PDF text", fill="#FFB4A8", stroke="#E36B5D", kind="pill"),
             Node("sp_tool_upload", 1270, 535, 190, 38, "Upload UTF-8 file", fill="#FFB4A8", stroke="#E36B5D", kind="pill"),
             Node("provider_profiles", 1240, 650, 250, 135, "Lane-scoped Identity providers", "OBO provider · M2M providers\nARN-scoped by workload IAM", COLORS["white"], COLORS["purple"]),
-            Node("config_bundle", 1240, 810, 250, 55, "Pinned configuration bundle", "Versioned mapping candidate", COLORS["white"], "#E7157B"),
-            Node("target_note", 20, 975, 1880, 70, "TARGET", "Employee-facing AI apps use delegated/OBO when user ACLs apply; autonomous workflows use M2M. Both lanes use AgentCore Identity with separate provider-ARN IAM boundaries. Callers never select auth mode or credentials.", COLORS["gray_fill"], "#B8C1CC", kind="note"),
+            Node("config_bundle", 1240, 810, 250, 55, "APP_ONLY_MAPPING_JSON", "Pinned map · bundle deferred", COLORS["white"], "#E7157B"),
+            Node("target_note", 20, 975, 1880, 70, "TARGET", "SharePoint identity detail shown: delegated OBO and application M2M use separate AgentCore Identity providers.\nPhase one also includes a separate CRM app-only case-field update. See the combined phase-one overview (ADR 0014).", COLORS["gray_fill"], "#B8C1CC", kind="note"),
         ]
     )
     p.edges.extend(shared_ingress_edges(target=True))
@@ -618,7 +618,7 @@ def render_outputs() -> dict[Path, str]:
         "mxfile",
         {
             "host": "app.diagrams.net",
-            "modified": "2026-08-25T00:00:00.000Z",
+            "modified": "2026-09-27T00:00:00.000Z",
             "agent": "Codex",
             "version": "24.7.17",
             "compressed": "false",

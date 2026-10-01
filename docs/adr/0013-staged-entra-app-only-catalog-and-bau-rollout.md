@@ -215,7 +215,7 @@ Tradeoffs and open gates:
 
 - [ADR 0012: AgentCore Identity for Delegated and M2M Lanes](0012-agentcore-identity-for-delegated-and-m2m-lanes.md)
 - [Downstream identity routing](../architecture/sharepoint-identity-routing.md)
-- [Entra identity Terraform example](../../examples/enterprise_mcp_platform/identity/entra/README.md)
-- [Infrastructure Terraform example](../../examples/enterprise_mcp_platform/infra/README.md)
-- [Composed deployment root](../../examples/enterprise_mcp_platform/deployment/README.md)
-- [Direct Cedar policy](../../examples/enterprise_mcp_platform/policy/README.md)
+- [Entra identity Terraform module](../../infra/modules/entra/README.md)
+- [AgentCore infrastructure Terraform module](../../infra/modules/agentcore/README.md)
+- [Composed deployment root](../../infra/deployment/README.md)
+- [Direct Cedar policy](../../policy/README.md)

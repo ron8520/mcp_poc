@@ -37,7 +37,7 @@ resource "aws_bedrockagentcore_agent_runtime" "mcp_server" {
     request_header_allowlist = concat(
       local.base_request_headers,
       each.value.obo_assertion_required ? [local.obo_assertion_header] : [],
-      each.key == local.app_only_target && local.app_only_enabled ? [local.app_only_header] : []
+      (each.key == local.app_only_target && local.app_only_enabled) || each.key == "crm-application" ? [local.app_only_header] : []
     )
   }
 

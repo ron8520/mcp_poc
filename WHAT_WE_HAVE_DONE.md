@@ -2,6 +2,161 @@
 
 This document captures decisions and work completed so far.
 
+## Architecture documentation cleanup — 2026-10-01
+
+- Organized current reading around the internal review, identity-routing guide
+  and engineering findings/release gates. Added an ADR reading index with seven
+  core decisions; retained all 15 ADRs at their original paths for traceability.
+- Archived ten historical files: the earlier seven-file diagram family, two
+  optional Mermaid sequences and the future Azure DevOps workflow reference.
+  Retained the two current diagram families and their generation dependencies.
+- Deleted the retired Word generator and six unused image exports. The shared
+  drawing helper remains; its standalone legacy generator now writes into the
+  archive rather than recreating old files in the current architecture folder.
+- Corrected stale documentation links and CRM identity wording. The shareable
+  internal review uses official AWS/Microsoft references without local ADR
+  dependencies. Open engineering findings and live acceptance gates remain.
+- This reorganizes documentation without changing architecture, server behavior
+  or cloud deployment status.
+- Verified local document links, both current diagram generators and XML output.
+  Confirmed all 14 engineering findings and five acceptance gates remain; the
+  shared review and its current diagram pages contain no ADR references.
+
+## MCP implementation rewrite — 2026-10-01
+
+- Rewrote the SharePoint and CRM implementations within their existing server
+  folders. Removed provider/service wrapper classes and the generic CRM
+  `service.py` layer; tools call responsibility-named auth and downstream
+  functions directly.
+- Preserved the tool names, successful response shapes, environment settings,
+  identity lanes, exact resource grants, PDF limits and write semantics.
+  Strict tool models now reject extra arguments and wrong types; invalid paths
+  are checked before acquiring credentials. Inputs are not repaired or coerced.
+- Kept regression tests in each server's separate `tests/` folder under the
+  existing local-only test policy. Verified 79 SharePoint, 37 CRM and 8 Gateway
+  tests (124 total), including Streamable HTTP tool discovery, signed header
+  propagation, negative inputs and mocked downstream calls.
+- Verified process startup and the Dockerfile TCP health command for all three
+  SharePoint auth modes and CRM M2M, plus missing-configuration startup failures.
+  Inlined the same TCP probe in both Dockerfiles to remove their dependency on
+  the already-deleted shared health script; checked all COPY source paths.
+- Updated code-layout/test guidance and review-source links. Architecture and
+  cloud configuration are unchanged. Docker daemon was unavailable, so no
+  ARM64 build or live AWS/Entra/Graph/Dataverse deployment validation was run.
+
+## Dynamics 365 CRM implementation — 2026-09-28
+
+- Added independent CRM MCP server and Dockerfile with a summary-only update.
+- Added signed app-only caller verification, explicit caller/case grants, separate
+  AgentCore Identity M2M token acquisition and Dataverse PATCH without upsert/retry.
+- Added CRM Gateway interceptor routing and application-role Cedar policy.
+- Verified 36 local tests, including SDK tool registration/strict arguments, signed
+  JWT authorization and mocked Dataverse writes. Local Streamable HTTP validation
+  covers initialization, tool discovery and unauthenticated denial.
+- Docker image build could not run because the Docker daemon was unavailable.
+  Terraform CLI is absent; no Terraform validation or cloud deployment was run.
+- Added ADR 0015 and service setup instructions. Terraform CRM provisioning and
+  live Gateway/Entra/Identity/Dataverse validation remain outstanding.
+
+## Phase-one CRM scope added — 2026-09-27
+
+- Added ADR 0014: a separate CRM MCP server/application Runtime behind the shared
+  Gateway, with one operation to update the approved field on one authorized
+  case. CRM does not reuse SharePoint images, credentials or Graph permissions.
+- Updated the internal review with the combined phase-one service overview,
+  CRM app-only sequence, data flow, case/field authorization and ownership.
+- Target outcome: phase one covers SharePoint and CRM; internal software remains
+  later-stage. This initial design was implemented locally on 28 September;
+  CRM remains undeployed and disabled pending validation.
+- Remaining CRM work: confirm the actual summary logical column/length, case
+  scope and M2M provider compatibility; deploy the separate
+  image/target/Runtime/identity/policy and trusted caller propagation;
+  validate successful update, cross-case/field/provider denials, safe audit,
+  concurrency, timeout/automation effects, rotation, disable and correction.
+- Existing deletions of END_GOAL.md and IN_PROGRESS.md are preserved; the current
+  target and remaining-work summary are maintained here and in README/ADR 0014.
+
+## Internal-review diagrams verified — 2026-09-27
+
+- Completed the employee/M2M target-flow alignment and preview fix. Both use
+  AgentCore Identity as broker with Microsoft Entra ID as token issuer; current
+  PoC differences remain explicitly separated from the target diagrams.
+- Both request sequences rendered successfully with Mermaid CLI; inspected the
+  PNG results, checked all five review image pairs and document links, and
+  verified high-level diagram generator consistency and `git diff --check`.
+- The review embeds PNGs and links editable Mermaid/vector sources. No service
+  behavior or deployed cloud configuration was changed.
+
+## SharePoint first-slice architecture review — 2026-09-24
+
+- Aligned both high-level identity diagrams with ADR 0012's target: Entra
+  issues tokens, while AgentCore Identity brokers delegated OBO and M2M access.
+  Kept current PoC differences separate from the target request flows.
+- Reproduced and fixed the app-only Mermaid parse failure caused by a semicolon
+  in a note. Added validated Mermaid sources and rendered SVG/PNG sequences;
+  the review embeds PNGs so Markdown preview does not require Mermaid support.
+
+- Added the high-level app-only/M2M request sequence and data-flow diagram,
+  alongside employee delegated access. Clarified caller versus downstream
+  application identity, site/operation authorization, credential-provider
+  boundaries and the still-disabled app-only ingress.
+
+- Reframed the internal-review document for nontechnical reviewers: service
+  responsibilities, data flow, employee request sequence, security boundaries,
+  deployment/recovery and accountable owners. Kept code-level findings in a
+  separate engineering backlog. Added two simplified editable workflow diagrams
+  with SVG/PNG previews; no architecture or runtime behavior changed.
+
+- Reviewed the working-tree implementation for security, operations and future
+  maintenance. Added [14 traceable findings and release gates](docs/architecture/sharepoint-first-slice-review.md)
+  with evidence, responsible teams and acceptance criteria.
+- Corrected outdated paths and current/target claims in the internal-review
+  guide; kept ClickOps as the current delivery path and app-only ingress gated.
+- Preserved ADR 0010's upload contract and recorded overwrite/recovery as an
+  accepted tradeoff requiring operational validation. No runtime behavior or
+  architecture decision was changed by this documentation review.
+- Open work: close Gateway-only invocation and role-trust gaps; prove ENFORCE,
+  header/OBO isolation, safe upload results and complete audit; validate bounded
+  PDF/list execution, secret rotation, failure handling and release rollback.
+  Owners, limits, SLOs and acceptance evidence remain to be assigned/collected.
+- Regenerated current/target Draw.io, SVG and 1920 × 1080 PNG previews; checked
+  generator consistency, local document links and rendered diagrams.
+- This is repository/documentation review evidence, not live AWS, Entra or Graph
+  validation. The acceptance pack in the dated review tracks remaining work.
+
+## Test layout cleanup — 2026-09-17
+
+- Moved the six SharePoint Python test files into
+  `servers/sharepoint_mcp/tests/`, alongside `src/`, and the Gateway interceptor
+  test into `gateway/tests/` without changing runtime code.
+- Made Python and Terraform tests local-only: ignored test directories and
+  removed previously tracked tests from Git's index without deleting local
+  copies. CI no longer depends on tests absent from a fresh clone.
+- Updated local test commands and documented each test file's purpose in the
+  root README. Corrected existing test setup/import issues found during
+  the relocation check.
+- Verified 45 local SharePoint tests and 8 Gateway tests pass after relocation;
+  Git no longer tracks test files. No cloud deployment was performed.
+
+## SharePoint Graph execution contract — 2026-09-17
+
+- Removed the dry-run configuration module (`servers/sharepoint_mcp/src/config.py`)
+  and simulated responses. Runtime configuration now requires an explicit
+  `GRAPH_AUTH_MODE`: `obo`, `client_credentials`, or `agentcore_m2m`.
+- Split credential acquisition from the Graph client so every tool call passes
+  an acquired access token to the real Graph client, and narrowed PDF extraction
+  handling to the PyMuPDF data error expected for unreadable PDFs.
+- Verified the current source builds for ARM64. With networking disabled and
+  placeholder OBO settings, the container starts and listens on port 8000
+  without contacting cloud services; missing `GRAPH_AUTH_MODE` exits at startup.
+  This is local startup evidence only, not live Graph, Gateway, or Entra
+  validation.
+- Current local verification passes 54 SharePoint tests and 8 Gateway tests.
+- SharePoint tool calls use the configured downstream identity and Microsoft
+  Graph. Local tests use mocks for Graph and token providers; this records the
+  implementation contract only and is not live Entra, AgentCore, Graph, or
+  SharePoint validation.
+
 ## Architecture Decisions
 
 - Clarified that v1 should start with one shared AgentCore Gateway endpoint
@@ -105,11 +260,11 @@ Added `examples/enterprise_mcp_platform` with:
 - internal software MCP placeholder boundary
 - optional MCP Python base-image example
 - narrow list/read tools plus one `sharepoint_upload_file` write tool
-- dry-run Graph client plus live default-library listing, pagination, and
-  bounded PDF text extraction
-- Exact SharePoint item/drive/site response binding plus 25 MiB and 250-page PDF
-  limits before extraction; short-lived Graph download URLs are fetched without
-  the Graph bearer token
+- live Graph client for default-library listing, pagination, and bounded PDF
+  text extraction
+- Exact SharePoint item/drive/site response binding plus local service
+  safeguards of 25 MiB and 250 pages before extraction; short-lived Graph
+  download URLs are fetched without the Graph bearer token
 - direct Cedar policies for delegated users and application service principals
 - Cedar conditions for the exact lane-qualified upload tool
 - fail-fast Runtime input validation without silent cleanup or a second
@@ -236,7 +391,7 @@ Added `examples/enterprise_mcp_platform` with:
   evidence.
 - Claude Code token/header support.
 - PrivateLink/private DNS behavior for MCP clients.
-- Real Microsoft Graph implementation.
+- Live Microsoft Graph operations and downstream permission enforcement.
 - Final Entra app registration and group/app-role names.
 - Approved Entra token flow for Claude Code and Lambda client credentials.
 - `nonprod.tfvars` and `prod.tfvars` values for the shared Terraform roots.

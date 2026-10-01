@@ -21,10 +21,12 @@ image build, a live Runtime/Gateway request, Entra token validation, or
 Microsoft Graph access. Mark each deployment step complete only after collecting
 the stated evidence.
 
-For the first cloud smoke, configure GRAPH_DRY_RUN=true and omit
-GRAPH_AUTH_MODE and Graph credentials. Dry-run does not call Microsoft Graph.
-Do not set GRAPH_AUTH_MODE=agentcore_m2m for this first pass: that path
-authenticates even when Graph dry-run is enabled.
+Every deployed Runtime must set `GRAPH_AUTH_MODE` explicitly to exactly one of
+`obo`, `client_credentials`, or `agentcore_m2m`. The first cloud deployment
+therefore requires a real configured downstream identity and the corresponding
+Microsoft Graph/SharePoint permissions before a tool is invoked. Tool calls use
+the configured downstream identity and Microsoft Graph. Local tests use mocks
+only and do not prove cloud or live Graph behaviour.
 
 ## Values and access to obtain first
 
@@ -156,21 +158,33 @@ matches the recorded ECR artifact.
 Use the platform-approved Runtime execution role, VPC subnets, and security
 groups. The Runtime role and resource policy must be least-privilege and
 separately reviewed. Do not copy Terraform defaults or placeholder IDs into a
-live resource. Configure the service's initial dry-run environment with:
+live resource. Configure the Runtime for the intended downstream identity
+before invoking any tool:
 
-- GRAPH_DRY_RUN=true
-- no explicit GRAPH_AUTH_MODE
-- no Graph client ID, tenant secret, or other Graph credentials
+- `GRAPH_AUTH_MODE=obo` for delegated Graph access, with the existing Entra
+  tenant/client configuration, lane-specific Secrets Manager secret, Gateway
+  user-assertion header, and the employee's SharePoint permissions.
+- `GRAPH_AUTH_MODE=client_credentials` for the fixed application lane, with
+  its existing Entra client ID, lane-specific Secrets Manager secret, and
+  approved SharePoint application permissions.
+- `GRAPH_AUTH_MODE=agentcore_m2m` only for the staged AgentCore Identity
+  application path, with its approved resolver, workload, provider, caller,
+  and downstream permission configuration.
+
+Do not omit `GRAPH_AUTH_MODE`, use an unsupported value, or substitute fake
+credentials. The first cloud tool call requires a real configured downstream
+identity and permissions.
 
 Wait for the Runtime to become ready. Record its ARN, version, image digest, and
 Console deployment time. Verify the Runtime process is configured for the
 AgentCore contract: ARM64, 0.0.0.0:8000, and /mcp. A ready status alone does
-not prove Gateway invocation or Graph behavior.
+not prove Gateway invocation or Graph behaviour.
 
 The current delegated code path uses a Gateway assertion-copy interceptor and
 Runtime MSAL OBO. Header forwarding, secret access, a real Entra exchange, and a
-real Graph request are separate validation gates; do not add secrets or enable
-those paths as part of the first dry-run deployment.
+real Graph request are separate validation gates. Complete the applicable
+identity and downstream-permission checks before invoking the service; a ready
+Runtime alone does not prove any of them.
 
 ## 5. Register the internal-mcp Entra API resource
 
@@ -249,8 +263,8 @@ the Gateway and Runtime/client behavior; do not claim compatibility from the
 SDK version alone. The current package pin is mcp==2.2.0.
 
 Gateway JWT entry validation is not per-tool authorization. Keep Cedar in the
-reviewed non-production mode for the initial dry-run and do not send real
-SharePoint data until the exact tool grants and negative tests have been
+reviewed non-production mode for the initial cloud validation and do not send
+real SharePoint data until the exact tool grants and negative tests have been
 reviewed and the appropriate enforcement mode is approved.
 
 ## 7. Smoke-test through the Gateway
@@ -264,16 +278,18 @@ https://<gateway-id>.gateway.bedrock-agentcore.ap-southeast-2.amazonaws.com/mcp
 
 The client sends Authorization: Bearer <Entra access token>. Verify that an
 unapproved azp is rejected, the approved test client is accepted, and the
-Gateway can list and invoke the expected SharePoint dry-run tools. Do not log
-the bearer token. Do not call the IAM-protected Runtime directly with
+Gateway can list and invoke the expected SharePoint tools. `tools/list` proves
+MCP discovery only; an approved tool invocation is needed to exercise the
+configured downstream identity and real Microsoft Graph request. Do not log the
+bearer token. Do not call the IAM-protected Runtime directly with
 clients/local_client.py: that client is for an unsigned localhost server, not
 a SigV4 Runtime endpoint. A cloud smoke test must use the Gateway plus Entra
 token or an explicitly SigV4-capable approved client.
 
-The dry-run result proves only the tested request path and simulated Graph
-behavior. It does not prove an OBO exchange, live Graph access, SharePoint ACLs,
-application Sites.Selected grants, app-only caller isolation, production
-availability, or network controls.
+An invocation result proves only the tested request path and operation. It does
+not by itself prove a complete OBO exchange or application-token configuration,
+all SharePoint ACLs, all application `Sites.Selected` grants, app-only caller
+isolation, production availability, or network controls.
 
 ## 8. Keep later identity gates separate
 
@@ -302,7 +318,8 @@ record:
 - Gateway ID/URL, Runtime target ID, region, selected protocol date, and update
   time
 - Entra API client GUID, test caller client GUID, and test result summary
-- dry-run test results and the remaining Graph/identity/network validation gates
+- Gateway discovery/invocation results and the remaining Graph/identity/network
+  validation gates
 
 Do not paste access tokens, client secrets, private keys, or document contents
 into the change record.

@@ -35,7 +35,6 @@ mcp_servers = {
     image_uri           = "111122223333.dkr.ecr.ap-southeast-2.amazonaws.com/internal/sharepoint-mcp:nonprod"
     ecr_repository_arns = ["arn:aws:ecr:ap-southeast-2:111122223333:repository/internal/sharepoint-mcp"]
     environment = {
-      GRAPH_DRY_RUN    = "false"
       MCP_SERVER_NAME  = "sharepoint-mcp"
       MCP_SERVER_OWNER = "enterprise-mcp-platform"
     }

@@ -9,7 +9,8 @@ assumption with a self-managed Azure DevOps Server pipeline model hosted on AWS
 and a single
 cloud-owned platform repo.
 
-Policy-source note: ADR 0006 replaces the YAML, generated JSON, and
+Read this ADR as historical context. ADR 0003 retains the repository and Azure
+DevOps ownership direction; ADR 0006 replaces the YAML, generated JSON, and
 Runtime-policy decisions with direct AgentCore Cedar.
 
 ## Context

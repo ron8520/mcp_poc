@@ -28,16 +28,12 @@ RUN pip install --no-cache-dir \
     && mkdir -p /tmp/mcp \
     && chown -R mcp:mcp /app /tmp/mcp
 
-COPY images/container_healthcheck.py /usr/local/bin/mcp-container-healthcheck.py
-RUN chmod 0755 /usr/local/bin/mcp-container-healthcheck.py
-
-COPY --chown=mcp:mcp servers/__init__.py ./servers/__init__.py
 COPY --chown=mcp:mcp servers/sharepoint_mcp ./servers/sharepoint_mcp
 
 USER mcp
 
 EXPOSE 8000
 ENTRYPOINT ["/usr/bin/tini", "--"]
-HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 CMD ["python", "/usr/local/bin/mcp-container-healthcheck.py"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 CMD ["python", "-c", "import os,socket; socket.create_connection((os.getenv('MCP_HEALTH_HOST','127.0.0.1'),int(os.getenv('MCP_PORT','8000'))),timeout=float(os.getenv('MCP_HEALTH_TIMEOUT_SECONDS','2'))).close()"]
 
 CMD ["python", "-m", "servers.sharepoint_mcp.src.server"]

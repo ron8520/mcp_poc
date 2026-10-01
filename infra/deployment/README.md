@@ -25,10 +25,11 @@ From the repository root, the offline/local validation path is:
 cd examples/enterprise_mcp_platform/deployment
 terraform init -backend=false
 terraform validate
-terraform test
 ```
 
-`terraform test` uses the checked-in provider mocks. A local plan with the
+Provider mocks in `tests/` are local-only and ignored by Git. Run
+`terraform test` only in a checkout that has those files; a fresh clone has no
+mock suite. A local plan with the
 placeholder environment values is only a structural check; a meaningful plan
 requires real TFE-provided variables, provider authentication and target
 account/network values. For a plan, use the same directory and var-file that
@@ -50,16 +51,17 @@ Use `envs/prod.tfvars` for production plan/apply selection. The corresponding
 offline module checks are:
 
 ```bash
-(cd ../infra && terraform init -backend=false && terraform validate && terraform test)
-(cd ../identity/entra && terraform init -backend=false && terraform validate)
+(cd ../modules/agentcore && terraform init -backend=false && terraform validate)
+(cd ../modules/entra && terraform init -backend=false && terraform validate)
 ```
 
-The repository's Python checks use the same commands as the service pipeline:
+Python tests are also local-only and are not run by the service pipeline.
+If present, run them from the repository root:
 
 ```bash
-cd ..
-PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s servers/sharepoint_mcp -p 'test_*.py'
-PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s gateway -p 'test_*.py'
+cd ../..
+PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s servers/sharepoint_mcp/tests -p 'test_*.py'
+PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s gateway/tests -p 'test_*.py'
 ```
 
 The local Terraform checks and Python tests are not live Entra, AgentCore,

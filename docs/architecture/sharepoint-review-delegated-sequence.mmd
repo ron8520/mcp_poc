@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    participant User as Employee / AI client
+    participant Entra as Microsoft Entra ID
+    participant Gateway as Gateway + policy
+    participant Identity as AgentCore Identity
+    participant Runtime as Delegated Runtime
+    participant Graph as Graph / SharePoint
+    Note over User,Graph: Target design - live validation required
+    User->>Entra: Employee sign-in - request Gateway access
+    Entra-->>User: Token A - for Gateway
+    User->>Gateway: Request with Token A
+    Note over Gateway: Validate caller and authorize operation
+    Gateway->>Identity: OBO exchange for Runtime access
+    Identity->>Entra: Request token preserving employee identity
+    Entra-->>Identity: Token B - for delegated Runtime
+    Identity-->>Gateway: Token B
+    Gateway->>Runtime: Approved request with Token B
+    Note over Runtime: Validate Runtime token and trusted ingress
+    Runtime->>Identity: OBO exchange for Microsoft Graph access
+    Identity->>Entra: Request Graph token preserving employee identity
+    Entra-->>Identity: Token C - for Microsoft Graph
+    Identity-->>Runtime: Token C
+    Runtime->>Graph: Execute operation with Token C
+    Note over Graph: Enforce employee permissions
+    Graph-->>Runtime: Result or denial
+    Runtime-->>Gateway: Bounded response
+    Gateway-->>User: Result or failure

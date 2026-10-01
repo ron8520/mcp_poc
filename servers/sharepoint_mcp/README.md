@@ -2,6 +2,24 @@
 
 Owns only SharePoint and Microsoft Graph tool behavior.
 
+## Code layout
+
+- `src/server.py`: tool contracts and validation → token → Graph call → result.
+- `src/auth.py`: MSAL OBO/client credentials and Secrets Manager loading.
+- `src/app_auth.py`: signed app-only caller checks, exact site/tool grants and
+  per-caller AgentCore Identity M2M tokens.
+- `src/graph.py`: listing, PDF reads and uploads through direct functions.
+- `src/audit.py`: metadata-only events shared by this server's tools and auth.
+- `tests/`: local regression tests, separate from application code.
+
+Tools reject invalid values, wrong types and unknown arguments before loading
+credentials or making downstream calls. Optional argument defaults remain part
+of the tool contract; supplied values are never coerced or repaired.
+
+Add a tool in `server.py` with its argument model and downstream function in
+`graph.py`. For the staged app-only lane, extend the allowed tool names and
+review its role and site grants in `app_auth.py`.
+
 Current tools:
 
 - `sharepoint_list_site_content`
@@ -16,9 +34,10 @@ document library, follows Graph pagination, and optionally walks returned
 folders. `sharepoint_get_file_text` accepts an already authorized `site_id`,
 `drive_id`, and `item_id`; it verifies that the item belongs to that site before
 downloading and extracting PDF text. It does not accept a caller-supplied URL.
-PDF downloads are limited to 25 MiB and returned text remains bounded by the
-caller's validated `max_chars` value. PDFs above 250 pages are rejected before
-page text is extracted.
+The service applies local PDF safeguards: downloads are limited to 25 MiB and
+returned text remains bounded by the caller's validated `max_chars` value. PDFs
+above 250 pages are rejected before page text is extracted. These are local
+service limits, not claims about official Microsoft Graph or AgentCore quotas.
 
 The write surface is one tool. It uploads UTF-8 content to the supplied path in
 the site's default document library. Invalid `site_id` or `file_path` values
@@ -35,9 +54,17 @@ container image in two configured credential lanes:
 - `sharepoint-application` uses `GRAPH_AUTH_MODE=client_credentials`, obtains a
   Graph application token and does not accept a user assertion.
 
-Both modes load the confidential-client secret lazily from the lane-specific
-Secrets Manager ARN. Tokens and secrets are never logged. Live reads use Graph
-metadata to enforce the supplied site boundary, then download through Graph's
+`GRAPH_AUTH_MODE` is required and must be exactly `obo`,
+`client_credentials`, or `agentcore_m2m`; there is no default mode. The staged
+AgentCore Identity application path uses
+`agentcore_m2m` with its resolver and workload configuration. The `obo` and
+`client_credentials` modes load the confidential-client secret lazily from the
+lane-specific Secrets Manager ARN. Tokens and secrets are never logged. All
+tool calls use Microsoft Graph. Local tests replace Graph and token providers
+with mocks and do not require live credentials.
+
+Live reads use Graph metadata to enforce the supplied site boundary, then
+download through Graph's
 short-lived preauthenticated URL without forwarding the Graph bearer token.
 Those URLs are accepted only from the authenticated Graph metadata response,
 must use HTTPS without embedded user information, and are never accepted as
@@ -45,7 +72,7 @@ tool inputs.
 The upload adapter uses the Graph
 `PUT /sites/{site-id}/drive/root:/{path}:/content` endpoint.
 
-The image uses Python MCP SDK 2.0 `MCPServer` with stateless Streamable HTTP.
+The image uses Python MCP SDK 2.2.0 `MCPServer` with stateless Streamable HTTP.
 It listens on AgentCore Runtime's required `0.0.0.0:8000/mcp` path, and the
 SharePoint pipeline builds the service image for `linux/arm64`.
 The current released MCP specification is `2025-11-25`. The server targets the
@@ -72,7 +99,7 @@ only after non-production validation. Delegated workload IAM allows only OBO
 providers; application workload IAM allows only M2M providers. The official AWS
 documentation does not provide the complete native no-code app-only caller-
 context composition, and it remains unverified. See
-[ADR 0012](../../../../docs/adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md)
+[ADR 0012](../../docs/adr/0012-agentcore-identity-for-delegated-and-m2m-lanes.md)
 for the target gates.
 
 When the staged `agentcore_m2m` branch is enabled, the application Runtime uses

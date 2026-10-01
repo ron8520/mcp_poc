@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    participant App as Approved application
+    participant Entra as Microsoft Entra ID
+    participant Gateway as Gateway + policy
+    participant Runtime as CRM application Runtime
+    participant Identity as AgentCore Identity
+    participant Auth as Entra - dedicated CRM app
+    participant CRM as Dynamics 365 / Dataverse
+    Note over App,CRM: Phase one - summary-only update, live validation pending
+    App->>Entra: Request app-only token for Gateway
+    Entra-->>App: Gateway caller token
+    App->>Gateway: Case ID and summary with caller token
+    Note over Gateway: Authenticate application and authorize CRM update
+    Gateway->>Runtime: Gateway AWS identity and signed caller context
+    Note over Runtime: Check caller and allowed case, field and value
+    Runtime->>Identity: Request token from approved CRM provider
+    Identity->>Auth: Authenticate approved CRM application
+    Auth-->>Identity: CRM API application token
+    Identity-->>Runtime: CRM API token
+    Runtime->>CRM: Update only the configured summary column
+    Note over CRM: Enforce application record and field permissions
+    CRM-->>Runtime: Acknowledgement or failure
+    Runtime-->>Gateway: Minimal update result
+    Gateway-->>App: Confirmation or failure

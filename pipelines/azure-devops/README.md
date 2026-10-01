@@ -23,7 +23,11 @@ Terraform execution pipeline automatically.
 | Pipeline | Purpose |
 | --- | --- |
 | `policy-ci.yml` | Check the direct Cedar source layout and optionally publish the reviewed source bundle. |
-| `mcp-server-ci.yml` | Compile MCP server Python, run SharePoint unit tests, build Docker images, and optionally push to central ECR. |
+| `mcp-server-ci.yml` | Compile Python, validate the SDK import, build the SharePoint Docker image, and optionally push to central ECR. |
+
+Python and Terraform tests are local-only and ignored by Git. The pipelines do
+not depend on test files that are absent from a fresh clone. See the root
+README for local test commands when those files are available.
 
 ## Recommended Azure DevOps Setup
 

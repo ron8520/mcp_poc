@@ -374,16 +374,19 @@ not collapsed into one credential.
 
 ## Implementation Artifacts
 
-- [Enterprise MCP platform example](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform)
-- [SharePoint MCP server](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/servers/sharepoint_mcp)
-- [Optional MCP Python base image](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/images/mcp_python_base)
-- [Direct Cedar policy](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/policy)
-- [ADR 0006: Direct Cedar and dual SharePoint identity lanes](/Users/ronruan/Desktop/mcp_poc/docs/adr/0006-direct-cedar-and-dual-sharepoint-identity-lanes.md)
-- [Windows PowerShell Entra token helper](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/clients/entra_token_helper.ps1)
-- [Shared Terraform root](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/infra/main.tf)
-- [Terraform IAM resources](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/infra/iam.tf)
-- [Terraform AgentCore Gateway resources](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/infra/agentcore_gateway.tf)
-- [Terraform AgentCore Runtime resources](/Users/ronruan/Desktop/mcp_poc/examples/enterprise_mcp_platform/infra/agentcore_runtime.tf)
+- [Current repository overview](../../README.md)
+- [SharePoint MCP server](../../servers/sharepoint_mcp/README.md)
+- Historical note: the optional MCP Python base-image example was removed from
+  the current repository; the optional base-image pattern remains a future
+  consideration in this ADR.
+- [Direct Cedar policy](../../policy/README.md)
+- [ADR 0006: Direct Cedar and dual SharePoint identity lanes](0006-direct-cedar-and-dual-sharepoint-identity-lanes.md)
+- Historical note: the Windows PowerShell Entra token helper from the original
+  example layout is no longer present in the current repository.
+- [Composed Terraform root](../../infra/deployment/main.tf)
+- [Terraform IAM resources](../../infra/modules/agentcore/iam.tf)
+- [Terraform AgentCore Gateway resources](../../infra/modules/agentcore/agentcore_gateway.tf)
+- [Terraform AgentCore Runtime resources](../../infra/modules/agentcore/agentcore_runtime.tf)
 
 ## Open Validation
 

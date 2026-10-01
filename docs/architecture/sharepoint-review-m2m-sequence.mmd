@@ -1,0 +1,26 @@
+sequenceDiagram
+    autonumber
+    participant App as Background application
+    participant Entra as Microsoft Entra ID
+    participant Gateway as Gateway + policy
+    participant Runtime as Application Runtime
+    participant Identity as AgentCore Identity
+    participant Graph as Graph / SharePoint
+    Note over App,Graph: Target design - app-only ingress disabled pending validation
+    App->>Entra: Client credentials - request Gateway access
+    Entra-->>App: Token A - application token for Gateway
+    App->>Gateway: Operation and site with Token A
+    Note over Gateway: Validate application and authorize role
+    Note over Gateway,Runtime: Lambda relays the original signed caller context
+    Gateway->>Runtime: Gateway AWS identity + signed caller context
+    Note over Runtime: Verify caller and allowed site + operation
+    Note over Runtime: Select approved downstream application
+    Runtime->>Identity: Request Graph token for approved provider
+    Identity->>Entra: Client credentials for downstream Graph application
+    Entra-->>Identity: Token G - application token for Microsoft Graph
+    Identity-->>Runtime: Token G
+    Runtime->>Graph: Execute operation with Token G
+    Note over Graph: Enforce application's selected-site grants
+    Graph-->>Runtime: Result or denial
+    Runtime-->>Gateway: Bounded response
+    Gateway-->>App: Result or failure

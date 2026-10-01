@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<defs>
+<style>text{font-family:Arial,Helvetica,sans-serif}.title{font-size:27px;font-weight:700;fill:#17324D}.subtitle{font-size:16px;fill:#526579}.zone{font-size:17px;font-weight:700;fill:#17324D}.box-title{font-size:18px;font-weight:700;fill:#17324D}.box-detail{font-size:15px;fill:#526579}.edge-label{font-size:13px;fill:#526579}</style>
+<marker id="arrow-line" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#7890A8"/></marker>
+<marker id="arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#B42318"/></marker>
+<marker id="arrow-purple" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#6F42C1"/></marker>
+<marker id="arrow-blue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E74B5"/></marker>
+<marker id="arrow-orange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#C56A00"/></marker>
+<marker id="arrow-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#2E7D32"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="35" y="48" class="title">SharePoint MCP — employee target data flow</text>
+<text x="35" y="76" class="subtitle">Employee target flow · Entra-issued tokens via AgentCore Identity · live validation pending</text>
+<rect x="30" y="310" width="290" height="500" rx="12" fill="#F5F7FA" stroke="#7890A8" stroke-width="1.5"/>
+<text x="44" y="333" class="zone">APPROVED EMPLOYEE CLIENT</text>
+<rect x="370" y="110" width="720" height="700" rx="12" fill="#EAF2F8" stroke="#2E74B5" stroke-width="1.5"/>
+<text x="384" y="133" class="zone">AWS SERVICE BOUNDARY · SYDNEY</text>
+<rect x="1150" y="110" width="420" height="700" rx="12" fill="#FFF3E0" stroke="#C56A00" stroke-width="1.5"/>
+<text x="1164" y="133" class="zone">MICROSOFT SERVICE BOUNDARY</text>
+<path d="M 175.0 390.0 L 175.0 100.0 L 1360.0 100.0 L 1360.0 180.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="663.5" y="83.0" width="210.8" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="666.5" y="95.0" class="edge-label">Employee sign-in for Gateway token</text>
+<path d="M 915.0 390.0 L 915.0 280.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="916.0" y="318.0" width="93.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="919.0" y="330.0" class="edge-label">Graph OBO token</text>
+<path d="M 295.0 432.0 L 410.0 432.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<rect x="353.5" y="415.0" width="45.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="356.5" y="427.0" class="edge-label">Request</text>
+<path d="M 670.0 432.0 L 780.0 432.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<rect x="680.0" y="412.0" width="80.6" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="683.0" y="424.0" class="edge-label">Runtime token</text>
+<path d="M 1050.0 432.0 L 1200.0 432.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<rect x="1080.0" y="412.0" width="80.6" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="1083.0" y="424.0" class="edge-label">Graph request</text>
+<path d="M 1200.0 475.0 L 1125.0 475.0 L 1125.0 475.0 L 1050.0 475.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<rect x="1126.0" y="458.0" width="45.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="1129.0" y="470.0" class="edge-label">Result</text>
+<path d="M 780.0 499.2 L 670.0 499.2" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<rect x="726.0" y="482.2" width="45.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="729.0" y="494.2" class="edge-label">Result</text>
+<path d="M 410.0 499.2 L 295.0 499.2" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)" stroke-dasharray="7 5"/>
+<rect x="353.5" y="482.2" width="45.0" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="356.5" y="494.2" class="edge-label">Result</text>
+<path d="M 1360.0 490.0 L 1360.0 650.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-line)"/>
+<rect x="1361.0" y="553.0" width="74.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="1364.0" y="565.0" class="edge-label">Read / write</text>
+<path d="M 540.0 530.0 L 540.0 650.0" fill="none" stroke="#7890A8" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>
+<rect x="435.0" y="573.0" width="99.2" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="438.0" y="585.0" class="edge-label">Permission check</text>
+<path d="M 1050.0 230.0 L 1200.0 230.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="1072.0" y="210.0" width="105.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="1075.0" y="222.0" class="edge-label">Token acquisition</text>
+<path d="M 540.0 390.0 L 540.0 230.0 L 780.0 230.0" fill="none" stroke="#6F42C1" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" marker-end="url(#arrow-purple)"/>
+<rect x="482.0" y="210.0" width="105.4" height="17" fill="#FFFFFF" opacity="0.92"/>
+<text x="485.0" y="222.0" class="edge-label">Runtime OBO token</text>
+<rect x="1200" y="180" width="320" height="100" rx="10" fill="#F1ECFA" stroke="#6F42C1" stroke-width="2"/>
+<text x="1360.0" y="211.0" text-anchor="middle" class="box-title">Microsoft Entra ID</text>
+<text x="1360.0" y="233.0" text-anchor="middle" class="box-detail">Issues Gateway, Runtime and</text>
+<text x="1360.0" y="255.0" text-anchor="middle" class="box-detail">Graph tokens for the employee</text>
+<rect x="55" y="390" width="240" height="140" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="175.0" y="430.0" text-anchor="middle" class="box-title">Employee / AI app</text>
+<text x="175.0" y="452.0" text-anchor="middle" class="box-detail">Sign in as employee</text>
+<text x="175.0" y="474.0" text-anchor="middle" class="box-detail">Gateway-audience token</text>
+<text x="175.0" y="496.0" text-anchor="middle" class="box-detail">Approved result destinations</text>
+<rect x="410" y="390" width="260" height="140" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="540.0" y="430.0" text-anchor="middle" class="box-title">AgentCore Gateway</text>
+<text x="540.0" y="452.0" text-anchor="middle" class="box-detail">Validate caller and operation</text>
+<text x="540.0" y="474.0" text-anchor="middle" class="box-detail">Request Runtime OBO token</text>
+<text x="540.0" y="496.0" text-anchor="middle" class="box-detail">Invoke delegated Runtime</text>
+<rect x="780" y="390" width="270" height="140" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="915.0" y="430.0" text-anchor="middle" class="box-title">Delegated Runtime</text>
+<text x="915.0" y="452.0" text-anchor="middle" class="box-detail">Validate Runtime token</text>
+<text x="915.0" y="474.0" text-anchor="middle" class="box-detail">Request delegated Graph token</text>
+<text x="915.0" y="496.0" text-anchor="middle" class="box-detail">Preserve employee identity</text>
+<rect x="1200" y="390" width="320" height="100" rx="10" fill="#FFFFFF" stroke="#C56A00" stroke-width="2"/>
+<text x="1360.0" y="432.0" text-anchor="middle" class="box-title">Microsoft Graph</text>
+<text x="1360.0" y="454.0" text-anchor="middle" class="box-detail">Permission-checked API access</text>
+<rect x="1200" y="650" width="320" height="100" rx="10" fill="#FFFFFF" stroke="#C56A00" stroke-width="2"/>
+<text x="1360.0" y="681.0" text-anchor="middle" class="box-title">SharePoint Online</text>
+<text x="1360.0" y="703.0" text-anchor="middle" class="box-detail">Employee site and file ACLs</text>
+<text x="1360.0" y="725.0" text-anchor="middle" class="box-detail">Document recovery controls</text>
+<rect x="410" y="650" width="260" height="100" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="540.0" y="692.0" text-anchor="middle" class="box-title">Policy Engine</text>
+<text x="540.0" y="714.0" text-anchor="middle" class="box-detail">Employee read / upload roles</text>
+<rect x="780" y="650" width="270" height="100" rx="10" fill="#FFFFFF" stroke="#2E74B5" stroke-width="2"/>
+<text x="915.0" y="681.0" text-anchor="middle" class="box-title">Separate receiving services</text>
+<text x="915.0" y="703.0" text-anchor="middle" class="box-detail">Gateway token → Runtime token</text>
+<text x="915.0" y="725.0" text-anchor="middle" class="box-detail">Runtime token → Graph token</text>
+<rect x="370" y="845" width="720" height="110" rx="10" fill="#F5F7FA" stroke="#7890A8" stroke-width="2"/>
+<text x="730.0" y="881.0" text-anchor="middle" class="box-title">Supporting security and operations services</text>
+<text x="730.0" y="903.0" text-anchor="middle" class="box-detail">AWS IAM: only approved delegated credential providers</text>
+<text x="730.0" y="925.0" text-anchor="middle" class="box-detail">Audit: employee, client, operation and outcome - no tokens or content</text>
+<rect x="35" y="845" width="295" height="110" rx="10" fill="#F5F7FA" stroke="#7890A8" stroke-width="2"/>
+<text x="182.5" y="881.0" text-anchor="middle" class="box-title">Network boundary</text>
+<text x="182.5" y="903.0" text-anchor="middle" class="box-detail">Enterprise route + PrivateLink</text>
+<text x="182.5" y="925.0" text-anchor="middle" class="box-detail">Identity checks remain required</text>
+<rect x="1150" y="845" width="420" height="110" rx="10" fill="#FFF3E0" stroke="#C56A00" stroke-width="2"/>
+<text x="1360.0" y="870.0" text-anchor="middle" class="box-title">PDF download path</text>
+<text x="1360.0" y="892.0" text-anchor="middle" class="box-detail">Runtime downloads bytes from an approved</text>
+<text x="1360.0" y="914.0" text-anchor="middle" class="box-detail">Microsoft file location; the temporary link</text>
+<text x="1360.0" y="936.0" text-anchor="middle" class="box-detail">is sensitive and must not reach client/logs.</text>
+<rect x="780" y="180" width="270" height="100" rx="10" fill="#F1ECFA" stroke="#6F42C1" stroke-width="2"/>
+<text x="915.0" y="211.0" text-anchor="middle" class="box-title">AgentCore Identity</text>
+<text x="915.0" y="233.0" text-anchor="middle" class="box-detail">Broker both OBO exchanges</text>
+<text x="915.0" y="255.0" text-anchor="middle" class="box-detail">Preserve employee identity</text>
+</svg>

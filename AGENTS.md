@@ -19,8 +19,13 @@ The current target architecture is:
 - lane selection follows the downstream security subject, not the client name:
   employee-facing AI apps use delegated identity when user ACLs must apply,
   while approved workflows with no employee subject use M2M
-- SharePoint as the first enabled MCP server
-- CRM, internal software, and future systems as separate MCP server boundaries
+- phase one includes SharePoint and a separate CRM MCP server; SharePoint is
+  implemented alongside CRM under ADRs 0014/0015, with one app-only
+  operation to update the summary on an authorized Dynamics 365 case
+- CRM uses its own application Runtime/image/credentials; a separate Entra app
+  and Dataverse application user through AgentCore Identity M2M; actual column
+  configuration and live downstream authorization remain validation gates
+- internal software and future systems remain separate later-stage boundaries
 - Microsoft Entra ID JWTs for MCP caller identity
 - AWS IAM kept separate for Bedrock model access
 - ClickOps for the current PoC: EC2 workspace, CodeCommit source control,
@@ -44,16 +49,9 @@ content unless a new architecture decision explicitly changes it.
 
 ## Working Style
 
-For any coding-related task, use the `karpathy-guidelines` skill before
-writing, reviewing, debugging, refactoring, or modifying code.
-
-Before changing files:
-
-1. State the assumptions that matter.
-2. Choose the simplest viable change.
-3. Keep edits surgical and tied to the request.
-4. Define how the change can be verified.
-5. Do not rewrite unrelated files or clean up unrelated issues.
+Keep changes focused on the request and choose the simplest viable solution.
+State only assumptions that materially affect the outcome; do not rewrite
+unrelated files or clean up unrelated issues.
 
 If the request is ambiguous, make a reasonable local assumption when the risk is
 low. Ask only when the choice would change architecture, security posture, data
@@ -140,8 +138,8 @@ Use straight connector segments in all diagrams. Do not use curved connectors.
 
 ## Progress Tracking
 
-When implementing a change, update progress docs so the repository shows the
-actual state:
+Update the affected progress docs only when a change alters implementation
+status, remaining validation, unfinished work, or the target state:
 
 - Add completed work to `WHAT_WE_HAVE_DONE.md`.
 - Add remaining validation or unfinished tasks to `IN_PROGRESS.md`.
@@ -155,7 +153,7 @@ Keep progress notes factual. Prefer concrete statements over broad claims.
 Good:
 
 ```text
-- Added the SharePoint MCP server boundary with dry-run Graph client behavior.
+- Added the SharePoint MCP server boundary with real Microsoft Graph calls.
 - Validate one real Microsoft Graph file upload against the selected test site.
 ```
 
@@ -232,8 +230,12 @@ downstream site-authorization boundary.
 When code changes, run the narrowest useful verification first, then broader
 checks when the change touches shared behavior.
 
-For documentation-only changes, verify links, filenames, ADR numbering, and
-that README, ADRs, end goal, and progress files agree with each other.
+For documentation-only changes, verify affected links and filenames, ADR
+numbering when adding an ADR, and consistency across the related documents.
+
+Local tests, static checks, and image builds do not establish that deployed
+Entra, Microsoft Graph, AgentCore Runtime, or Gateway behavior works. Report
+local verification separately from live deployment validation.
 
 If tests or validation cannot be run, state the reason clearly in the final
 response.

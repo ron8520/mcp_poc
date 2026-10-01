@@ -1,0 +1,426 @@
+<mxfile host="app.diagrams.net" compressed="false" pages="4">
+  <diagram id="phase-one" name="Phase-one services">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="page_title" value="Phase one — SharePoint and CRM behind one Gateway" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=24;fontStyle=1;align=left;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="20" width="1530" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="page_subtitle" value="Target service boundaries · CRM summary update implemented locally, not yet enabled" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=13;align=left;fontColor=#526579;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="62" width="1530" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="clients" value="APPROVED CALLERS" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="260" width="285" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="aws" value="AWS PLATFORM" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#EAF2F8;strokeColor=#2E74B5;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="350" y="110" width="760" height="850" as="geometry" />
+        </mxCell>
+        <mxCell id="systems" value="DOWNSTREAM SYSTEMS" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="110" width="390" height="710" as="geometry" />
+        </mxCell>
+        <mxCell id="employee" value="&lt;b&gt;Employee / AI client&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Delegated SharePoint access&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="45" y="310" width="235" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="app" value="&lt;b&gt;Approved application&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;SharePoint and/or CRM&lt;br&gt;Explicit operation grants&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="45" y="580" width="235" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Caller tokens for Gateway&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F1ECFA;strokeColor=#6F42C1;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="275" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway" value="&lt;b&gt;Shared AgentCore Gateway&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Caller validation + policy&lt;br&gt;Select authorized service/lane&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="385" y="430" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="sp_user" value="&lt;b&gt;SharePoint delegated&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Employee identity and ACLs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="200" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="sp_app" value="&lt;b&gt;SharePoint application&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Approved application/site grants&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="360" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="crm" value="&lt;b&gt;CRM application Runtime&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Separate CRM MCP server&lt;br&gt;Update case summary only&lt;br&gt;No delegated CRM lane&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="600" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="sharepoint" value="&lt;b&gt;Graph / SharePoint&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;List metadata&lt;br&gt;Read PDF text&lt;br&gt;Upload / replace text file&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="200" width="315" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="crm_api" value="&lt;b&gt;Dynamics 365 / Dataverse&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Native case and field permissions&lt;br&gt;Summary column configured at deployment&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="600" width="315" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="identity" value="&lt;b&gt;AgentCore Identity — separate providers and AWS IAM boundaries&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;SharePoint: delegated OBO and M2M through Entra&lt;br&gt;CRM: M2M through separate Entra app - live validation pending&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F1ECFA;strokeColor=#6F42C1;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="350" y="850" width="760" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="audit" value="&lt;b&gt;Independent operations&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Separate images, credentials and rollback&lt;br&gt;Safe audit + per-service disable&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="850" width="390" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="employee" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="325" y="370" />
+              <mxPoint x="325" y="465" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="app" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="325" y="650" />
+              <mxPoint x="325" y="535" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_3" value="Validate token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=none;endFill=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="entra" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="180" />
+            </Array>
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="sp_user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="500" />
+              <mxPoint x="710" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="sp_app">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="500" />
+              <mxPoint x="710" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="crm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="500" />
+              <mxPoint x="710" y="665" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.19230769230769232;entryDx=0;entryDy=0;" edge="1" parent="1" source="sp_user" target="sharepoint">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.8076923076923077;entryDx=0;entryDy=0;" edge="1" parent="1" source="sp_app" target="sharepoint">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="crm" target="crm_api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="data-flow" name="Employee target data flow">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="page_title" value="SharePoint MCP — employee target data flow" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=24;fontStyle=1;align=left;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="20" width="1530" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="page_subtitle" value="Employee target flow · Entra-issued tokens via AgentCore Identity · live validation pending" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=13;align=left;fontColor=#526579;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="62" width="1530" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="client_zone" value="APPROVED EMPLOYEE CLIENT" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="310" width="290" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_zone" value="AWS SERVICE BOUNDARY · SYDNEY" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#EAF2F8;strokeColor=#2E74B5;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="370" y="110" width="720" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="ms_zone" value="MICROSOFT SERVICE BOUNDARY" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="110" width="420" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Issues Gateway, Runtime and&lt;br&gt;Graph tokens for the employee&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F1ECFA;strokeColor=#6F42C1;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="180" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="client" value="&lt;b&gt;Employee / AI app&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Sign in as employee&lt;br&gt;Gateway-audience token&lt;br&gt;Approved result destinations&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="55" y="390" width="240" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway" value="&lt;b&gt;AgentCore Gateway&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Validate caller and operation&lt;br&gt;Request Runtime OBO token&lt;br&gt;Invoke delegated Runtime&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="410" y="390" width="260" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="runtime" value="&lt;b&gt;Delegated Runtime&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Validate Runtime token&lt;br&gt;Request delegated Graph token&lt;br&gt;Preserve employee identity&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="390" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="graph" value="&lt;b&gt;Microsoft Graph&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Permission-checked API access&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="390" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="sharepoint" value="&lt;b&gt;SharePoint Online&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Employee site and file ACLs&lt;br&gt;Document recovery controls&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="650" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="policy" value="&lt;b&gt;Policy Engine&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Employee read / upload roles&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="410" y="650" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="relay" value="&lt;b&gt;Separate receiving services&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Gateway token → Runtime token&lt;br&gt;Runtime token → Graph token&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="650" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="support" value="&lt;b&gt;Supporting security and operations services&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;AWS IAM: only approved delegated credential providers&lt;br&gt;Audit: employee, client, operation and outcome - no tokens or content&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="370" y="845" width="720" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="private" value="&lt;b&gt;Network boundary&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Enterprise route + PrivateLink&lt;br&gt;Identity checks remain required&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="35" y="845" width="295" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="download" value="&lt;b&gt;PDF download path&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Runtime downloads bytes from an approved&lt;br&gt;Microsoft file location; the temporary link&lt;br&gt;is sensitive and must not reach client/logs.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="845" width="420" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="identity" value="&lt;b&gt;AgentCore Identity&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Broker both OBO exchanges&lt;br&gt;Preserve employee identity&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F1ECFA;strokeColor=#6F42C1;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="180" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_1" value="Employee sign-in for Gateway token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="client" target="entra">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="175" y="100" />
+              <mxPoint x="1360" y="100" />
+            </Array>
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_2" value="Graph OBO token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="identity">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_3" value="Request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="client" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_4" value="Runtime token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="runtime">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-42" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_5" value="Graph request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.42;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="graph">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-42" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_6" value="Result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=1;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.85;exitDx=0;exitDy=0;entryX=1;entryY=0.607142857;entryDx=0;entryDy=0;" edge="1" parent="1" source="graph" target="runtime">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_7" value="Result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=1;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.78;exitDx=0;exitDy=0;entryX=1;entryY=0.78;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_8" value="Result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=1;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.78;exitDx=0;exitDy=0;entryX=1;entryY=0.78;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="client">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_9" value="Read / write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="graph" target="sharepoint">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_10" value="Permission check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=none;endFill=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="policy">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-102" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_11" value="Token acquisition" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="identity" target="entra">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-50" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_12" value="Runtime OBO token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="identity">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="230" />
+            </Array>
+            <mxPoint x="-95" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="m2m-data-flow" name="M2M data flow and boundaries">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="page_title" value="SharePoint MCP — application-only data flow" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=24;fontStyle=1;align=left;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="20" width="1530" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="page_subtitle" value="Staged M2M design · app-only ingress disabled · provider and site-access validation pending" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=13;align=left;fontColor=#526579;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="62" width="1530" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="client_zone" value="APPROVED APPLICATION" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="310" width="290" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_zone" value="AWS SERVICE BOUNDARY · SYDNEY" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#EAF2F8;strokeColor=#2E74B5;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="370" y="110" width="720" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="ms_zone" value="MICROSOFT SERVICE BOUNDARY" style="swimlane;html=1;rounded=1;startSize=34;horizontal=1;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;fontStyle=1;fontSize=14;arcSize=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="110" width="420" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="entra" value="&lt;b&gt;Microsoft Entra ID&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Caller application token&lt;br&gt;Separate Graph application token&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F1ECFA;strokeColor=#6F42C1;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="180" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="client" value="&lt;b&gt;Background application&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;No employee identity&lt;br&gt;Approved business workflow&lt;br&gt;Approved result destinations&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="55" y="390" width="240" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway" value="&lt;b&gt;AgentCore Gateway&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Validate app-only caller&lt;br&gt;Enforce application role&lt;br&gt;Route to application lane&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="410" y="390" width="260" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="runtime" value="&lt;b&gt;Application Runtime&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Verify caller + site + operation&lt;br&gt;Select approved Graph identity&lt;br&gt;No employee ACL assumption&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="390" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="graph" value="&lt;b&gt;Microsoft Graph&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Permission-checked API access&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="390" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="sharepoint" value="&lt;b&gt;SharePoint Online&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Explicit selected-site grants&lt;br&gt;for downstream Graph application&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="650" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="policy" value="&lt;b&gt;Policy Engine&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Application read / upload roles&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="410" y="650" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="relay" value="&lt;b&gt;AWS Lambda&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Trusted signed caller context&lt;br&gt;No credential selection&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="650" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="support" value="&lt;b&gt;Supporting security and operations services&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;AWS IAM: Gateway invocation and approved credential-provider access&lt;br&gt;Audit: caller application, downstream identity, operation and outcome&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="370" y="845" width="720" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="private" value="&lt;b&gt;Network boundary&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Enterprise route + PrivateLink&lt;br&gt;Identity checks remain required&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#7890A8;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="35" y="845" width="295" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="download" value="&lt;b&gt;PDF download path&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Runtime downloads bytes from an approved&lt;br&gt;Microsoft file location; the temporary link&lt;br&gt;is sensitive and must not reach client/logs.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="845" width="420" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="identity" value="&lt;b&gt;AgentCore Identity&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Approved M2M provider&lt;br&gt;Obtain Graph application token&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#F1ECFA;strokeColor=#6F42C1;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="180" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_1" value="Application authentication" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="client" target="entra">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="175" y="100" />
+              <mxPoint x="1360" y="100" />
+            </Array>
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_2" value="Approved provider only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="identity">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_3" value="Request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="client" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_4" value="Approved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="runtime">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-28" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_5" value="Graph request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.42;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="graph">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-42" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_6" value="Result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=1;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.85;exitDx=0;exitDy=0;entryX=1;entryY=0.607142857;entryDx=0;entryDy=0;" edge="1" parent="1" source="graph" target="runtime">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_7" value="Result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=1;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.78;exitDx=0;exitDy=0;entryX=1;entryY=0.78;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="gateway">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_8" value="Result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=1;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.78;exitDx=0;exitDy=0;entryX=1;entryY=0.78;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="client">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_9" value="Read / write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="graph" target="sharepoint">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_10" value="Permission check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=none;endFill=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="policy">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-102" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_11" value="Credential handoff" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=none;endFill=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="gateway" target="relay">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="618" y="585" />
+              <mxPoint x="915" y="585" />
+            </Array>
+            <mxPoint x="4" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_12" value="Token acquisition" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6F42C1;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="identity" target="entra">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-50" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="operations" name="Deployment and recovery">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="680" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="page_title" value="Phase-one MCP services — release, operate and recover" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=24;fontStyle=1;align=left;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="20" width="1530" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="page_subtitle" value="Per-service delivery target · current SharePoint procedure · CRM live deployment pending" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#FFFFFF;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;fontSize=13;align=left;fontColor=#526579;strokeOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="35" y="62" width="1530" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="source" value="&lt;b&gt;CodeCommit&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Reviewed source change&lt;br&gt;Release owner records version&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="170" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="build" value="&lt;b&gt;EC2 build → ECR&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Build the service image&lt;br&gt;Retain exact image version&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="350" y="170" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="deploy" value="&lt;b&gt;AgentCore Console&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Deploy service + configuration&lt;br&gt;Apply reviewed permissions&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="670" y="170" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="verify" value="&lt;b&gt;Validate pilot access&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Prove allowed and denied calls&lt;br&gt;Check data handling + recovery&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="990" y="170" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="operate" value="&lt;b&gt;Controlled operation&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Approved cohort and limits&lt;br&gt;Monitoring and on-call owner&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#2E74B5;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="170" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="contain" value="&lt;b&gt;Contain an incident&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Disable affected caller,&lt;br&gt;operation or target&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FDEDEC;strokeColor=#B42318;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="430" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="restore" value="&lt;b&gt;Recover and verify&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;Restore a compatible service / configuration version&lt;br&gt;Re-test permissions before reopening access&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#EAF6EC;strokeColor=#2E7D32;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="670" y="430" width="580" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="content" value="&lt;b&gt;Business-data recovery&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#526579&quot;&gt;SharePoint owner restores files - CRM owner corrects case data&lt;br&gt;Application rollback does not reverse downstream writes&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;align=center;verticalAlign=middle;fillColor=#FFF3E0;strokeColor=#C56A00;fontColor=#17324D;strokeWidth=2;dashed=0;fontSize=13;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="430" width="580" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="source" target="build">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="build" target="deploy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="deploy" target="verify">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7890A8;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="verify" target="operate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_5" value="Failure or security incident" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B42318;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="operate" target="contain">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-205" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D32;fontColor=#526579;strokeWidth=2;dashed=0;endArrow=block;endFill=1;endSize=9;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="contain" target="restore">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
