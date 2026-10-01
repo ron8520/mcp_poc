@@ -174,42 +174,6 @@ The upload operation can create a file or replace an existing file at the same p
 
 Reviewers should also agree request-size, response-size, execution-time and usage limits. These protect both availability and cost; file-size limits alone are not sufficient for expensive document processing.
 
-## 6. Deployment, operations and maintenance
-
-![SharePoint deployment and recovery workflow](sharepoint-review-operations.png)
-
-**Figure 4.** The current SharePoint deployment procedure is the reference path for each service. CRM requires its own image, target and configuration before it can use that path. The current deployment path is manual and controlled. A source or image push does not automatically change the running service. Future CI/CD automation is outside this first-stage approval.
-
-The release owner records which service version, permissions and configuration are running. Changes are validated with a limited test cohort before wider use. Rollback restores a compatible service/configuration combination; it must not re-enable previously revoked permissions. Restoring an application version does not restore an overwritten SharePoint document.
-
-The SharePoint and CRM server implementations were rewritten on 1 October 2026 to simplify maintenance and future extension. The existing operations, identity lanes, resource permissions and request workflows are preserved. Invalid parameters, wrong types and unknown arguments are rejected before downstream credentials are acquired; supplied inputs are not repaired or coerced. Local automated tests and process-startup checks passed. Container image builds for the rewritten implementation and live Gateway/Entra/Identity/Graph/Dataverse validation remain outstanding; these local results do not close the acceptance gates below.
-
-| Responsibility | Proposed accountable team | Review expectation |
-| --- | --- | --- |
-| Gateway, Runtime and deployments | Cloud Platform | Approved release record, restricted administrative access, tested rollback |
-| Employee/application identities and service credentials | Identity team | Sign-in/consent ownership, credential expiry alerts, rotation and revocation exercise |
-| Private routes and outbound connectivity | Network/platform team | Working corporate/AWS routes and approved Microsoft destinations |
-| Site access and document recovery | SharePoint/data owner | Approved sites/library, access review, versioning and restore evidence |
-| CRM record/field access and correction | CRM business/data owner | Approved case scope, selected field/value rules, automation side effects and a tested correction procedure |
-| Client/model processing | AI application owner and data owner | Approved destinations, retention and handling of failures/uncertain writes |
-| Monitoring and incidents | Operations with Security | Support hours, on-call contact, actionable alerts, safe audit retention and disable procedures |
-| Patching and compatibility | Service owner | Dependency/security updates and repeatable validation before releases |
-
-A healthy service process does not prove Microsoft access is working. Operations needs a low-volume approved read check alongside service-health monitoring. Credential rotation must be tested with running instances, because replacing a stored credential alone does not ensure every running instance uses it immediately.
-
-Ongoing maintenance includes reviewing who can use the service, removing retired applications/sites, checking configuration drift, renewing credentials, patching dependencies and exercising recovery. Named owners, support commitments and review cadence remain to be agreed.
-
-## 7. What this review needs to decide
-
-1. **Pilot scope:** which SharePoint users/sites and CRM application/case population are included? Which summary column, length and authorized case population are approved in Dynamics 365? For each M2M caller, who owns its allowed operations, downstream identity and site/case grants?
-2. **Data processing:** which model providers, conversation stores and telemetry destinations may receive the returned content, and for how long?
-3. **Write enablement:** is upload needed in the first pilot, and does the data owner accept replacement and recovery behavior?
-4. **Access boundaries:** who signs off identity, enforced operation permissions, Gateway-only access and network controls?
-5. **Operational ownership:** who operates the service, handles incidents and credentials, and performs document recovery?
-6. **Acceptance evidence:** have denial tests, data-leakage checks, representative load, rotation, emergency disable and rollback been demonstrated?
-
-Recommended rollout: a controlled employee read pilot, then upload only when its additional controls and recovery have been accepted. App-only use is included in this review and may be enabled only after its separate caller/site/operation, provider and downstream grant checks pass. None of these gates is considered passed solely because the architecture has been reviewed.
-
 ## Phase-one acceptance
 
 SharePoint read/upload validation and CRM update validation are independent. The phase-one design includes both services, but CRM must stay disabled until the actual summary column, application permissions, provider compatibility and authorized case scope are confirmed. Acceptance requires one permitted update, denied cross-case/cross-field/cross-service attempts, safe audit, timeout/side-effect handling and independent credential rotation/disable/rollback. Successful SharePoint validation does not establish that CRM works.
