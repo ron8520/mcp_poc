@@ -10,6 +10,11 @@ tool arguments and orders the operation, `src/auth.py` validates the trusted
 caller and obtains the dedicated AgentCore M2M token, and `src/dataverse.py`
 sends the single Dataverse PATCH.
 
+The Dockerfile installs `mcp==2.2.0`, `boto3`, `httpx`, `PyJWT[crypto]`
+and `pydantic` directly. No requirements files are needed.
+See [Runtime-first checks](../../docs/clickops.md#runtime-first-checks-before-gateway)
+to validate startup and discovery before connecting Gateway.
+
 ## Configuration
 
 All values are required. Missing or invalid configuration fails startup.

@@ -2,6 +2,19 @@
 
 Owns only SharePoint and Microsoft Graph tool behavior.
 
+## Build
+
+From the repository root:
+
+```bash
+docker build --platform linux/arm64 -f servers/sharepoint_mcp/Dockerfile -t sharepoint-mcp .
+```
+
+The Dockerfile installs `mcp==2.2.0`, `boto3`, `msal`, `PyMuPDF==1.28.2`,
+`PyJWT[crypto]` and `pydantic` directly. No requirements files are needed.
+See [Runtime-first checks](../../docs/clickops.md#runtime-first-checks-before-gateway)
+for the staged deployment before Gateway.
+
 ## Code layout
 
 - `src/server.py`: tool contracts and validation → token → Graph call → result.

@@ -9,7 +9,6 @@ trigger:
       - gateway/**/*.py
       - images/container_healthcheck.py
       - images/mcp_python_base/**/*
-      - requirements.txt
       - servers/sharepoint_mcp/**/*
       - pipelines/azure-devops/mcp-server-ci.yml
 
@@ -31,7 +30,6 @@ parameters:
 variables:
   PYTHON_EXECUTABLE: python3
   AWS_REGION: ap-southeast-2
-  SERVICE_REQUIREMENTS: servers/sharepoint_mcp/requirements.txt
   DOCKERFILE: servers/sharepoint_mcp/Dockerfile
   IMAGE_NAME: sharepoint-mcp
 
@@ -53,8 +51,7 @@ stages:
               "$(PYTHON_EXECUTABLE)" -m venv .venv
               . .venv/bin/activate
               python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              pip install -r "$(SERVICE_REQUIREMENTS)"
+              pip install mcp==2.2.0 boto3 msal PyMuPDF==1.28.2 "PyJWT[crypto]" pydantic
             displayName: Install Python dependencies
 
           - bash: |

@@ -86,11 +86,27 @@ contain them; keep a separate backup if they need to be preserved or shared.
 | `crm_mcp/tests/test_server.py` | CRM tool contract and request ordering. |
 | `gateway/tests/test_obo_assertion_interceptor.py` | Gateway assertion forwarding for the correct lane. |
 
-For a local checkout that has these test files, run from the repository root
-after installing the project dependencies:
+Each service Dockerfile lists its runtime dependencies directly in `pip install`.
+There is no root/service requirements-file chain. MCP stays at the tested
+`2.2.0` version and PyMuPDF at `1.28.2` to avoid the extra layout/ML
+dependencies pulled by PyMuPDF 2.0. Other dependencies remain unpinned for this PoC.
+
+Build either image from the repository root:
 
 ```bash
-python -m pip install -r requirements.txt -r servers/sharepoint_mcp/requirements.txt -r servers/crm_mcp/requirements.txt pytest
+docker build --platform linux/arm64 -f servers/sharepoint_mcp/Dockerfile -t sharepoint-mcp .
+docker build --platform linux/arm64 -f servers/crm_mcp/Dockerfile -t crm-mcp .
+```
+
+Deploy and validate the two Runtimes first, then connect Gateway. See the
+[Runtime-first checks](docs/clickops.md#runtime-first-checks-before-gateway).
+
+For a local checkout that has these test files, install the combined dependencies
+below and run from the repository root. Keep this command aligned with both
+Dockerfiles:
+
+```bash
+python -m pip install mcp==2.2.0 boto3 msal PyMuPDF==1.28.2 "PyJWT[crypto]" pydantic httpx pytest
 python -m pytest --import-mode=importlib servers/sharepoint_mcp/tests servers/crm_mcp/tests gateway/tests
 ```
 

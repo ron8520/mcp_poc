@@ -2,6 +2,28 @@
 
 This document captures decisions and work completed so far.
 
+## Direct Docker dependencies and Runtime preparation — 2026-10-21
+
+- Both service Dockerfiles install dependencies directly with `pip install`.
+  Removed the root and service requirements files and updated local/CI commands.
+  Kept MCP at `2.2.0`; pinned PyMuPDF to the tested `1.28.2` after an ARM64
+  build showed 2.0 pulling extra layout/ML dependencies.
+- Removed unused container temp-directory setup. SharePoint GET and PUT now
+  share JSON-response execution and sanitized HTTP error handling; uploads
+  reject non-object JSON responses. CRM's direct validation/auth/PATCH
+  structure and both services' identity boundaries remain intact.
+- Built both ARM64 images locally. Passed 126 local tests; separately passed
+  81 SharePoint and 37 CRM tests against the built images with tests mounted
+  read-only and pytest installed only in disposable test containers.
+  Both image environments passed `pip check`. Verified each image's default
+  non-root startup, TCP health command and real HTTP MCP tool discovery
+  (three SharePoint tools, one CRM tool). Tests remain local-only.
+- Added Runtime-first startup/discovery and downstream-validation steps to
+  the ClickOps runbook. ECR publication, deployed Runtime invocation, real
+  Graph/Dataverse operations and subsequent Gateway integration remain pending.
+  The retained Azure DevOps image pipeline still covers SharePoint only;
+  the current CRM build/deployment path is manual ClickOps.
+
 ## Architecture documentation cleanup — 2026-10-01
 
 - Organized current reading around the internal review, identity-routing guide

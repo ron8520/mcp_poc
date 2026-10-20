@@ -15,18 +15,11 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY requirements.txt /tmp/root-requirements.txt
-COPY servers/crm_mcp/requirements.txt /tmp/service-requirements.txt
-RUN pip install --no-cache-dir \
-      -r /tmp/root-requirements.txt \
-      -r /tmp/service-requirements.txt \
-    && rm /tmp/root-requirements.txt \
-    && rm /tmp/service-requirements.txt \
+RUN pip install mcp==2.2.0 boto3 httpx "PyJWT[crypto]" pydantic \
     && mkdir -p /app/servers \
     && addgroup --system mcp \
     && adduser --system --ingroup mcp --home /app --no-create-home mcp \
-    && mkdir -p /tmp/mcp \
-    && chown -R mcp:mcp /app /tmp/mcp
+    && chown -R mcp:mcp /app
 
 COPY --chown=mcp:mcp servers/crm_mcp ./servers/crm_mcp
 

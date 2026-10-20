@@ -186,6 +186,42 @@ real Graph request are separate validation gates. Complete the applicable
 identity and downstream-permission checks before invoking the service; a ready
 Runtime alone does not prove any of them.
 
+### Runtime-first checks before Gateway
+
+For the first test deployment, complete the image and Runtime checks for both
+services before creating Gateway targets:
+
+1. Build SharePoint with `servers/sharepoint_mcp/Dockerfile` and CRM with
+   `servers/crm_mcp/Dockerfile`, using separate ECR repositories/images.
+   Both Dockerfiles install their own dependencies directly; no root or service
+   requirements files are involved. Build from the repository root.
+2. Configure SharePoint's chosen identity lane above. For the existing fixed
+   application lane, required variables are `GRAPH_AUTH_MODE=client_credentials`,
+   `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID` and `ENTRA_CLIENT_SECRET_ARN`.
+   The secret's JSON key defaults to `client_secret`. The execution role needs
+   access to that secret and Graph must grant the app the approved site access.
+   Configure CRM separately using every variable in its
+   [configuration table](../servers/crm_mcp/README.md#configuration).
+3. Deploy each ARM64 image as an MCP Runtime. Confirm startup logs, ready status,
+   and stateless Streamable HTTP on `0.0.0.0:8000/mcp`.
+4. Through an already authorized IAM/SigV4 caller, test MCP initialization and
+   `tools/list` against each Runtime. Expect three SharePoint tools and one CRM
+   tool. Preserve the platform-returned `Mcp-Session-Id` on later requests.
+   These discovery requests do not acquire downstream credentials or prove
+   Graph/Dataverse access. Do not open Runtime access publicly for this test;
+   if the execution environment has no approved direct test caller, this check
+   waits for the Gateway role.
+5. Test a real tool only with its required identity. CRM and SharePoint's
+   `agentcore_m2m` lane require a valid signed `x-mcp-caller-assertion` and
+   configured grants; OBO requires `x-mcp-user-assertion`. Missing assertions
+   must fail. Do not add an auth bypass to make a pre-Gateway test pass.
+6. After Runtime validation, continue with the Entra/Gateway steps below and the
+   CRM [deployment steps](../servers/crm_mcp/README.md#identity-and-deployment).
+   Validate trusted header forwarding and actual downstream success separately.
+
+The container contract is documented in the
+[AWS MCP Runtime requirements](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-mcp-protocol-contract.html).
+
 ## 5. Register the internal-mcp Entra API resource
 
 In the existing Entra tenant, create or select a single-tenant app registration

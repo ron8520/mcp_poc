@@ -142,13 +142,7 @@ def upload_file(
         },
         method="PUT",
     )
-    try:
-        with urlopen(request, timeout=GRAPH_REQUEST_TIMEOUT_SECONDS) as response:
-            return json.load(response)
-    except HTTPError as exc:
-        raise GraphClientError(
-            f"Microsoft Graph request failed with HTTP {exc.code}"
-        ) from None
+    return _graph_request_json(request)
 
 
 def _site_children_path(site_id: str, path: str, max_items: int) -> str:
@@ -218,6 +212,10 @@ def _graph_get_json(graph_path_or_url: str, access_token: str) -> dict[str, Any]
         },
         method="GET",
     )
+    return _graph_request_json(request)
+
+
+def _graph_request_json(request: Request) -> dict[str, Any]:
     try:
         with urlopen(request, timeout=GRAPH_REQUEST_TIMEOUT_SECONDS) as response:
             payload = json.load(response)
